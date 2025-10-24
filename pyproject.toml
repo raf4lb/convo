@@ -1,0 +1,23 @@
+[project]
+name = "convo"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "pytest>=8.4.2",
+    "ruff>=0.14.2",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+exclude = [".venv"]
+
+# Ativa linter + formatação (substitui black/isort)
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "W"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
