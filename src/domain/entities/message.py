@@ -1,17 +1,20 @@
-import uuid
-
-
 class Message:
     def __init__(
         self,
-        id: uuid.UUID,
-        company_id: uuid.UUID,
-        contact_id: uuid.UUID,
+        id: str,
+        company_id: str,
+        sender_id: str,
+        receiver_id: str,
+        received: bool,
         text: str,
-        timestamp: str,
+        created_at: str,
+        updated_at: str,
     ):
         self.id = id
         self.company_id = company_id
-        self.contact_id = contact_id
+        self.sender_id = sender_id
+        self.receiver_id = receiver_id
+        self.received = received
         self.text = text
-        self.timestamp = timestamp
+        self.created_at = created_at
+        self.updated_at = updated_at

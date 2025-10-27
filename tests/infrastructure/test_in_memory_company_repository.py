@@ -1,29 +1,29 @@
-import pytest
-
-from src.application.exceptions import CompanyNotFoundError
-
-
-def test_create_company(company, company_repository):
-    # Act
-    company_repository.create_company(company)
-    # Assert
-    assert company.id in {company.id for company in company_repository.get_companies()}
+from src.infrastructure.repositories.in_memory_company_repository import (
+    InMemoryCompanyRepository,
+)
 
 
-def test_updating_existing_company(company, company_repository):
+def test_create_company(company):
     # Arrange
-    company_repository.create_company(company)
+    repository = InMemoryCompanyRepository()
+
     # Act
-    company.name = "new name"
-    company_repository.update_company(company)
+    repository.save(company)
+
     # Assert
-    company = company_repository.get_company_by_id(company.id)
-    assert company.name == "new name"
+    assert repository.get_company_by_id(company.id) is not None
 
 
-def test_updating_non_existing_user(company, company_repository):
+def test_update_company(company):
+    # Arrange
+    repository = InMemoryCompanyRepository()
+    repository.save(company)
+
     # Act
-    company.name = "new name"
+    new_name = "New Name"
+    company.name = new_name
+    repository.save(company)
+
     # Assert
-    with pytest.raises(CompanyNotFoundError):
-        company_repository.update_company(company)
+    company = repository.get_company_by_id(company.id)
+    assert company.name == new_name

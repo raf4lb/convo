@@ -1,21 +1,39 @@
-from src.application.interfaces.use_case_interface import UseCaseInterface
-from src.application.interfaces.user_repository_interface import (
-    CompanyRepositoryInterface,
-)
+import uuid
+
+from src.application.interfaces.use_case_interface import IUseCase
 from src.domain.entities.company import Company
+from src.domain.repositories.company_repository import (
+    ICompanyRepository,
+)
+from src.helpers.helpes import get_now_iso_format
 
 
-class CreateCompanyUseCase(UseCaseInterface):
-    def __init__(self, repository: CompanyRepositoryInterface):
+class CreateCompanyUseCase(IUseCase):
+    def __init__(self, repository: ICompanyRepository):
         self._repository = repository
 
-    def execute(self, company: Company) -> None:
-        self._repository.create_company(company)
+    def execute(
+        self,
+        name: str,
+    ) -> Company:
+        created_at = get_now_iso_format()
+        company = Company(
+            id=str(uuid.uuid4()),
+            name=name,
+            created_at=created_at,
+            updated_at=created_at,
+        )
+        self._repository.save(company)
+        return company
 
 
-class UpdateCompanyUseCase(UseCaseInterface):
-    def __init__(self, repository: CompanyRepositoryInterface):
+class UpdateCompanyUseCase(IUseCase):
+    def __init__(self, repository: ICompanyRepository):
         self._repository = repository
 
-    def execute(self, company: Company) -> None:
-        self._repository.update_company(company)
+    def execute(self, company_id: str, name: str) -> Company:
+        company = self._repository.get_company_by_id(company_id)
+        company.name = name
+        company.updated_at = get_now_iso_format()
+        self._repository.save(company)
+        return company

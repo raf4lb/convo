@@ -1,30 +1,29 @@
-import pytest
-
-from src.application.exceptions import UserNotFoundError
-
-
-def test_create_user(staff_user, user_repository):
-    # Act
-    user_repository.create_user(staff_user)
-    # Assert
-    assert staff_user.id in {user.id for user in user_repository.get_users()}
+from src.infrastructure.repositories.in_memory_user_repository import (
+    InMemoryUserRepository,
+)
 
 
-def test_updating_existing_user(staff_user, user_repository):
+def test_create_user(staff_user):
     # Arrange
-    user_repository.create_user(staff_user)
+    repository = InMemoryUserRepository()
+
     # Act
-    new_name = "new name"
+    repository.save(staff_user)
+
+    # Assert
+    assert repository.get_user_by_id(staff_user.id) is not None
+
+
+def test_update_user(staff_user):
+    # Arrange
+    repository = InMemoryUserRepository()
+    repository.save(staff_user)
+
+    # Act
+    new_name = "New Name"
     staff_user.name = new_name
-    user_repository.update_user(staff_user)
+    repository.save(staff_user)
+
     # Assert
-    user = user_repository.get_user_by_id(staff_user.id)
+    user = repository.get_user_by_id(staff_user.id)
     assert user.name == new_name
-
-
-def test_updating_non_existing_user(staff_user, user_repository):
-    # Act
-    staff_user.name = "new name"
-    # Assert
-    with pytest.raises(UserNotFoundError):
-        user_repository.update_user(staff_user)

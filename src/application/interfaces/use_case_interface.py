@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
 
-class UseCaseInterface(ABC):
+class IUseCase(ABC):
     @abstractmethod
     def execute(self, *args, **kwargs): ...
