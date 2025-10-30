@@ -2,6 +2,7 @@ import pytest
 
 from src.application.use_cases.company.company_use_cases import (
     CreateCompanyUseCase,
+    DeleteCompanyUseCase,
     UpdateCompanyUseCase,
 )
 from src.domain.errors import CompanyNotFoundError
@@ -16,7 +17,7 @@ def test_create_company_use_case(company_repository):
     company = use_case.execute(name)
 
     # Assert
-    assert company_repository.get_company_by_id(company.id) is not None
+    assert company_repository.get_by_id(company.id) is not None
 
 
 def test_update_company_use_case_existing_company(company, company_repository):
@@ -39,3 +40,16 @@ def test_update_company_use_case_non_existing_company(company, company_repositor
     # Act/Assert
     with pytest.raises(CompanyNotFoundError):
         use_case.execute(company.id, "New Name")
+
+
+def test_delete_company_use_case(company, company_repository):
+    # Arrange
+    company_repository.save(company)
+    use_case = DeleteCompanyUseCase(repository=company_repository)
+
+    # Act
+    use_case.execute(company.id)
+
+    # Act/Assert
+    with pytest.raises(CompanyNotFoundError):
+        company_repository.get_by_id(company.id)

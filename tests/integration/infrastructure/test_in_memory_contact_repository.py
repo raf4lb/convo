@@ -1,3 +1,6 @@
+import pytest
+
+from src.domain.errors import ContactNotFoundError
 from src.infrastructure.repositories.in_memory_contact_repository import (
     InMemoryContactRepository,
 )
@@ -11,7 +14,7 @@ def test_create_contact(contact):
     repository.save(contact)
 
     # Assert
-    assert repository.get_contact_by_id(contact.id) is not None
+    assert repository.get_by_id(contact.id) is not None
 
 
 def test_update_contact(contact):
@@ -25,5 +28,18 @@ def test_update_contact(contact):
     repository.save(contact)
 
     # Assert
-    contact = repository.get_contact_by_id(contact.id)
+    contact = repository.get_by_id(contact.id)
     assert contact.name == new_name
+
+
+def test_delete_contact(contact):
+    # Arrange
+    repository = InMemoryContactRepository()
+    repository.save(contact)
+
+    # Act
+    repository.delete(contact.id)
+
+    # Assert
+    with pytest.raises(ContactNotFoundError):
+        repository.get_by_id(contact.id)

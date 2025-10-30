@@ -40,10 +40,18 @@ class UpdateContactUseCase(IUseCase):
         phone_number: str,
         company_id: str | None = None,
     ) -> Contact:
-        contact = self._repository.get_contact_by_id(contact_id)
+        contact = self._repository.get_by_id(contact_id)
         contact.company_id = company_id
         contact.name = name
         contact.phone_number = phone_number
         contact.updated_at = get_now_iso_format()
         self._repository.save(contact)
         return contact
+
+
+class DeleteContactUseCase(IUseCase):
+    def __init__(self, repository: IContactRepository):
+        self._repository = repository
+
+    def execute(self, contact_id: str) -> None:
+        self._repository.delete(contact_id)

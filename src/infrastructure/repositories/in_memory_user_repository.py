@@ -10,7 +10,7 @@ class InMemoryUserRepository(IUserRepository):
     def save(self, user: User) -> None:
         self.users[user.id] = user
 
-    def get_user_by_id(self, user_id: str) -> User | None:
+    def get_by_id(self, user_id: str) -> User | None:
         user = self.users.get(user_id)
         if user is None:
             raise UserNotFoundError
@@ -19,8 +19,8 @@ class InMemoryUserRepository(IUserRepository):
     def get_users(self) -> list[User]:
         return list(self.users.values())
 
-    def delete(self, company_id: str) -> None:
+    def delete(self, user_id: str) -> None:
         try:
-            self.users.pop(company_id)
+            self.users.pop(user_id)
         except KeyError:
             raise UserNotFoundError

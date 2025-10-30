@@ -12,7 +12,7 @@ class InMemoryCompanyRepository(ICompanyRepository):
     def save(self, company: Company) -> None:
         self.companies[company.id] = company
 
-    def get_company_by_id(self, company_id: str) -> Company | None:
+    def get_by_id(self, company_id: str) -> Company | None:
         company = self.companies.get(company_id)
         if company is None:
             raise CompanyNotFoundError

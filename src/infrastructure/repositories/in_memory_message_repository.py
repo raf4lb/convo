@@ -10,7 +10,7 @@ class InMemoryMessageRepository(IMessageRepository):
     def save(self, message: Message) -> None:
         self.messages[message.id] = message
 
-    def get_message_by_id(self, message_id: str) -> Message | None:
+    def get_by_id(self, message_id: str) -> Message | None:
         message = self.messages.get(message_id)
         if message is None:
             raise MessageNotFoundError
@@ -19,8 +19,8 @@ class InMemoryMessageRepository(IMessageRepository):
     def get_messages(self) -> list[Message]:
         return list(self.messages.values())
 
-    def delete(self, company_id: str) -> None:
+    def delete(self, message_id: str) -> None:
         try:
-            self.messages.pop(company_id)
+            self.messages.pop(message_id)
         except KeyError:
             raise MessageNotFoundError

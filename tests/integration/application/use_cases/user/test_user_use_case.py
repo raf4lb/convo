@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 
+from src.application.use_cases.message.message_use_cases import DeleteMessageUseCase
 from src.application.use_cases.user.user_use_cases import (
     CreateUserUseCase,
     UpdateUserUseCase,
@@ -26,7 +27,7 @@ def test_create_user_use_case(user_repository):
     )
 
     # Assert
-    assert user_repository.get_user_by_id(user.id) is not None
+    assert user_repository.get_by_id(user.id) is not None
 
 
 def test_update_user_use_case_existing_user(staff_user, user_repository):
@@ -45,7 +46,7 @@ def test_update_user_use_case_existing_user(staff_user, user_repository):
     )
 
     # Assert
-    user = user_repository.get_user_by_id(staff_user.id)
+    user = user_repository.get_by_id(staff_user.id)
     assert user.name == new_name
 
 
@@ -62,3 +63,16 @@ def test_update_user_use_case_non_existing_user(staff_user, user_repository):
             type=staff_user.type,
             company_id=str(uuid.uuid4()),
         )
+
+
+def test_delete_user_use_case(staff_user, user_repository):
+    # Arrange
+    user_repository.save(staff_user)
+    use_case = DeleteMessageUseCase(repository=user_repository)
+
+    # Act
+    use_case.execute(staff_user.id)
+
+    # Act/Assert
+    with pytest.raises(UserNotFoundError):
+        user_repository.get_by_id(staff_user.id)

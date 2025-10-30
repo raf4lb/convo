@@ -44,7 +44,7 @@ class UpdateUserUseCase(IUseCase):
         type: UserTypes,
         company_id: str,
     ) -> User:
-        user = self._repository.get_user_by_id(user_id)
+        user = self._repository.get_by_id(user_id)
         user.name = name
         user.email = email
         user.type = type
@@ -52,3 +52,19 @@ class UpdateUserUseCase(IUseCase):
         user.updated_at = get_now_iso_format()
         self._repository.save(user)
         return user
+
+
+class GetUserUseCase(IUseCase):
+    def __init__(self, repository: IUserRepository):
+        self._repository = repository
+
+    def execute(self, user_id):
+        return self._repository.get_by_id(user_id=user_id)
+
+
+class DeleteUserUseCase(IUseCase):
+    def __init__(self, repository: IUserRepository):
+        self._repository = repository
+
+    def execute(self, user_id: str) -> None:
+        self._repository.delete(user_id)

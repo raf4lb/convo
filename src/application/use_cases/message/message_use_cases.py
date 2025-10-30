@@ -38,8 +38,16 @@ class UpdateMessageUseCase(IUseCase):
         self._repository = repository
 
     def execute(self, message_id: str, text: str) -> Message:
-        message = self._repository.get_message_by_id(message_id)
+        message = self._repository.get_by_id(message_id)
         message.text = text
         message.updated_at = get_now_iso_format()
         self._repository.save(message)
         return message
+
+
+class DeleteMessageUseCase(IUseCase):
+    def __init__(self, repository: IMessageRepository):
+        self._repository = repository
+
+    def execute(self, message_id: str) -> None:
+        self._repository.delete(message_id)

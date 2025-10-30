@@ -4,6 +4,7 @@ import pytest
 
 from src.application.use_cases.contact.contact_use_cases import (
     CreateContactUseCase,
+    DeleteContactUseCase,
     UpdateContactUseCase,
 )
 from src.domain.errors import ContactNotFoundError
@@ -21,7 +22,7 @@ def test_create_contact_use_case(contact_repository):
     )
 
     # Assert
-    assert contact_repository.get_contact_by_id(contact.id)
+    assert contact_repository.get_by_id(contact.id)
 
 
 def test_update_contact_use_case_existing_company(contact, contact_repository):
@@ -54,3 +55,16 @@ def test_update_contact_use_case_non_existing_company(contact, contact_repositor
             phone_number=contact.phone_number,
             company_id=contact.company_id,
         )
+
+
+def test_delete_contact_use_case(contact, contact_repository):
+    # Arrange
+    contact_repository.save(contact)
+    use_case = DeleteContactUseCase(repository=contact_repository)
+
+    # Act
+    use_case.execute(contact.id)
+
+    # Act/Assert
+    with pytest.raises(ContactNotFoundError):
+        contact_repository.get_by_id(contact.id)

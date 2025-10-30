@@ -1,5 +1,5 @@
-from datetime import datetime
+import datetime
 
 
 def get_now_iso_format():
-    return datetime.now().isoformat()
+    return datetime.datetime.now(datetime.UTC).isoformat()
