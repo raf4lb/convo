@@ -1,20 +1,26 @@
-class Message:
+from datetime import datetime
+
+from src.domain.entities.base import BaseEntity
+
+
+class Message(BaseEntity):
     def __init__(
         self,
         id: str,
-        company_id: str,
-        sender_id: str,
-        receiver_id: str,
-        received: bool,
+        external_id: str,
+        external_timestamp: datetime,
+        chat_id: str,
+        is_received: bool,
         text: str,
-        created_at: str,
-        updated_at: str,
+        received_by: str | None = None,
+        created_at: datetime | None = None,
+        updated_at: datetime | None = None,
     ):
+        super().__init__(created_at=created_at, updated_at=updated_at)
         self.id = id
-        self.company_id = company_id
-        self.sender_id = sender_id
-        self.receiver_id = receiver_id
-        self.received = received
+        self.external_id = external_id
+        self.external_timestamp = external_timestamp
+        self.chat_id = chat_id
+        self.is_received = is_received
         self.text = text
-        self.created_at = created_at
-        self.updated_at = updated_at
+        self.received_by = received_by

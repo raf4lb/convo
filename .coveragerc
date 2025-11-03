@@ -1,0 +1,13 @@
+[run]
+source = src
+omit =
+    tests/*
+    .venv/*
+    */__init__.py
+    src/application/exceptions.py
+
+[report]
+show_missing = True
+skip_covered = False
+exclude_lines =
+    if __name__ == .__main__.:

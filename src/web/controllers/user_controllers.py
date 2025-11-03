@@ -1,28 +1,45 @@
-from src.application.use_cases.user.user_use_cases import (
+from src.application.exceptions import InvalidUserError
+from src.application.use_cases.user_use_cases import (
     CreateUserUseCase,
     DeleteUserUseCase,
     GetUserUseCase,
+    ListUserUseCase,
     UpdateUserUseCase,
 )
+from src.domain.enums import UserTypes
 from src.domain.errors import UserNotFoundError
+from src.domain.repositories.company_repository import ICompanyRepository
 from src.domain.repositories.user_repository import IUserRepository
 from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCodes
+from src.web.controllers.interfaces import IUserHttpController
 
 
-class UserController:
-    def __init__(self, user_repository: IUserRepository):
-        self._repository = user_repository
+class CreateUserHttpController(IUserHttpController):
+    def __init__(
+        self, user_repository: IUserRepository, company_repository: ICompanyRepository
+    ):
+        super().__init__(user_repository=user_repository)
+        self._company_repository = company_repository
 
-
-class CreateUserHTTPController(UserController):
     def handle(self, request: HttpRequest) -> HttpResponse:
-        use_case = CreateUserUseCase(repository=self._repository)
-        user = use_case.execute(
-            name=request.body["name"],
-            email=request.body["email"],
-            type=request.body["type"],
-            company_id=request.body["company_id"],
+        use_case = CreateUserUseCase(
+            user_repository=self._repository,
+            company_repository=self._company_repository,
         )
+        try:
+            user = use_case.execute(
+                name=request.body["name"],
+                email=request.body["email"],
+                type=UserTypes(request.body["type"]),
+                company_id=request.body["company_id"],
+            )
+        except InvalidUserError as e:
+            return HttpResponse(
+                status_code=StatusCodes.BAD_REQUEST.value,
+                body={
+                    "errors": e.errors,
+                },
+            )
         return HttpResponse(
             status_code=StatusCodes.CREATED.value,
             body={
@@ -30,13 +47,15 @@ class CreateUserHTTPController(UserController):
                 "name": user.name,
                 "email": user.email,
                 "company_id": user.company_id,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat() if user.updated_at else None,
             },
         )
 
 
-class GetUserHTTPController(UserController):
+class GetUserHttpController(IUserHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
-        use_case = GetUserUseCase(repository=self._repository)
+        use_case = GetUserUseCase(user_repository=self._repository)
         try:
             user = use_case.execute(user_id=request.path_params["id"])
         except UserNotFoundError:
@@ -51,20 +70,21 @@ class GetUserHTTPController(UserController):
                 "name": user.name,
                 "email": user.email,
                 "company_id": user.company_id,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
             },
         )
 
 
-class UpdateUserHTTPController(UserController):
+class UpdateUserHttpController(IUserHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
-        use_case = UpdateUserUseCase(repository=self._repository)
+        use_case = UpdateUserUseCase(user_repository=self._repository)
         try:
             user = use_case.execute(
                 user_id=request.path_params["id"],
                 name=request.body["name"],
                 email=request.body["email"],
-                type=request.body["type"],
-                company_id=request.body["company_id"],
+                type=UserTypes(request.body["type"]),
             )
         except UserNotFoundError:
             return HttpResponse(
@@ -78,13 +98,15 @@ class UpdateUserHTTPController(UserController):
                 "name": user.name,
                 "email": user.email,
                 "company_id": user.company_id,
+                "created_at": user.created_at.isoformat(),
+                "updated_at": user.updated_at.isoformat(),
             },
         )
 
 
-class DeleteUserHTTPController(UserController):
+class DeleteUserHttpController(IUserHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
-        use_case = DeleteUserUseCase(repository=self._repository)
+        use_case = DeleteUserUseCase(user_repository=self._repository)
         try:
             use_case.execute(user_id=request.path_params["id"])
         except UserNotFoundError:
@@ -93,3 +115,30 @@ class DeleteUserHTTPController(UserController):
                 body={"detail": "user not found"},
             )
         return HttpResponse(status_code=StatusCodes.NO_CONTENT.value)
+
+
+class ListUserHttpController(IUserHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = ListUserUseCase(user_repository=self._repository)
+        try:
+            users = use_case.execute()
+        except UserNotFoundError:
+            return HttpResponse(
+                status_code=StatusCodes.NOT_FOUND.value,
+                body={"detail": "user not found"},
+            )
+        data = {
+            "users": [
+                {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "company_id": user.company_id,
+                    "created_at": user.created_at.isoformat(),
+                    "updated_at": user.updated_at.isoformat(),
+                }
+                for user in users
+            ]
+        }
+
+        return HttpResponse(status_code=StatusCodes.OK.value, body=data)
