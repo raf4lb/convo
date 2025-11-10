@@ -23,4 +23,5 @@ class InMemoryCompanyRepository(ICompanyRepository):
         return list(self.companies.values())
 
     def delete(self, company_id: str) -> None:
-        self.companies.pop(company_id, None)
+        self.get_by_id(company_id=company_id)
+        self.companies.pop(company_id)

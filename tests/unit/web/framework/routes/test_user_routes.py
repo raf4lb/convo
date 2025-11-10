@@ -185,3 +185,20 @@ def test_create_user_invalid_data(
     # Assert
     assert response.status_code == StatusCodes.BAD_REQUEST.value
     assert set(response.json.get("errors")) == {"invalid name", "invalid company id"}
+
+
+def test_delete_non_existing_user(
+    app,
+    client,
+    user_repository,
+):
+    # Arrange
+    app.config["user_repository"] = user_repository
+    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+
+    # Act
+    response = client.delete("/users/invalid_id")
+
+    # Assert
+    assert response.status_code == StatusCodes.NOT_FOUND.value
+    assert response.json.get("detail") == "user not found"

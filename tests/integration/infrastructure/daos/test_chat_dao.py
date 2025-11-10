@@ -187,3 +187,59 @@ def test_chat_dao_delete(sqlite3_database):
         )
         data = cursor.fetchone()
         assert data[0] == 0
+
+
+def test_chat_dao_get_by_company_id(sqlite3_database):
+    # Arrange
+    company_id = generate_uuid4()
+    insert_chat(
+        sqlite3_database=sqlite3_database,
+        chat_id=generate_uuid4(),
+        contact_id=generate_uuid4(),
+        company_id=company_id,
+        attached_user_id=generate_uuid4(),
+    )
+    insert_chat(
+        sqlite3_database=sqlite3_database,
+        chat_id=generate_uuid4(),
+        contact_id=generate_uuid4(),
+        company_id=generate_uuid4(),
+        attached_user_id=generate_uuid4(),
+    )
+    chat_dao = SQLiteChatDAO(db_path=sqlite3_database)
+
+    # Act
+    chats = chat_dao.get_by_company_id(company_id=company_id)
+
+    # Assert
+    assert len(chats) == 1
+
+
+def test_chat_dao_get_company_chat_by_contact_id(sqlite3_database):
+    # Arrange
+    contact_id = generate_uuid4()
+    company_id = generate_uuid4()
+    insert_chat(
+        sqlite3_database=sqlite3_database,
+        chat_id=generate_uuid4(),
+        contact_id=contact_id,
+        company_id=company_id,
+        attached_user_id=generate_uuid4(),
+    )
+    insert_chat(
+        sqlite3_database=sqlite3_database,
+        chat_id=generate_uuid4(),
+        contact_id=generate_uuid4(),
+        company_id=company_id,
+        attached_user_id=generate_uuid4(),
+    )
+    chat_dao = SQLiteChatDAO(db_path=sqlite3_database)
+
+    # Act
+    chat = chat_dao.get_company_chat_by_contact_id(
+        contact_id=contact_id, company_id=company_id
+    )
+
+    # Assert
+    assert chat[1] == company_id
+    assert chat[2] == contact_id

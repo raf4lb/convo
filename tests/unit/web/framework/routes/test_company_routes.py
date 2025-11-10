@@ -107,3 +107,36 @@ def test_delete_company(
         company_repository.get_by_id(
             company_id=company.id,
         )
+
+
+def test_company_not_found(
+    app,
+    client,
+    company_repository,
+):
+    # Arrange
+    app.config["company_repository"] = company_repository
+    app.register_blueprint(company_route_blueprint, url_prefix="/companies")
+
+    # Act
+    response = client.get("/companies/invalid_id")
+
+    # Assert
+    assert response.status_code == StatusCodes.NOT_FOUND.value
+
+
+def test_delete_non_existing_company(
+    app,
+    client,
+    company_repository,
+):
+    # Arrange
+    app.config["company_repository"] = company_repository
+    app.register_blueprint(company_route_blueprint, url_prefix="/companies")
+
+    # Act
+    response = client.delete("/companies/invalid_id")
+
+    # Assert
+    assert response.status_code == StatusCodes.NOT_FOUND.value
+    assert response.json.get("detail") == "company not found"

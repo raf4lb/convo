@@ -43,4 +43,5 @@ class SQLiteCompanyRepository(ICompanyRepository):
         return [self._parse_row(row=row) for row in rows]
 
     def delete(self, company_id: str) -> None:
+        self.get_by_id(company_id=company_id)
         self._company_dao.delete(company_id=company_id)

@@ -21,4 +21,5 @@ class InMemoryUserRepository(IUserRepository):
         return list(self.users.values())
 
     def delete(self, user_id: str) -> None:
-        self.users.pop(user_id, None)
+        self.get_by_id(user_id=user_id)
+        self.users.pop(user_id)

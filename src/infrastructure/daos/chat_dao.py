@@ -76,7 +76,9 @@ class SQLiteChatDAO:
 
             return cursor.fetchall()
 
-    def get_company_chat_by_contact_id(self, company_id, contact_id) -> tuple | None:
+    def get_company_chat_by_contact_id(
+        self, company_id: str, contact_id: str
+    ) -> tuple | None:
         with self._connect() as conn:
             cursor = conn.execute(
                 """

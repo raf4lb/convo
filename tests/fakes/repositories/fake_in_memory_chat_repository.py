@@ -23,8 +23,9 @@ class InMemoryChatRepository(IChatRepository):
     def get_by_company_id(self, company_id: str) -> list[Chat]:
         return [chat for chat in self.chats.values() if chat.company_id == company_id]
 
-    def delete(self, chat: str) -> None:
-        self.chats.pop(chat, None)
+    def delete(self, chat_id: str) -> None:
+        self.get_by_id(chat_id=chat_id)
+        self.chats.pop(chat_id)
 
     def get_company_chat_by_contact_id(
         self, company_id: str, contact_id: str

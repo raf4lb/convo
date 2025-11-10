@@ -47,3 +47,19 @@ def test_get_contact(
     # Assert
     assert response.status_code == StatusCodes.OK.value
     assert response.json.get("name") == contact.name
+
+
+def test_user_not_found(
+    app,
+    client,
+    contact_repository,
+):
+    # Arrange
+    app.config["contact_repository"] = contact_repository
+    app.register_blueprint(contact_route_blueprint, url_prefix="/contacts")
+
+    # Act
+    response = client.get("/contacts/invalid_id")
+
+    # Assert
+    assert response.status_code == StatusCodes.NOT_FOUND.value

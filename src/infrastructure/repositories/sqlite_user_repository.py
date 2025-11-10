@@ -49,4 +49,5 @@ class SQLiteUserRepository(IUserRepository):
         return [self._parse_row(row=row) for row in rows]
 
     def delete(self, user_id: str) -> None:
+        self.get_by_id(user_id=user_id)
         self.user_dao.delete(user_id=user_id)

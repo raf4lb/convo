@@ -64,5 +64,6 @@ class SQLiteChatRepository(IChatRepository):
         )
         return self._parse_row(row=row) if row else None
 
-    def delete(self, user_id: str) -> None:
-        self._chat_dao.delete(user_id)
+    def delete(self, chat_id: str) -> None:
+        self.get_by_id(chat_id=chat_id)
+        self._chat_dao.delete(chat_id)

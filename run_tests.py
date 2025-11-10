@@ -6,7 +6,9 @@ Compatível com Windows, macOS e Linux.
 """
 
 import sys
+
 import pytest
+
 
 def main():
     # Permite passar argumentos para pytest (ex: --verbose, diretórios, etc)
@@ -22,6 +24,7 @@ def main():
 
     # Finaliza o script com o mesmo código de saída do pytest
     sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()

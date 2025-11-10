@@ -21,7 +21,8 @@ class InMemoryContactRepository(IContactRepository):
         return list(self.contacts.values())
 
     def delete(self, contact_id: str) -> None:
-        self.contacts.pop(contact_id, None)
+        self.get_by_id(contact_id=contact_id)
+        self.contacts.pop(contact_id)
 
     def get_by_phone_number(self, phone_number: str) -> Contact | None:
         for contact in self.contacts.values():

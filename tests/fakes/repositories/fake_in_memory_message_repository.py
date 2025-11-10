@@ -21,4 +21,5 @@ class InMemoryMessageRepository(IMessageRepository):
         return list(self.messages.values())
 
     def delete(self, message_id: str) -> None:
-        self.messages.pop(message_id, None)
+        self.get_by_id(message_id=message_id)
+        self.messages.pop(message_id)

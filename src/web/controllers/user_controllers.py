@@ -120,13 +120,7 @@ class DeleteUserHttpController(IUserHttpController):
 class ListUserHttpController(IUserHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
         use_case = ListUserUseCase(user_repository=self._repository)
-        try:
-            users = use_case.execute()
-        except UserNotFoundError:
-            return HttpResponse(
-                status_code=StatusCodes.NOT_FOUND.value,
-                body={"detail": "user not found"},
-            )
+        users = use_case.execute()
         data = {
             "users": [
                 {
