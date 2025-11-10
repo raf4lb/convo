@@ -28,7 +28,7 @@ class CreateUserUseCase(IUserUseCase):
         if user_errors := user.validate():
             errors.extend(user_errors)
         if user.company_id and not self._is_valid_company(user.company_id):
-            errors.append("Invalid company id")
+            errors.append("invalid company id")
         return errors
 
     def execute(
@@ -47,7 +47,6 @@ class CreateUserUseCase(IUserUseCase):
         )
 
         if errors := self._validate(user):
-            print(errors)
             raise InvalidUserError(errors=errors)
 
         self._user_repository.save(user)

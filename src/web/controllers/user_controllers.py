@@ -71,7 +71,7 @@ class GetUserHttpController(IUserHttpController):
                 "email": user.email,
                 "company_id": user.company_id,
                 "created_at": user.created_at.isoformat(),
-                "updated_at": user.updated_at.isoformat(),
+                "updated_at": user.updated_at.isoformat() if user.updated_at else None,
             },
         )
 
@@ -135,7 +135,9 @@ class ListUserHttpController(IUserHttpController):
                     "email": user.email,
                     "company_id": user.company_id,
                     "created_at": user.created_at.isoformat(),
-                    "updated_at": user.updated_at.isoformat(),
+                    "updated_at": user.updated_at.isoformat()
+                    if user.updated_at
+                    else None,
                 }
                 for user in users
             ]

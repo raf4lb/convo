@@ -1,18 +1,18 @@
 import pytest
 
-from tests.fakes.repositories.in_memory_chat_repository import (
+from tests.fakes.repositories.fake_in_memory_chat_repository import (
     InMemoryChatRepository,
 )
-from tests.fakes.repositories.in_memory_company_repository import (
+from tests.fakes.repositories.fake_in_memory_company_repository import (
     InMemoryCompanyRepository,
 )
-from tests.fakes.repositories.in_memory_contact_repository import (
+from tests.fakes.repositories.fake_in_memory_contact_repository import (
     InMemoryContactRepository,
 )
-from tests.fakes.repositories.in_memory_message_repository import (
+from tests.fakes.repositories.fake_in_memory_message_repository import (
     InMemoryMessageRepository,
 )
-from tests.fakes.repositories.in_memory_user_repository import (
+from tests.fakes.repositories.fake_in_memory_user_repository import (
     InMemoryUserRepository,
 )
 

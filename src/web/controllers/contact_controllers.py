@@ -7,7 +7,7 @@ from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCode
 from src.web.controllers.interfaces import IContactHttpController
 
 
-class CreateContactHttpController(IContactHttpController):
+class CreateCompanyContactHttpController(IContactHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
         use_case = CreateContactUseCase(contact_repository=self._contact_repository)
         contact = use_case.execute(

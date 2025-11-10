@@ -5,19 +5,19 @@ from src.web.framework.routes.company_routes import company_route_blueprint
 from src.web.framework.routes.contact_routes import contact_route_blueprint
 from src.web.framework.routes.message_routes import message_route_blueprint
 from src.web.framework.routes.user_routes import user_route_blueprint
-from tests.fakes.repositories.in_memory_chat_repository import (
+from tests.fakes.repositories.fake_in_memory_chat_repository import (
     InMemoryChatRepository,
 )
-from tests.fakes.repositories.in_memory_company_repository import (
+from tests.fakes.repositories.fake_in_memory_company_repository import (
     InMemoryCompanyRepository,
 )
-from tests.fakes.repositories.in_memory_contact_repository import (
+from tests.fakes.repositories.fake_in_memory_contact_repository import (
     InMemoryContactRepository,
 )
-from tests.fakes.repositories.in_memory_message_repository import (
+from tests.fakes.repositories.fake_in_memory_message_repository import (
     InMemoryMessageRepository,
 )
-from tests.fakes.repositories.in_memory_user_repository import (
+from tests.fakes.repositories.fake_in_memory_user_repository import (
     InMemoryUserRepository,
 )
 
@@ -32,6 +32,7 @@ def create_app():
     app.register_blueprint(message_route_blueprint, url_prefix="/messages")
     app.register_blueprint(contact_route_blueprint, url_prefix="/contacts")
 
+    # setup_sqlite_converters()
     # user_dao = SQLiteUserDAO(DATABASE_NAME)
     # app.config["user_repository"] = SQLiteUserRepository(user_dao=user_dao)
     #
