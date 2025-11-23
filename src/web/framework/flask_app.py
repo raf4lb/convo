@@ -4,6 +4,7 @@ from src.web.framework.routes.chat_routes import chat_route_blueprint
 from src.web.framework.routes.company_routes import company_route_blueprint
 from src.web.framework.routes.contact_routes import contact_route_blueprint
 from src.web.framework.routes.message_routes import message_route_blueprint
+from src.web.framework.routes.readiness_routes import readiness_route_blueprint
 from src.web.framework.routes.user_routes import user_route_blueprint
 from tests.fakes.repositories.fake_in_memory_chat_repository import (
     InMemoryChatRepository,
@@ -26,6 +27,8 @@ DATABASE_NAME = "app.db"
 
 def create_app():
     app = Flask(__name__)
+
+    app.register_blueprint(readiness_route_blueprint, url_prefix="/ready")
     app.register_blueprint(user_route_blueprint, url_prefix="/users")
     app.register_blueprint(company_route_blueprint, url_prefix="/companies")
     app.register_blueprint(chat_route_blueprint, url_prefix="/chats")
@@ -46,3 +49,5 @@ def create_app():
     app.config["message_repository"] = InMemoryMessageRepository()
 
     return app
+
+app = create_app()
