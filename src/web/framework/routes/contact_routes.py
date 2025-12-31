@@ -1,25 +1,26 @@
-from flask import Blueprint, current_app, jsonify, request
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 
 from src.web.controllers.contact_controllers import (
     CreateCompanyContactHttpController,
     GetContactHttpController,
 )
-from src.web.framework.adapter import flask_adapter
+from src.web.framework.adapter import request_adapter
 
-contact_route_blueprint = Blueprint("contact_routes", __name__)
+contact_routes = APIRouter(prefix="/contacts")
 
 
-@contact_route_blueprint.route("/", methods=["POST"])
-def create_company_contact():
-    repository = current_app.config["contact_repository"]
+@contact_routes.post("/")
+async def create_company_contact(request: Request) -> JSONResponse:
+    repository = request.app.state.contact_repository
     controller = CreateCompanyContactHttpController(contact_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@contact_route_blueprint.route("/<id>", methods=["GET"])
-def get_contact(id):
-    repository = current_app.config["contact_repository"]
+@contact_routes.get("/{id}")
+async def get_contact(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.contact_repository
     controller = GetContactHttpController(contact_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)

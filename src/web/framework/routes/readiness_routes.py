@@ -1,8 +1,8 @@
-from flask import Blueprint
+from fastapi import APIRouter
 
-readiness_route_blueprint = Blueprint("readiness_routes", __name__)
+readiness_routes = APIRouter(prefix="/ready")
 
 
-@readiness_route_blueprint.route("/", methods=["GET"])
-def ready():
-    return {"status": "ok"}, 200
+@readiness_routes.get("/")
+def ready() -> dict:
+    return {"status": "ok"}

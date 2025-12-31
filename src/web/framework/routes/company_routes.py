@@ -1,4 +1,5 @@
-from flask import Blueprint, current_app, jsonify, request
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 
 from src.web.controllers.company_controllers import (
     CreateCompanyHttpController,
@@ -7,46 +8,46 @@ from src.web.controllers.company_controllers import (
     ListCompanyHttpController,
     UpdateCompanyHttpController,
 )
-from src.web.framework.adapter import flask_adapter
+from src.web.framework.adapter import request_adapter
 
-company_route_blueprint = Blueprint("company_routes", __name__)
+company_routes = APIRouter(prefix="/companies")
 
 
-@company_route_blueprint.route("/", methods=["GET"])
-def list_companies():
-    repository = current_app.config["company_repository"]
+@company_routes.get("/")
+async def list_companies(request: Request) -> JSONResponse:
+    repository = request.app.state.company_repository
     controller = ListCompanyHttpController(company_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@company_route_blueprint.route("/", methods=["POST"])
-def create_company():
-    repository = current_app.config["company_repository"]
+@company_routes.post("/")
+async def create_company(request: Request) -> JSONResponse:
+    repository = request.app.state.company_repository
     controller = CreateCompanyHttpController(company_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@company_route_blueprint.route("/<id>", methods=["GET"])
-def get_company(id):
-    repository = current_app.config["company_repository"]
+@company_routes.get("/{id}")
+async def get_company(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.company_repository
     controller = GetCompanyHttpController(company_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@company_route_blueprint.route("/<id>", methods=["PUT"])
-def update_company(id):
-    repository = current_app.config["company_repository"]
+@company_routes.put("/{id}")
+async def update_company(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.company_repository
     controller = UpdateCompanyHttpController(company_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@company_route_blueprint.route("/<id>", methods=["DELETE"])
-def delete_company(id):
-    repository = current_app.config["company_repository"]
+@company_routes.delete("/{id}")
+async def delete_company(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.company_repository
     controller = DeleteCompanyHttpController(company_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)

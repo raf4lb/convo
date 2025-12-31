@@ -1,4 +1,5 @@
-from flask import Blueprint, current_app, jsonify, request
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 
 from src.web.controllers.user_controllers import (
     CreateUserHttpController,
@@ -7,50 +8,50 @@ from src.web.controllers.user_controllers import (
     ListUserHttpController,
     UpdateUserHttpController,
 )
-from src.web.framework.adapter import flask_adapter
+from src.web.framework.adapter import request_adapter
 
-user_route_blueprint = Blueprint("user_routes", __name__)
+user_routes = APIRouter(prefix="/users")
 
 
-@user_route_blueprint.route("/", methods=["GET"])
-def list_users():
-    repository = current_app.config["user_repository"]
+@user_routes.get("/")
+async def list_users(request: Request) -> JSONResponse:
+    repository = request.app.state.user_repository
     controller = ListUserHttpController(user_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@user_route_blueprint.route("/", methods=["POST"])
-def create_user():
-    user_repository = current_app.config["user_repository"]
-    company_repository = current_app.config["company_repository"]
+@user_routes.post("/")
+async def create_user(request: Request) -> JSONResponse:
+    user_repository = request.app.state.user_repository
+    company_repository = request.app.state.company_repository
     controller = CreateUserHttpController(
         user_repository=user_repository,
         company_repository=company_repository,
     )
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@user_route_blueprint.route("/<id>", methods=["GET"])
-def get_user(id):
-    repository = current_app.config["user_repository"]
+@user_routes.get("/{id}")
+async def get_user(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.user_repository
     controller = GetUserHttpController(user_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@user_route_blueprint.route("/<id>", methods=["PUT"])
-def update_user(id):
-    repository = current_app.config["user_repository"]
+@user_routes.put("/{id}")
+async def update_user(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.user_repository
     controller = UpdateUserHttpController(user_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@user_route_blueprint.route("/<id>", methods=["DELETE"])
-def delete_user(id):
-    repository = current_app.config["user_repository"]
+@user_routes.delete("/{id}")
+async def delete_user(request: Request, id: str) -> JSONResponse:
+    repository = request.app.state.user_repository
     controller = DeleteUserHttpController(user_repository=repository)
-    response = controller.handle(request=flask_adapter(request))
-    return jsonify(response.body), response.status_code
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)

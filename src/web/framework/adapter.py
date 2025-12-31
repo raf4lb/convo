@@ -1,13 +1,21 @@
-from flask import Request as FlaskRequest
+from json import JSONDecodeError
+
+from fastapi import Request
 
 from src.web.controllers.http_types import HttpRequest
 
 
-def flask_adapter(request: FlaskRequest) -> HttpRequest:
+async def request_adapter(request: Request) -> HttpRequest:
+    body = None
+    try:
+        body = await request.json()
+    except JSONDecodeError:
+        pass
+
     return HttpRequest(
-        url=request.url,
-        headers={key: value for key, value in request.headers.items()},
-        query_params=request.args,
-        path_params=request.view_args,
-        body=request.json if request.is_json else {},
+        url=str(request.url),
+        headers=dict(request.headers),
+        query_params=dict(request.query_params),
+        path_params=request.path_params,
+        body=body,
     )

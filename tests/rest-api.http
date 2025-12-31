@@ -1,0 +1,84 @@
+POST http://localhost:8000/companies
+Content-Type: application/json
+
+{
+  "name": "Company Test 2"
+}
+
+###
+
+GET http://localhost:8000/companies
+
+###
+
+POST http://localhost:8000/contacts
+Content-Type: application/json
+
+{
+  "company_id": "442cd7b2-aa55-4287-9b5f-2a20a4c417b8",
+  "name": "Staff User",
+  "phone_number": "5588999034444"
+}
+
+###
+
+GET http://localhost:8000/contacts
+
+###
+
+GET http://localhost:8000/contacts/9c5a16eb-fced-40de-a8d9-d102017b3097
+
+###
+
+POST localhost:8000/messages/receive
+Content-Type: application/json
+
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "<WHATSAPP_BUSINESS_ACCOUNT_ID>",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "5588999034444",
+              "phone_number_id": "<BUSINESS_PHONE_NUMBER_ID>"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Sender Name"
+                },
+                "wa_id": "5588999034445"
+              }
+            ],
+            "messages": [
+              {
+                "from": "5588999034445",
+                "id": "<WHATSAPP_MESSAGE_ID>",
+                "timestamp": "1730558382",
+                "text": {
+                  "body": "Hello!"
+                },
+                "type": "text"
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+
+
+###
+
+GET http://localhost:8000/chats/?company_id=35796957-9540-4230-94ab-0447d0e7f28b
+
+
+###
+
+GET localhost:8000/messages/2fcf21de-6b37-4daf-ab35-2008950ad2b7

@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from typing import Any
 
+from src.application.exceptions import ReceiverContactDoesNotExistError
 from src.application.use_cases.message_use_cases import (
     GetMessageUseCase,
     ReceiveMessageUseCase,
@@ -55,14 +56,20 @@ class ReceiveMessageHttpController(IMessageHttpController):
             contact_repository=self._contact_repository,
             chat_repository=self._chat_repository,
         )
-        message = use_case.execute(
-            sender_phone_number=extracted_data["sender_phone_number"],
-            sender_name=extracted_data["sender_name"],
-            message_external_id=extracted_data["message_external_id"],
-            message_timestamp=extracted_data["message_timestamp"],
-            receiver_phone_number=extracted_data["receiver_phone_number"],
-            text=extracted_data["text"],
-        )
+        try:
+            message = use_case.execute(
+                sender_phone_number=extracted_data["sender_phone_number"],
+                sender_name=extracted_data["sender_name"],
+                message_external_id=extracted_data["message_external_id"],
+                message_timestamp=extracted_data["message_timestamp"],
+                receiver_phone_number=extracted_data["receiver_phone_number"],
+                text=extracted_data["text"],
+            )
+        except ReceiverContactDoesNotExistError:
+            return HttpResponse(
+                status_code=StatusCodes.BAD_REQUEST.value,
+                body={"detail": "receiver contact does not exist"},
+            )
 
         return HttpResponse(
             status_code=StatusCodes.CREATED.value,
