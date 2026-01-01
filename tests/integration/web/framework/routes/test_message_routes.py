@@ -1,33 +1,28 @@
 from src.web.controllers.http_types import StatusCodes
-from src.web.framework.routes.message_routes import message_route_blueprint
 
 
 def test_get_message(
-    app,
     client,
     message,
     message_repository,
 ):
     # Arrange
-    app.config["message_repository"] = message_repository
-    app.register_blueprint(message_route_blueprint, url_prefix="/messages")
+    client.app.state.message_repository = message_repository
 
     # Act
     response = client.get(f"/messages/{message.id}")
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert response.json.get("text") == message.text
+    assert response.json().get("text") == message.text
 
 
 def test_message_not_found(
-    app,
     client,
     message_repository,
 ):
     # Arrange
-    app.config["message_repository"] = message_repository
-    app.register_blueprint(message_route_blueprint, url_prefix="/messages")
+    client.app.state.message_repository = message_repository
 
     # Act
     response = client.get("/messages/invalid_id")
@@ -37,18 +32,16 @@ def test_message_not_found(
 
 
 def test_receive_message(
-    app,
     client,
     message,
+    receiver_contact,
     message_repository,
     contact_repository,
     chat_repository,
 ):
     # Arrange
-    app.config["message_repository"] = message_repository
-    app.config["contact_repository"] = contact_repository
-    app.config["chat_repository"] = chat_repository
-    app.register_blueprint(message_route_blueprint, url_prefix="/messages")
+    client.app.state.message_repository = message_repository
+    client.app.state.contact_repository = contact_repository
 
     message_text = "Hello!"
     data = {
@@ -61,7 +54,7 @@ def test_receive_message(
                         "value": {
                             "messaging_product": "whatsapp",
                             "metadata": {
-                                "display_phone_number": "5588999034444",
+                                "display_phone_number": receiver_contact.phone_number,
                                 "phone_number_id": "<BUSINESS_PHONE_NUMBER_ID>",
                             },
                             "contacts": [
@@ -93,6 +86,6 @@ def test_receive_message(
     # Assert
     assert response.status_code == StatusCodes.CREATED.value
     received_message = message_repository.get_by_id(
-        message_id=response.json.get("message_id")
+        message_id=response.json().get("message_id")
     )
     assert received_message.text == message_text

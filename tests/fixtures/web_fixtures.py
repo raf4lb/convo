@@ -1,13 +1,15 @@
 import pytest
-from flask import Flask
+from fastapi.testclient import TestClient
+
+from src.web.framework.app import create_app
 
 
 @pytest.fixture
 def app():
-    app = Flask(__name__)
-    return app
+    return create_app()
 
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    with TestClient(app) as client:
+        yield client

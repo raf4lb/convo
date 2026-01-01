@@ -3,18 +3,15 @@ import pytest
 from src.domain.enums import UserTypes
 from src.domain.errors import UserNotFoundError
 from src.web.controllers.http_types import StatusCodes
-from src.web.framework.routes.user_routes import user_route_blueprint
 
 
 def test_list_users(
-    app,
     client,
     user_factory,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
     users = [user_factory() for _ in range(3)]
 
     # Act
@@ -22,19 +19,17 @@ def test_list_users(
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert len(response.json.get("users")) == len(users)
+    assert len(response.json().get("users")) == len(users)
 
 
 def test_create_user(
-    app,
     client,
     user_repository,
     company_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.config["company_repository"] = company_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
+    client.app.state.company_repository = company_repository
     name = "Test User"
     email = "email@test.com"
     _type = UserTypes.STAFF.value
@@ -50,7 +45,7 @@ def test_create_user(
 
     # Assert
     assert response.status_code == StatusCodes.CREATED.value
-    created_user = response.json
+    created_user = response.json()
     fetched_user = user_repository.get_by_id(
         user_id=created_user.get("id"),
     )
@@ -58,32 +53,28 @@ def test_create_user(
 
 
 def test_get_user(
-    app,
     client,
     staff_user,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
 
     # Act
     response = client.get(f"/users/{staff_user.id}")
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert response.json.get("name") == staff_user.name
+    assert response.json().get("name") == staff_user.name
 
 
 def test_update_user(
-    app,
     client,
     staff_user,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
     new_user_name = "New User Name"
     data = {
         "name": new_user_name,
@@ -104,14 +95,12 @@ def test_update_user(
 
 
 def test_delete_user(
-    app,
     client,
     staff_user,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
 
     # Act
     response = client.delete(f"/users/{staff_user.id}")
@@ -125,13 +114,11 @@ def test_delete_user(
 
 
 def test_user_not_found(
-    app,
     client,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
 
     # Act
     response = client.get("/users/invalid_id")
@@ -141,13 +128,11 @@ def test_user_not_found(
 
 
 def test_update_non_existing_user(
-    app,
     client,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
     data = {
         "name": "Test User",
         "email": "email@test.com",
@@ -163,15 +148,11 @@ def test_update_non_existing_user(
 
 
 def test_create_user_invalid_data(
-    app,
     client,
     user_repository,
-    company_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.config["company_repository"] = company_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
     data = {
         "name": 10,
         "email": "email@test.com",
@@ -184,21 +165,19 @@ def test_create_user_invalid_data(
 
     # Assert
     assert response.status_code == StatusCodes.BAD_REQUEST.value
-    assert set(response.json.get("errors")) == {"invalid name", "invalid company id"}
+    assert set(response.json().get("errors")) == {"invalid name", "invalid company id"}
 
 
 def test_delete_non_existing_user(
-    app,
     client,
     user_repository,
 ):
     # Arrange
-    app.config["user_repository"] = user_repository
-    app.register_blueprint(user_route_blueprint, url_prefix="/users")
+    client.app.state.user_repository = user_repository
 
     # Act
     response = client.delete("/users/invalid_id")
 
     # Assert
     assert response.status_code == StatusCodes.NOT_FOUND.value
-    assert response.json.get("detail") == "user not found"
+    assert response.json().get("detail") == "user not found"

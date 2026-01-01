@@ -1,16 +1,13 @@
 from src.web.controllers.http_types import StatusCodes
-from src.web.framework.routes.contact_routes import contact_route_blueprint
 
 
 def test_create_company_contact(
-    app,
     client,
     company,
     contact_repository,
 ):
     # Arrange
-    app.config["contact_repository"] = contact_repository
-    app.register_blueprint(contact_route_blueprint, url_prefix="/contacts")
+    client.app.state.contact_repository = contact_repository
     phone_number = "5588999999999"
     contact_name = "Test Contact"
     data = {
@@ -32,31 +29,27 @@ def test_create_company_contact(
 
 
 def test_get_contact(
-    app,
     client,
     contact,
     contact_repository,
 ):
     # Arrange
-    app.config["contact_repository"] = contact_repository
-    app.register_blueprint(contact_route_blueprint, url_prefix="/contacts")
+    client.app.state.contact_repository = contact_repository
 
     # Act
     response = client.get(f"/contacts/{contact.id}")
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert response.json.get("name") == contact.name
+    assert response.json().get("name") == contact.name
 
 
 def test_user_not_found(
-    app,
     client,
     contact_repository,
 ):
     # Arrange
-    app.config["contact_repository"] = contact_repository
-    app.register_blueprint(contact_route_blueprint, url_prefix="/contacts")
+    client.app.state.contact_repository = contact_repository
 
     # Act
     response = client.get("/contacts/invalid_id")
