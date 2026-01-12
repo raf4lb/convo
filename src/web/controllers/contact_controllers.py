@@ -3,8 +3,8 @@ from src.application.use_cases.contact_use_cases import (
     GetContactUseCase,
 )
 from src.domain.errors import ContactNotFoundError
-from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCodes
 from src.web.controllers.interfaces import IContactHttpController
+from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
 
 class CreateCompanyContactHttpController(IContactHttpController):

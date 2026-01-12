@@ -7,6 +7,7 @@ class StatusCodes(Enum):
     NO_CONTENT = 204
 
     BAD_REQUEST = 400
+    FORBIDDEN = 403
     NOT_FOUND = 404
 
 
@@ -30,7 +31,7 @@ class HttpResponse:
     def __init__(
         self,
         status_code: int,
-        body: dict | None = None,
+        body: dict | str | None = None,
     ):
         self.status_code = status_code
         self.body = body

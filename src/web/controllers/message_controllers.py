@@ -10,8 +10,8 @@ from src.domain.errors import MessageNotFoundError
 from src.domain.repositories.chat_repository import IChatRepository
 from src.domain.repositories.contact_repository import IContactRepository
 from src.domain.repositories.message_repository import IMessageRepository
-from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCodes
 from src.web.controllers.interfaces import IMessageHttpController
+from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
 
 class ReceiveMessageHttpController(IMessageHttpController):

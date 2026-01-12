@@ -6,8 +6,8 @@ from src.application.use_cases.company_use_cases import (
     UpdateCompanyUseCase,
 )
 from src.domain.errors import CompanyNotFoundError
-from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCodes
 from src.web.controllers.interfaces import ICompanyHttpController
+from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
 
 class CreateCompanyHttpController(ICompanyHttpController):

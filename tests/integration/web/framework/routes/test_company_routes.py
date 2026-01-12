@@ -1,7 +1,7 @@
 import pytest
 
 from src.domain.errors import CompanyNotFoundError
-from src.web.controllers.http_types import StatusCodes
+from src.web.http_types import StatusCodes
 
 
 def test_list_companies(

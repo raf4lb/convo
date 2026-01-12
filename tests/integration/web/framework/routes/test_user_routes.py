@@ -2,7 +2,7 @@ import pytest
 
 from src.domain.enums import UserTypes
 from src.domain.errors import UserNotFoundError
-from src.web.controllers.http_types import StatusCodes
+from src.web.http_types import StatusCodes
 
 
 def test_list_users(

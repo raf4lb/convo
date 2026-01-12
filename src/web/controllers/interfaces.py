@@ -5,7 +5,12 @@ from src.domain.repositories.company_repository import ICompanyRepository
 from src.domain.repositories.contact_repository import IContactRepository
 from src.domain.repositories.message_repository import IMessageRepository
 from src.domain.repositories.user_repository import IUserRepository
-from src.web.controllers.http_types import HttpRequest, HttpResponse
+from src.web.http_types import HttpRequest, HttpResponse
+
+
+class IHttpController(ABC):
+    @abstractmethod
+    def handle(self, request: HttpRequest) -> HttpResponse: ...
 
 
 class IUserHttpController(ABC):

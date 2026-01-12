@@ -10,8 +10,8 @@ from src.domain.enums import UserTypes
 from src.domain.errors import UserNotFoundError
 from src.domain.repositories.company_repository import ICompanyRepository
 from src.domain.repositories.user_repository import IUserRepository
-from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCodes
 from src.web.controllers.interfaces import IUserHttpController
+from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
 
 class CreateUserHttpController(IUserHttpController):

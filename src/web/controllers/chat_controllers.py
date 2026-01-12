@@ -1,6 +1,6 @@
 from src.application.use_cases.chat_use_cases import ListChatsByCompanyUseCase
-from src.web.controllers.http_types import HttpRequest, HttpResponse, StatusCodes
 from src.web.controllers.interfaces import IChatHttpController
+from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
 # class CreateCompanyHttpController(ICompanyHttpController):
 #     def handle(self, request: HttpRequest) -> HttpResponse:

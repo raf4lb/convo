@@ -2,7 +2,7 @@ from json import JSONDecodeError
 
 from fastapi import Request
 
-from src.web.controllers.http_types import HttpRequest
+from src.web.http_types import HttpRequest
 
 
 async def request_adapter(request: Request) -> HttpRequest:

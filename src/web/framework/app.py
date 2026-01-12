@@ -6,6 +6,7 @@ from src.web.framework.routes.contact_routes import contact_routes
 from src.web.framework.routes.message_routes import message_routes
 from src.web.framework.routes.readiness_routes import readiness_routes
 from src.web.framework.routes.user_routes import user_routes
+from src.web.framework.routes.webhook_routes import webhook_routes
 from tests.fakes.repositories.fake_in_memory_chat_repository import (
     InMemoryChatRepository,
 )
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
     app.include_router(contact_routes)
     app.include_router(chat_routes)
     app.include_router(message_routes)
+    app.include_router(webhook_routes)
 
     # setup_sqlite_converters()
     # DATABASE_NAME = "app.db"
