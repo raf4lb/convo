@@ -12,7 +12,9 @@ webhook_routes = APIRouter(prefix="/webhook")
 
 @webhook_routes.get("/")
 async def verify(request: Request):
-    controller = VerifyWebhookHttpController()
+    controller = VerifyWebhookHttpController(
+        verify_token=request.app.state.settings.WEBHOOK_VERIFY_TOKEN
+    )
     response = controller.handle(request=await request_adapter(request))
     return PlainTextResponse(content=response.body, status_code=response.status_code)
 

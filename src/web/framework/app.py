@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from src.infrastructure.settings import load_settings
 from src.web.framework.routes.chat_routes import chat_routes
 from src.web.framework.routes.company_routes import company_routes
 from src.web.framework.routes.contact_routes import contact_routes
@@ -48,6 +49,8 @@ def create_app() -> FastAPI:
     app.state.contact_repository = InMemoryContactRepository()
     app.state.chat_repository = InMemoryChatRepository()
     app.state.message_repository = InMemoryMessageRepository()
+
+    app.state.settings = load_settings()
 
     return app
 

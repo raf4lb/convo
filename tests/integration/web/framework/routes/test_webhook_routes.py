@@ -1,4 +1,3 @@
-from src.infrastructure.settings import settings
 from src.web.http_types import StatusCodes
 
 
@@ -11,7 +10,7 @@ def test_verify_webhook(client):
         "/webhook/",
         params={
             "hub.mode": "subscribe",
-            "hub.verify_token": settings.WEBHOOK_VERIFY_TOKEN,
+            "hub.verify_token": client.app.state.settings.WEBHOOK_VERIFY_TOKEN,
             "hub.challenge": test_challenge,
         },
     )
@@ -48,4 +47,4 @@ def test_receive_messages_webhook(client):
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert response.json() == {"status": "received"}
+    assert response.json() == {"received": fake_message}
