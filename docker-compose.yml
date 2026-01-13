@@ -30,6 +30,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: convo_ngrok
+    restart: unless-stopped
+    depends_on:
+      - api
+    command:
+      - "http"
+      - "api:8000"
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
 
 volumes:
   postgres_data:
