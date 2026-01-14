@@ -7,7 +7,7 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8000/companies
+GET http://localhost:8000/companies/
 
 ###
 

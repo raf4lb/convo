@@ -9,6 +9,7 @@ class AppSettings:
     DATABASE_PASSWORD: str
     DATABASE_URL: str
     WEBHOOK_VERIFY_TOKEN: str
+    CORS_ORIGINS: list[str]
 
 
 def load_settings():
@@ -18,4 +19,5 @@ def load_settings():
         DATABASE_PASSWORD=os.getenv("DATABASE_PASSWORD"),
         DATABASE_URL=os.getenv("DATABASE_URL"),
         WEBHOOK_VERIFY_TOKEN=os.getenv("WEBHOOK_VERIFY_TOKEN"),
+        CORS_ORIGINS=os.getenv("CORS_ORIGINS").split(","),
     )

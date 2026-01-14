@@ -1,6 +1,11 @@
 CREATE TABLE IF NOT EXISTS companies (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    whatsapp_api_key TEXT,
+    is_active BOOLEAN DEFAULT 1 NOT NULL,
+    attendant_sees_all_conversations BOOLEAN DEFAULT 1 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP
 );

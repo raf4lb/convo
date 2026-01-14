@@ -37,7 +37,7 @@ async def get_company(request: Request, id: str) -> JSONResponse:
     return JSONResponse(content=response.body, status_code=response.status_code)
 
 
-@company_routes.put("/{id}")
+@company_routes.patch("/{id}")
 async def update_company(request: Request, id: str) -> JSONResponse:
     repository = request.app.state.company_repository
     controller = UpdateCompanyHttpController(company_repository=repository)

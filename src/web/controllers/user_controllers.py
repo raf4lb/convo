@@ -122,7 +122,7 @@ class ListUserHttpController(IUserHttpController):
         use_case = ListUserUseCase(user_repository=self._repository)
         users = use_case.execute()
         data = {
-            "users": [
+            "results": [
                 {
                     "id": user.id,
                     "name": user.name,

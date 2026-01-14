@@ -72,7 +72,7 @@ class ListChatsByCompanyHttpController(IChatHttpController):
         use_case = ListChatsByCompanyUseCase(chat_repository=self._chat_repository)
         chats = use_case.execute(company_id=request.query_params["company_id"])
         body = {
-            "chats": [
+            "results": [
                 {
                     "id": chat.id,
                     "company_id": chat.company_id,

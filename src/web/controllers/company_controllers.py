@@ -5,9 +5,24 @@ from src.application.use_cases.company_use_cases import (
     ListCompanyUseCase,
     UpdateCompanyUseCase,
 )
+from src.domain.entities.company import Company
 from src.domain.errors import CompanyNotFoundError
 from src.web.controllers.interfaces import ICompanyHttpController
 from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
+
+
+def format_company(company: Company) -> dict:
+    return {
+        "id": company.id,
+        "name": company.name,
+        "email": company.email,
+        "phone": company.phone,
+        "is_active": company.is_active,
+        "attendant_sees_all_conversations": company.attendant_sees_all_conversations,
+        "whatsapp_api_key": company.whatsapp_api_key,
+        "created_at": company.created_at.isoformat() if company.created_at else None,
+        "updated_at": company.updated_at.isoformat() if company.updated_at else None,
+    }
 
 
 class CreateCompanyHttpController(ICompanyHttpController):
@@ -15,17 +30,17 @@ class CreateCompanyHttpController(ICompanyHttpController):
         use_case = CreateCompanyUseCase(company_repository=self._repository)
         company = use_case.execute(
             name=request.body["name"],
+            email=request.body["email"],
+            phone=request.body["phone"],
+            is_active=request.body.get("is_active"),
+            attendant_sees_all_conversations=request.body.get(
+                "attendant_sees_all_conversations"
+            ),
+            whatsapp_api_key=request.body.get("whatsapp_api_key"),
         )
         return HttpResponse(
             status_code=StatusCodes.CREATED.value,
-            body={
-                "id": company.id,
-                "name": company.name,
-                "created_at": company.created_at.isoformat(),
-                "updated_at": company.updated_at.isoformat()
-                if company.updated_at
-                else None,
-            },
+            body=format_company(company),
         )
 
 
@@ -41,10 +56,7 @@ class GetCompanyHttpController(ICompanyHttpController):
             )
         return HttpResponse(
             status_code=StatusCodes.OK.value,
-            body={
-                "id": company.id,
-                "name": company.name,
-            },
+            body=format_company(company),
         )
 
 
@@ -54,6 +66,13 @@ class UpdateCompanyHttpController(ICompanyHttpController):
         company = use_case.execute(
             company_id=request.path_params["id"],
             name=request.body["name"],
+            email=request.body["email"],
+            phone=request.body["phone"],
+            is_active=request.body.get("is_active"),
+            attendant_sees_all_conversations=request.body.get(
+                "attendant_sees_all_conversations"
+            ),
+            whatsapp_api_key=request.body.get("whatsapp_api_key"),
         )
         return HttpResponse(
             status_code=StatusCodes.OK.value,
@@ -82,13 +101,7 @@ class ListCompanyHttpController(ICompanyHttpController):
         use_case = ListCompanyUseCase(company_repository=self._repository)
         companies = use_case.execute()
         body = {
-            "companies": [
-                {
-                    "id": company.id,
-                    "name": company.name,
-                }
-                for company in companies
-            ],
+            "results": [format_company(company) for company in companies],
         }
 
         return HttpResponse(

@@ -28,7 +28,9 @@ def test_create_company(
     # Arrange
     client.app.state.company_repository = company_repository
     company_name = "Test Company"
-    data = {"name": company_name}
+    company_email = "new@example.com"
+    company_phone = "123456789"
+    data = {"name": company_name, "email": company_email, "phone": company_phone}
 
     # Act
     response = client.post("/companies/", json=data)
@@ -36,10 +38,12 @@ def test_create_company(
     # Assert
     assert response.status_code == StatusCodes.CREATED.value
     created_company = response.json()
-    fetched_company = company_repository.get_by_id(
-        company_id=created_company.get("id"),
-    )
+    created_id = created_company.get("id")
+    fetched_company = company_repository.get_by_id(company_id=created_id)
+
     assert fetched_company.name == company_name
+    assert fetched_company.email == company_email
+    assert fetched_company.phone == company_phone
 
 
 def test_get_company(
@@ -65,8 +69,14 @@ def test_update_company(
 ):
     # Arrange
     client.app.state.company_repository = company_repository
-    new_company_name = "New Company Name"
-    data = {"name": new_company_name}
+    new_company_name = "New Company Company"
+    new_company_email = "new@example.com"
+    new_company_phone = "123456789"
+    data = {
+        "name": new_company_name,
+        "email": new_company_email,
+        "phone": new_company_phone,
+    }
 
     # Act
     response = client.put(f"/companies/{company.id}", json=data)
@@ -77,6 +87,8 @@ def test_update_company(
         company_id=company.id,
     )
     assert fetched_company.name == new_company_name
+    assert fetched_company.email == new_company_email
+    assert fetched_company.phone == new_company_phone
 
 
 def test_delete_company(

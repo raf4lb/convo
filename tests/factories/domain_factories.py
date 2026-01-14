@@ -14,11 +14,14 @@ from src.helpers.helpers import generate_uuid4
 @pytest.fixture
 def company_factory(company_repository):
     def _create_company(**kwargs):
-        company_data = {
+        default_data = {
             "id": generate_uuid4(),
             "name": "Company Test",
+            "email": "test@company.com",
+            "phone": "123456789",
         }
-        company_data.update(**kwargs)
+
+        company_data = {**default_data, **kwargs}
         company = Company(**company_data)
         company_repository.save(company)
         return company
