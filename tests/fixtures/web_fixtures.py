@@ -13,6 +13,7 @@ def app_settings():
         DATABASE_PASSWORD="DATABASE_PASSWORD",
         DATABASE_URL="DATABASE_URL",
         WEBHOOK_VERIFY_TOKEN="WEBHOOK_VERIFY_TOKEN",
+        CORS_ORIGINS=[],
     )
 
 

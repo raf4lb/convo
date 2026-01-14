@@ -11,5 +11,5 @@ def test_list_company_chats(client, company_factory, chat_repository, chat_facto
     response_2 = client.get(f"/chats/?company_id={company_2.id}")
 
     # Assert
-    assert len(response_1.json().get("chats")) == len(chats_1)
-    assert len(response_2.json().get("chats")) == len(chats_2)
+    assert len(response_1.json().get("results")) == len(chats_1)
+    assert len(response_2.json().get("results")) == len(chats_2)

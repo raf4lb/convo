@@ -19,7 +19,7 @@ def test_list_users(
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert len(response.json().get("users")) == len(users)
+    assert len(response.json().get("results")) == len(users)
 
 
 def test_create_user(

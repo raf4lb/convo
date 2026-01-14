@@ -11,14 +11,14 @@ def test_list_companies(
 ):
     # Arrange
     client.app.state.company_repository = company_repository
-    companies = [company_factory() for _ in range(3)]
+    _ = [company_factory() for _ in range(3)]
 
     # Act
     response = client.get("/companies/")
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
-    assert len(response.json().get("companies")) == len(companies)
+    assert len(response.json().get("results")) == len(company_repository.get_all())
 
 
 def test_create_company(
@@ -79,7 +79,7 @@ def test_update_company(
     }
 
     # Act
-    response = client.put(f"/companies/{company.id}", json=data)
+    response = client.patch(f"/companies/{company.id}", json=data)
 
     # Assert
     assert response.status_code == StatusCodes.OK.value

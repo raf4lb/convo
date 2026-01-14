@@ -13,8 +13,13 @@ class SQLiteCompanyRepository(ICompanyRepository):
         return Company(
             id=row[0],
             name=row[1],
-            created_at=row[2],
-            updated_at=row[3],
+            email=row[2],
+            phone=row[3],
+            is_active=bool(row[4]),
+            attendant_sees_all_conversations=bool(row[5]),
+            whatsapp_api_key=row[6],
+            created_at=row[7],
+            updated_at=row[8],
         )
 
     def save(self, company: Company) -> None:
@@ -22,6 +27,11 @@ class SQLiteCompanyRepository(ICompanyRepository):
         company_data = {
             "id": company.id,
             "name": company.name,
+            "email": company.email,
+            "phone": company.phone,
+            "is_active": company.is_active,
+            "attendant_sees_all_conversations": company.attendant_sees_all_conversations,
+            "whatsapp_api_key": company.whatsapp_api_key,
             "created_at": company.created_at,
             "updated_at": company.updated_at,
         }

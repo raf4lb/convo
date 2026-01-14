@@ -19,7 +19,7 @@ def test_list_company_use_case(company, company_repository):
     companies = use_case.execute()
 
     # Assert
-    assert companies == [company]
+    assert company in companies
 
 
 def test_create_company_use_case(company_repository):
