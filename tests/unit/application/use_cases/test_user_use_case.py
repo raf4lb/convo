@@ -109,9 +109,14 @@ def test_get_user_use_case(staff_user, user_repository):
     assert fetched_user.name == staff_user.name
 
 
-def test_update_user_use_case_existing_user(staff_user, user_repository):
+def test_update_user_use_case_existing_user(
+    staff_user, user_repository, company_repository
+):
     # Arrange
-    use_case = UpdateUserUseCase(user_repository=user_repository)
+    use_case = UpdateUserUseCase(
+        user_repository=user_repository,
+        company_repository=company_repository,
+    )
 
     # Act
     new_name = "New Name"
@@ -127,9 +132,12 @@ def test_update_user_use_case_existing_user(staff_user, user_repository):
     assert user.name == new_name
 
 
-def test_update_user_use_case_non_existing_user(user_repository):
+def test_update_user_use_case_non_existing_user(user_repository, company_repository):
     # Arrange
-    use_case = UpdateUserUseCase(user_repository=user_repository)
+    use_case = UpdateUserUseCase(
+        user_repository=user_repository,
+        company_repository=company_repository,
+    )
 
     # Act/Assert
     with pytest.raises(UserNotFoundError):

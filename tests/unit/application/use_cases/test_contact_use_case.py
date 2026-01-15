@@ -19,6 +19,7 @@ def test_create_contact_use_case(contact_repository):
         name="Contact Name",
         phone_number="+558899034444",
         company_id=generate_uuid4(),
+        email="contact@test.com",
     )
 
     # Assert
@@ -52,6 +53,7 @@ def test_update_contact_use_case_existing_contact(contact, contact_repository):
         name=new_name,
         phone_number=contact.phone_number,
         company_id=contact.company_id,
+        email=contact.email,
     )
 
     # Assert
@@ -69,6 +71,7 @@ def test_update_contact_use_case_non_existing_contact(contact_repository):
             name="New Name",
             phone_number="contact.phone_number",
             company_id="contact.company_id",
+            email="contact@test.com",
         )
 
 

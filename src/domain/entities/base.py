@@ -11,3 +11,16 @@ class BaseEntity:
     ):
         self.created_at = created_at or get_now()
         self.updated_at = updated_at
+
+
+class UnsetType:
+    """Sentinel type to represent a value not provided."""
+
+    def __bool__(self):
+        return False
+
+    def __repr__(self):
+        return "UNSET"
+
+
+UNSET = UnsetType()

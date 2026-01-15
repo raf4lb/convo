@@ -4,7 +4,7 @@ from src.domain.errors import CompanyNotFoundError
 from src.web.http_types import StatusCodes
 
 
-def test_list_companies(
+def test_list_companies_endpoint(
     client,
     company_factory,
     company_repository,
@@ -21,7 +21,7 @@ def test_list_companies(
     assert len(response.json().get("results")) == len(company_repository.get_all())
 
 
-def test_create_company(
+def test_create_company_endpoint(
     client,
     company_repository,
 ):
@@ -46,7 +46,7 @@ def test_create_company(
     assert fetched_company.phone == company_phone
 
 
-def test_get_company(
+def test_get_company_endpoint(
     client,
     company,
     company_repository,
@@ -62,7 +62,7 @@ def test_get_company(
     assert response.json().get("name") == company.name
 
 
-def test_update_company(
+def test_update_company_endpoint(
     client,
     company,
     company_repository,
@@ -91,7 +91,7 @@ def test_update_company(
     assert fetched_company.phone == new_company_phone
 
 
-def test_delete_company(
+def test_delete_company_endpoint(
     client,
     company,
     company_repository,
@@ -110,7 +110,7 @@ def test_delete_company(
         )
 
 
-def test_company_not_found(
+def test_company_endpoint_not_found(
     client,
     company_repository,
 ):
@@ -124,7 +124,7 @@ def test_company_not_found(
     assert response.status_code == StatusCodes.NOT_FOUND.value
 
 
-def test_delete_non_existing_company(
+def test_delete_endpoint_non_existing_company(
     client,
     company_repository,
 ):

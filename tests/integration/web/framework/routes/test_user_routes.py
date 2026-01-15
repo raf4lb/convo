@@ -5,7 +5,7 @@ from src.domain.errors import UserNotFoundError
 from src.web.http_types import StatusCodes
 
 
-def test_list_users(
+def test_list_users_endpoint(
     client,
     user_factory,
     user_repository,
@@ -22,7 +22,7 @@ def test_list_users(
     assert len(response.json().get("results")) == len(users)
 
 
-def test_create_user(
+def test_create_user_endpoint(
     client,
     user_repository,
     company_repository,
@@ -52,7 +52,7 @@ def test_create_user(
     assert fetched_user.name == name
 
 
-def test_get_user(
+def test_get_user_endpoint(
     client,
     staff_user,
     user_repository,
@@ -68,13 +68,15 @@ def test_get_user(
     assert response.json().get("name") == staff_user.name
 
 
-def test_update_user(
+def test_update_user_endpoint(
     client,
     staff_user,
     user_repository,
+    company_repository,
 ):
     # Arrange
     client.app.state.user_repository = user_repository
+    client.app.state.company_repository = company_repository
     new_user_name = "New User Name"
     data = {
         "name": new_user_name,
@@ -94,7 +96,7 @@ def test_update_user(
     assert fetched_user.name == new_user_name
 
 
-def test_delete_user(
+def test_delete_user_endpoint(
     client,
     staff_user,
     user_repository,
@@ -113,7 +115,7 @@ def test_delete_user(
         )
 
 
-def test_user_not_found(
+def test_user_endpoint_not_found(
     client,
     user_repository,
 ):
@@ -127,7 +129,7 @@ def test_user_not_found(
     assert response.status_code == StatusCodes.NOT_FOUND.value
 
 
-def test_update_non_existing_user(
+def test_update_user_endpoint_non_existing_user(
     client,
     user_repository,
 ):
@@ -147,7 +149,7 @@ def test_update_non_existing_user(
     assert response.status_code == StatusCodes.NOT_FOUND.value
 
 
-def test_create_user_invalid_data(
+def test_create_user_endpoint_invalid_data(
     client,
     user_repository,
 ):
@@ -168,7 +170,7 @@ def test_create_user_invalid_data(
     assert set(response.json().get("errors")) == {"invalid name", "invalid company id"}
 
 
-def test_delete_non_existing_user(
+def test_delete_user_endpoint_non_existing_user(
     client,
     user_repository,
 ):

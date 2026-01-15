@@ -1,11 +1,30 @@
 from src.application.exceptions import InvalidUserError
 from src.application.interfaces import IUserUseCase
+from src.domain.entities.base import UNSET, UnsetType
 from src.domain.entities.user import User
 from src.domain.enums import UserTypes
 from src.domain.errors import CompanyNotFoundError
 from src.domain.repositories.company_repository import ICompanyRepository
 from src.domain.repositories.user_repository import IUserRepository
 from src.helpers.helpers import generate_uuid4, get_now
+
+
+def is_valid_company_id(
+    company_id: str, company_repository: ICompanyRepository
+) -> bool:
+    try:
+        return bool(company_repository.get_by_id(company_id))
+    except CompanyNotFoundError:
+        return False
+
+
+def validate_user(user: User, company_repository: ICompanyRepository) -> list[str]:
+    errors = []
+    if user_errors := user.validate():
+        errors.extend(user_errors)
+    if user.company_id and not is_valid_company_id(user.company_id, company_repository):
+        errors.append("invalid company id")
+    return errors
 
 
 class CreateUserUseCase(IUserUseCase):
@@ -16,20 +35,6 @@ class CreateUserUseCase(IUserUseCase):
     ):
         super().__init__(user_repository=user_repository)
         self._company_repository = company_repository
-
-    def _is_valid_company(self, company_id: str) -> bool:
-        try:
-            return bool(self._company_repository.get_by_id(company_id))
-        except CompanyNotFoundError:
-            return False
-
-    def _validate(self, user: User) -> list[str]:
-        errors = []
-        if user_errors := user.validate():
-            errors.extend(user_errors)
-        if user.company_id and not self._is_valid_company(user.company_id):
-            errors.append("invalid company id")
-        return errors
 
     def execute(
         self,
@@ -46,7 +51,7 @@ class CreateUserUseCase(IUserUseCase):
             company_id=company_id,
         )
 
-        if errors := self._validate(user):
+        if errors := validate_user(user, self._company_repository):
             raise InvalidUserError(errors=errors)
 
         self._user_repository.save(user)
@@ -54,17 +59,36 @@ class CreateUserUseCase(IUserUseCase):
 
 
 class UpdateUserUseCase(IUserUseCase):
+    def __init__(
+        self,
+        user_repository: IUserRepository,
+        company_repository: ICompanyRepository,
+    ):
+        super().__init__(user_repository=user_repository)
+        self._company_repository = company_repository
+
     def execute(
         self,
         user_id: str,
-        name: str,
-        email: str,
-        type: UserTypes,
+        name: str | UnsetType = UNSET,
+        email: str | UnsetType = UNSET,
+        type: UserTypes | UnsetType = UNSET,
+        company_id: str | None | UnsetType = UNSET,
     ) -> User:
         user = self._user_repository.get_by_id(user_id)
-        user.name = name
-        user.email = email
-        user.type = type
+
+        if name is not UNSET:
+            user.name = name
+        if email is not UNSET:
+            user.email = email
+        if type is not UNSET:
+            user.type = type
+        if company_id is not UNSET:
+            user.company_id = company_id
+
+        if errors := validate_user(user, self._company_repository):
+            raise InvalidUserError(errors=errors)
+
         user.updated_at = get_now()
         self._user_repository.save(user)
         return user

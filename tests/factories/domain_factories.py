@@ -54,6 +54,7 @@ def contact_factory(company, contact_repository):
             "id": generate_uuid4(),
             "name": "Contact Name",
             "phone_number": "5588999034444",
+            "email": None,
             "company_id": company.id,
             "created_at": None,
             "updated_at": None,

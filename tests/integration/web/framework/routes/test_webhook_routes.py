@@ -1,7 +1,7 @@
 from src.web.http_types import StatusCodes
 
 
-def test_verify_webhook(client):
+def test_verify_webhook_endpoint(client):
     # Arrange
     test_challenge = "1234"
 
@@ -20,7 +20,7 @@ def test_verify_webhook(client):
     assert response.text == test_challenge
 
 
-def test_verify_webhook_invalid_verify_token(client):
+def test_verify_webhook_endpoint_invalid_verify_token(client):
     # Arrange
     test_challenge = "1234"
 
@@ -38,7 +38,7 @@ def test_verify_webhook_invalid_verify_token(client):
     assert response.status_code == StatusCodes.FORBIDDEN.value
 
 
-def test_receive_messages_webhook(client):
+def test_receive_messages_webhook_endpoint(client):
     # Arrange
     fake_message = {"message_id": "123", "text": "this is a fake message"}
 

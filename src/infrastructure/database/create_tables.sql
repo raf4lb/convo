@@ -25,7 +25,10 @@ CREATE TABLE IF NOT EXISTS contacts (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     phone_number TEXT NOT NULL,
+    email TEXT,
     company_id TEXT,
+    is_blocked BOOLEAN DEFAULT 0 NOT NULL,
+    last_contact_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id)

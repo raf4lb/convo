@@ -20,8 +20,13 @@ exclude = [".venv"]
 
 # Ativa linter + formatação (substitui black/isort)
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "UP", "W"]
+select = ["E", "F", "I", "N", "UP", "W", "T20"]
 ignore = ["E501", "F403"]
+
+# Ignorar prints especificamente em arquivos de scripts
+[tool.ruff.lint.per-file-ignores]
+"src/infrastructure/database/init_db.py" = ["T201"]
+"run_*" = ["T201"]
 
 [tool.ruff.format]
 quote-style = "double"

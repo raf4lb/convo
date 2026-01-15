@@ -77,8 +77,17 @@ class GetUserHttpController(IUserHttpController):
 
 
 class UpdateUserHttpController(IUserHttpController):
+    def __init__(
+        self, user_repository: IUserRepository, company_repository: ICompanyRepository
+    ):
+        super().__init__(user_repository=user_repository)
+        self._company_repository = company_repository
+
     def handle(self, request: HttpRequest) -> HttpResponse:
-        use_case = UpdateUserUseCase(user_repository=self._repository)
+        use_case = UpdateUserUseCase(
+            user_repository=self._repository,
+            company_repository=self._company_repository,
+        )
         try:
             user = use_case.execute(
                 user_id=request.path_params["id"],

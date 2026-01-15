@@ -5,4 +5,4 @@ readiness_routes = APIRouter(prefix="/ready")
 
 @readiness_routes.get("/")
 def ready() -> dict:
-    return {"status": "ok"}
+    return {"status": "ready"}

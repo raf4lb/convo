@@ -1,7 +1,7 @@
 from src.web.http_types import StatusCodes
 
 
-def test_create_company_contact(
+def test_create_company_contact_endpoint(
     client,
     company,
     contact_repository,
@@ -10,10 +10,12 @@ def test_create_company_contact(
     client.app.state.contact_repository = contact_repository
     phone_number = "5588999999999"
     contact_name = "Test Contact"
+    contact_email = "test@contact.com"
     data = {
         "company_id": company.id,
         "name": contact_name,
         "phone_number": phone_number,
+        "email": contact_email,
     }
 
     # Act
@@ -28,7 +30,7 @@ def test_create_company_contact(
     assert fetched_contact.name == contact_name
 
 
-def test_get_contact(
+def test_get_contact_endpoint(
     client,
     contact,
     contact_repository,
@@ -44,7 +46,7 @@ def test_get_contact(
     assert response.json().get("name") == contact.name
 
 
-def test_user_not_found(
+def test_user_endpoint_not_found(
     client,
     contact_repository,
 ):

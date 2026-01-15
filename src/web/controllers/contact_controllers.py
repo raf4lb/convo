@@ -13,6 +13,7 @@ class CreateCompanyContactHttpController(IContactHttpController):
         contact = use_case.execute(
             name=request.body["name"],
             phone_number=request.body["phone_number"],
+            email=request.body.get("email"),
             company_id=request.body["company_id"],
         )
         return HttpResponse(

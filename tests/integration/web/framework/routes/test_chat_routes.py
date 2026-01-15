@@ -1,4 +1,6 @@
-def test_list_company_chats(client, company_factory, chat_repository, chat_factory):
+def test_list_company_chats_endpoint(
+    client, company_factory, chat_repository, chat_factory
+):
     # Arrange
     client.app.state.chat_repository = chat_repository
     company_1 = company_factory()

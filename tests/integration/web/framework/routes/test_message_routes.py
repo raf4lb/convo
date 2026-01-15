@@ -1,7 +1,7 @@
 from src.web.http_types import StatusCodes
 
 
-def test_get_message(
+def test_get_message_endpoint(
     client,
     message,
     message_repository,
@@ -17,7 +17,7 @@ def test_get_message(
     assert response.json().get("text") == message.text
 
 
-def test_message_not_found(
+def test_get_message_endpoint_not_found(
     client,
     message_repository,
 ):
@@ -31,7 +31,7 @@ def test_message_not_found(
     assert response.status_code == StatusCodes.NOT_FOUND.value
 
 
-def test_receive_message(
+def test_receive_message_endpoint(
     client,
     message,
     receiver_contact,
