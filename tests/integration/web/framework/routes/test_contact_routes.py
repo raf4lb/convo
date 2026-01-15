@@ -46,7 +46,7 @@ def test_get_contact_endpoint(
     assert response.json().get("name") == contact.name
 
 
-def test_user_endpoint_not_found(
+def test_get_contact_endpoint_not_found(
     client,
     contact_repository,
 ):
