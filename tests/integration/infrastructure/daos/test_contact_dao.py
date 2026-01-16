@@ -247,3 +247,43 @@ def test_contact_dao_get_company_contact_by_phone_number_not_found(sqlite3_datab
 
     # Assert
     assert row is None
+
+
+def test_contact_dao_get_by_company_id(sqlite3_database):
+    # Arrange
+    company_id = generate_uuid4()
+    insert_company(
+        sqlite3_database=sqlite3_database,
+        company_id=company_id,
+        company_name="Company DAO Test",
+    )
+
+    insert_contact(
+        sqlite3_database=sqlite3_database,
+        contact_id=generate_uuid4(),
+        contact_name="Contact A",
+        company_id=company_id,
+    )
+    insert_contact(
+        sqlite3_database=sqlite3_database,
+        contact_id=generate_uuid4(),
+        contact_name="Contact B",
+        company_id=company_id,
+    )
+
+    insert_contact(
+        sqlite3_database=sqlite3_database,
+        contact_id=generate_uuid4(),
+        contact_name="Other Company Contact",
+        company_id=generate_uuid4(),
+    )
+
+    contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
+
+    # Act
+    rows = contact_dao.get_by_company_id(company_id=company_id)
+
+    # Assert
+    assert len(rows) == 2
+    for row in rows:
+        assert row[4] == company_id

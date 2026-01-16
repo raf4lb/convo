@@ -87,6 +87,13 @@ class InMemoryContactRepository(IContactRepository):
         self.get_by_id(contact_id=contact_id)
         self.contacts.pop(contact_id)
 
+    def get_by_company_id(self, company_id) -> list[Contact]:
+        return [
+            contact
+            for contact in self.contacts.values()
+            if contact.company_id == company_id
+        ]
+
     def get_by_phone_number(self, phone_number: str) -> Contact | None:
         for contact in self.contacts.values():
             if contact.phone_number == phone_number:

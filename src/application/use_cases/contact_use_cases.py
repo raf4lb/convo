@@ -64,3 +64,8 @@ class UpdateContactUseCase(IContactUseCase):
 class DeleteContactUseCase(IContactUseCase):
     def execute(self, contact_id: str) -> None:
         self._contact_repository.delete(contact_id)
+
+
+class GetCompanyContactsUseCase(IContactUseCase):
+    def execute(self, company_id: str) -> list[Contact]:
+        return self._contact_repository.get_by_company_id(company_id=company_id)

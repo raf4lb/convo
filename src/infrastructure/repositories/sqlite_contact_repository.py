@@ -47,6 +47,10 @@ class SQLiteContactRepository(IContactRepository):
 
         return self._parse_row(row=row)
 
+    def get_by_company_id(self, company_id: str) -> list[Contact]:
+        rows = self._contact_dao.get_by_company_id(company_id=company_id)
+        return [self._parse_row(row=row) for row in rows]
+
     def get_by_phone_number(self, phone_number: str) -> Contact | None:
         row = self._contact_dao.get_by_phone_number(phone_number=phone_number)
         if not row:

@@ -42,7 +42,7 @@ class SQLiteContactDAO:
             )
             conn.commit()
 
-    def get_by_id(self, contact_id: str) -> tuple:
+    def get_by_id(self, contact_id: str) -> tuple | None:
         with self._connect() as conn:
             cursor = conn.execute(
                 """
@@ -62,7 +62,20 @@ class SQLiteContactDAO:
             )
             return cursor.fetchone()
 
-    def get_by_phone_number(self, phone_number: str) -> tuple:
+    def get_by_company_id(self, company_id: str) -> list[tuple]:
+        with self._connect() as conn:
+            cursor = conn.execute(
+                """
+                SELECT id, name, phone_number, email, company_id, is_blocked, last_contact_at, created_at, updated_at
+                FROM contacts
+                WHERE company_id = ?
+                ORDER BY name ASC
+                """,
+                (company_id,),
+            )
+            return cursor.fetchall()
+
+    def get_by_phone_number(self, phone_number: str) -> tuple | None:
         with self._connect() as conn:
             cursor = conn.execute(
                 """

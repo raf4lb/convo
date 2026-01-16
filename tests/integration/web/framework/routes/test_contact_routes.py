@@ -58,3 +58,25 @@ def test_get_contact_endpoint_not_found(
 
     # Assert
     assert response.status_code == StatusCodes.NOT_FOUND.value
+
+
+def test_get_company_contacts_endpoint(
+    client,
+    company,
+    contact_factory,
+    contact_repository,
+):
+    # Arrange
+    client.app.state.contact_repository = contact_repository
+    contact_factory(name="Contact 1", company_id=company.id)
+    contact_factory(name="Contact 2", company_id=company.id)
+    contact_factory(name="Contact 3", company_id=company.id)
+
+    # Act
+    response = client.get(f"/contacts/company/{company.id}")
+
+    # Assert
+    assert response.status_code == StatusCodes.OK.value
+    data = response.json().get("results")
+    assert len(data) == 3
+    assert any(c["name"] == "Contact 1" for c in data)

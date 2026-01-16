@@ -3,6 +3,7 @@ import pytest
 from src.application.use_cases.contact_use_cases import (
     CreateContactUseCase,
     DeleteContactUseCase,
+    GetCompanyContactsUseCase,
     GetContactUseCase,
     UpdateContactUseCase,
 )
@@ -85,3 +86,17 @@ def test_delete_contact_use_case(contact, contact_repository):
     # Act/Assert
     with pytest.raises(ContactNotFoundError):
         contact_repository.get_by_id(contact.id)
+
+
+def test_get_company_contacts_use_case(contact, contact_repository):
+    # Arrange
+    company_id = contact.company_id
+    use_case = GetCompanyContactsUseCase(contact_repository=contact_repository)
+
+    # Act
+    contacts = use_case.execute(company_id=company_id)
+
+    # Assert
+    assert len(contacts) >= 1
+    assert any(c.id == contact.id for c in contacts)
+    assert all(c.company_id == company_id for c in contacts)

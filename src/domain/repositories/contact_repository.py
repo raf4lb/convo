@@ -17,6 +17,9 @@ class IContactRepository(ABC):
     def delete(self, contact_id: str) -> None: ...
 
     @abstractmethod
+    def get_by_company_id(self, company_id: str) -> list[Contact]: ...
+
+    @abstractmethod
     def get_by_phone_number(self, phone_number: str) -> Contact | None: ...
 
     @abstractmethod
