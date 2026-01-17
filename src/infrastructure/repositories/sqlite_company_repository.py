@@ -41,7 +41,7 @@ class SQLiteCompanyRepository(ICompanyRepository):
         else:
             self._company_dao.insert(company_data)
 
-    def get_by_id(self, company_id: str) -> Company | None:
+    def get_by_id(self, company_id: str) -> Company:
         row = self._company_dao.get_by_id(company_id=company_id)
         if not row:
             raise CompanyNotFoundError

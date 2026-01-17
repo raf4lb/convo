@@ -5,6 +5,7 @@ from src.application.interfaces import IMessageUseCase
 from src.domain.entities.chat import Chat
 from src.domain.entities.contact import Contact
 from src.domain.entities.message import Message
+from src.domain.errors import ChatNotFoundError, ContactNotFoundError
 from src.domain.repositories.chat_repository import IChatRepository
 from src.domain.repositories.contact_repository import IContactRepository
 from src.domain.repositories.message_repository import IMessageRepository
@@ -31,17 +32,21 @@ class ReceiveMessageUseCase(IMessageUseCase):
         receiver_phone_number: str,
         text: str,
     ) -> Message:
-        receiver_contact = self._contact_repository.get_by_phone_number(
-            phone_number=receiver_phone_number
-        )
-        if receiver_contact is None:
+        try:
+            receiver_contact = self._contact_repository.get_by_phone_number(
+                phone_number=receiver_phone_number
+            )
+        except ContactNotFoundError:
             raise ReceiverContactDoesNotExistError
 
-        sender_contact = self._contact_repository.get_company_contact_by_phone_number(
-            company_id=receiver_contact.company_id,
-            phone_number=sender_phone_number,
-        )
-        if sender_contact is None:
+        try:
+            sender_contact = (
+                self._contact_repository.get_company_contact_by_phone_number(
+                    company_id=receiver_contact.company_id,
+                    phone_number=sender_phone_number,
+                )
+            )
+        except ContactNotFoundError:
             sender_contact = Contact(
                 id=generate_uuid4(),
                 name=sender_name,
@@ -50,11 +55,12 @@ class ReceiveMessageUseCase(IMessageUseCase):
             )
             sender_contact = self._contact_repository.save(sender_contact)
 
-        chat = self._chat_repository.get_company_chat_by_contact_id(
-            company_id=receiver_contact.company_id,
-            contact_id=sender_contact.id,
-        )
-        if chat is None:
+        try:
+            chat = self._chat_repository.get_company_chat_by_contact_id(
+                company_id=receiver_contact.company_id,
+                contact_id=sender_contact.id,
+            )
+        except ChatNotFoundError:
             chat = Chat(
                 id=generate_uuid4(),
                 company_id=receiver_contact.company_id,

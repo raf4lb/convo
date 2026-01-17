@@ -42,6 +42,7 @@ def test_receive_message_endpoint(
     # Arrange
     client.app.state.message_repository = message_repository
     client.app.state.contact_repository = contact_repository
+    client.app.state.chat_repository = chat_repository
 
     message_text = "Hello!"
     data = {

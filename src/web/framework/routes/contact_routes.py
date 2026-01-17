@@ -3,8 +3,10 @@ from fastapi.responses import JSONResponse
 
 from src.web.controllers.contact_controllers import (
     CreateCompanyContactHttpController,
+    GetCompanyContactByPhoneHttpController,
     GetCompanyContactsHttpController,
     GetContactHttpController,
+    SearchContactsHttpController,
 )
 from src.web.framework.adapter import request_adapter
 
@@ -15,6 +17,14 @@ contact_routes = APIRouter(prefix="/contacts")
 async def create_company_contact(request: Request) -> JSONResponse:
     repository = request.app.state.contact_repository
     controller = CreateCompanyContactHttpController(contact_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@contact_routes.get("/search")
+async def search_contacts(request: Request) -> JSONResponse:
+    repository = request.app.state.contact_repository
+    controller = SearchContactsHttpController(contact_repository=repository)
     response = controller.handle(request=await request_adapter(request))
     return JSONResponse(content=response.body, status_code=response.status_code)
 
@@ -31,5 +41,15 @@ async def get_contact(request: Request, id: str) -> JSONResponse:
 async def get_company_contacts(request: Request, company_id: str) -> JSONResponse:
     repository = request.app.state.contact_repository
     controller = GetCompanyContactsHttpController(contact_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@contact_routes.get("/company/{company_id}/phone/{phone_number}")
+async def get_company_contact_by_phone(
+    request: Request, company_id: str, phone_number: str
+) -> JSONResponse:
+    repository = request.app.state.contact_repository
+    controller = GetCompanyContactByPhoneHttpController(contact_repository=repository)
     response = controller.handle(request=await request_adapter(request))
     return JSONResponse(content=response.body, status_code=response.status_code)

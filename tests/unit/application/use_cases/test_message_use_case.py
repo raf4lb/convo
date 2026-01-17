@@ -9,7 +9,7 @@ from src.application.use_cases.message_use_cases import (
     ReceiveMessageUseCase,
     UpdateMessageUseCase,
 )
-from src.domain.errors import MessageNotFoundError
+from src.domain.errors import ContactNotFoundError, MessageNotFoundError
 
 
 def test_receive_message_use_case(
@@ -19,7 +19,6 @@ def test_receive_message_use_case(
     receiver_contact,
 ):
     # Arrange
-    contact_repository.save(receiver_contact)
     sender_phone_number = "5588999034445"
     sender_name = "Sender Name"
     message_external_id = "176273512356123"
@@ -97,13 +96,11 @@ def test_receive_message_use_case_create_company_contact(
         chat_repository=chat_repository,
     )
 
-    assert (
+    with pytest.raises(ContactNotFoundError):
         contact_repository.get_company_contact_by_phone_number(
             company_id=receiver_contact.company_id,
             phone_number=sender_phone_number,
         )
-        is None
-    )
 
     # Act
     use_case.execute(

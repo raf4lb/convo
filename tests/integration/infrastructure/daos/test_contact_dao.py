@@ -13,7 +13,7 @@ def insert_contact(
     contact_id: str,
     contact_name: str,
     contact_email: str = "test@contact.com",
-    phone_number: str = DEFAULT_NUMBER,
+    contact_phone: str = DEFAULT_NUMBER,
     company_id: str | None = None,
     is_blocked: bool = False,
     last_contact_at: datetime | None = None,
@@ -30,7 +30,7 @@ def insert_contact(
             (
                 contact_id,
                 contact_name,
-                phone_number,
+                contact_phone,
                 contact_email,
                 company_id,
                 1 if is_blocked else 0,
@@ -78,7 +78,7 @@ def test_contact_dao_update(sqlite3_database):
         contact_name="Contact Name",
         contact_email="test@contact.com",
         company_id="contact@test.com",
-        phone_number="5511999999999",
+        contact_phone="5511999999999",
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
     new_contact_name = "New Contact Name"
@@ -118,7 +118,7 @@ def test_contact_dao_get_by_id(sqlite3_database):
         sqlite3_database=sqlite3_database,
         contact_id=contact_id,
         contact_name=contact_name,
-        phone_number=contact_phone,
+        contact_phone=contact_phone,
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
 
@@ -185,7 +185,7 @@ def test_contact_dao_get_by_phone_number(sqlite3_database):
         sqlite3_database=sqlite3_database,
         contact_id=contact_id,
         contact_name=contact_name,
-        phone_number=phone_number,
+        contact_phone=phone_number,
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
 
@@ -215,7 +215,7 @@ def test_contact_dao_get_company_contact_by_phone_number(sqlite3_database):
         sqlite3_database=sqlite3_database,
         contact_id=contact_id,
         contact_name=contact_name,
-        phone_number=phone_number,
+        contact_phone=phone_number,
         company_id=company_id,
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
@@ -287,3 +287,60 @@ def test_contact_dao_get_by_company_id(sqlite3_database):
     assert len(rows) == 2
     for row in rows:
         assert row[4] == company_id
+
+
+def test_contact_dao_search_contacts(sqlite3_database):
+    # Arrange
+    company_id = generate_uuid4()
+    other_company_id = generate_uuid4()
+
+    insert_company(sqlite3_database, company_id=company_id, company_name="Search Company")
+    insert_company(sqlite3_database, company_id=other_company_id, company_name="Other Company")
+
+    # Contact that should be found by name
+    insert_contact(
+        sqlite3_database,
+        contact_id=generate_uuid4(),
+        contact_name="John Doe",
+        contact_phone="5511999999999",
+        contact_email="john@test.com",
+        company_id=company_id,
+    )
+    # Contact that should be found by phone
+    insert_contact(
+        sqlite3_database,
+        contact_id=generate_uuid4(),
+        contact_name="Jane Smith",
+        contact_phone="5511888888888",
+        contact_email="jane@test.com",
+        company_id=company_id,
+    )
+    # Contact from another company (should not be found)
+    insert_contact(
+        sqlite3_database,
+        contact_id=generate_uuid4(),
+        contact_name="John Other",
+        contact_phone="5511777777777",
+        company_id=other_company_id,
+    )
+
+    contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
+
+    # Act
+    # 1. Search by name (case-insensitive)
+    results_name = contact_dao.search_contacts(company_id=company_id, query="john")
+
+    # 2. Search by phone
+    results_phone = contact_dao.search_contacts(company_id=company_id, query="8888")
+
+    # 3. Search that should not return anything
+    results_none = contact_dao.search_contacts(company_id=company_id, query="John Other")
+
+    # Assert
+    assert len(results_name) == 1
+    assert results_name[0][1] == "John Doe"
+
+    assert len(results_phone) == 1
+    assert results_phone[0][1] == "Jane Smith"
+
+    assert len(results_none) == 0

@@ -11,7 +11,7 @@ class InMemoryMessageRepository(IMessageRepository):
         self.messages[message.id] = message
         return message
 
-    def get_by_id(self, message_id: str) -> Message | None:
+    def get_by_id(self, message_id: str) -> Message:
         message = self.messages.get(message_id)
         if message is None:
             raise MessageNotFoundError

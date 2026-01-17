@@ -12,7 +12,7 @@ class InMemoryContactRepository(IContactRepository):
                 id="e7fc687a-e0fa-49ea-af1b-7a2a2e6fc085",
                 company_id="474d2fd7-2e99-452b-a4db-fe93ecf8729c",
                 name="Maria Silva",
-                phone_number="+55 11 98765-4321",
+                phone_number="5511987654321",
                 email="maria.silva@email.com",
                 is_blocked=False,
                 last_contact_at=datetime(2024, 11, 12, 10, 30, 0),
@@ -22,7 +22,7 @@ class InMemoryContactRepository(IContactRepository):
                 id="e7fc687a-e0fa-49ea-af1b-7a2a2e6fc086",
                 company_id="474d2fd7-2e99-452b-a4db-fe93ecf8729c",
                 name="Carlos Santos",
-                phone_number="+55 21 99876-5432",
+                phone_number="5521998765432",
                 email="carlos.santos@email.com",
                 is_blocked=False,
                 last_contact_at=datetime(2024, 11, 12, 9, 15, 0),
@@ -32,7 +32,7 @@ class InMemoryContactRepository(IContactRepository):
                 id="e7fc687a-e0fa-49ea-af1b-7a2a2e6fc087",
                 company_id="474d2fd7-2e99-452b-a4db-fe93ecf8729c",
                 name="Fernanda Lima",
-                phone_number="+55 11 91234-5678",
+                phone_number="5511912345678",
                 email=None,
                 is_blocked=False,
                 last_contact_at=datetime(2024, 11, 11, 14, 20, 0),
@@ -42,7 +42,7 @@ class InMemoryContactRepository(IContactRepository):
                 id="e7fc687a-e0fa-49ea-af1b-7a2a2e6fc088",
                 company_id="474d2fd7-2e99-452b-a4db-fe93ecf8729c",
                 name="Pedro Oliveira",
-                phone_number="+55 11 98888-7777",
+                phone_number="5511988887777",
                 email="pedro.oliveira@email.com",
                 is_blocked=False,
                 last_contact_at=datetime(2024, 11, 11, 16, 45, 0),
@@ -52,7 +52,7 @@ class InMemoryContactRepository(IContactRepository):
                 id="e7fc687a-e0fa-49ea-af1b-7a2a2e6fc089",
                 company_id="474d2fd7-2e99-452b-a4db-fe93ecf8729c",
                 name="Julia Costa",
-                phone_number="+55 21 97777-6666",
+                phone_number="5521977776666",
                 email="julia.costa@email.com",
                 is_blocked=False,
                 last_contact_at=datetime(2024, 11, 12, 11, 45, 0),
@@ -62,7 +62,7 @@ class InMemoryContactRepository(IContactRepository):
                 id="e7fc687a-e0fa-49ea-af1b-7a2a2e6fc090",
                 company_id="6dfaada5-37b1-442d-a21b-b63edf12bbd0",
                 name="Roberto Alves",
-                phone_number="+55 11 95555-4444",
+                phone_number="5511955554444",
                 email="roberto.alves@email.com",
                 is_blocked=False,
                 last_contact_at=datetime(2024, 11, 10, 10, 0, 0),
@@ -74,7 +74,7 @@ class InMemoryContactRepository(IContactRepository):
         self.contacts[contact.id] = contact
         return contact
 
-    def get_by_id(self, contact_id: str) -> Contact | None:
+    def get_by_id(self, contact_id: str) -> Contact:
         contact = self.contacts.get(contact_id)
         if contact is None:
             raise ContactNotFoundError
@@ -94,11 +94,11 @@ class InMemoryContactRepository(IContactRepository):
             if contact.company_id == company_id
         ]
 
-    def get_by_phone_number(self, phone_number: str) -> Contact | None:
+    def get_by_phone_number(self, phone_number: str) -> Contact:
         for contact in self.contacts.values():
             if contact.phone_number == phone_number:
                 return contact
-        return None
+        raise ContactNotFoundError
 
     def get_company_contact_by_phone_number(
         self,
@@ -111,4 +111,19 @@ class InMemoryContactRepository(IContactRepository):
                 and contact.phone_number == phone_number
             ):
                 return contact
-        return None
+        raise ContactNotFoundError
+
+    def search_contacts(self, company_id: str, query: str) -> list[Contact]:
+        lower_query = query.lower()
+        results = [
+            contact
+            for contact in self.contacts.values()
+            if contact.company_id == company_id
+            and (
+                lower_query in contact.name.lower()
+                or query in contact.phone_number
+                or (contact.email and lower_query in contact.email.lower())
+            )
+        ]
+        results.sort(key=lambda x: x.name)
+        return results

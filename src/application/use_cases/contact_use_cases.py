@@ -30,6 +30,13 @@ class GetContactUseCase(IContactUseCase):
         return self._contact_repository.get_by_id(contact_id)
 
 
+class GetCompanyContactByPhoneUseCase(IContactUseCase):
+    def execute(self, phone_number: str, company_id: str) -> Contact:
+        return self._contact_repository.get_company_contact_by_phone_number(
+            company_id, phone_number
+        )
+
+
 class UpdateContactUseCase(IContactUseCase):
     def execute(
         self,
@@ -69,3 +76,10 @@ class DeleteContactUseCase(IContactUseCase):
 class GetCompanyContactsUseCase(IContactUseCase):
     def execute(self, company_id: str) -> list[Contact]:
         return self._contact_repository.get_by_company_id(company_id=company_id)
+
+
+class SearchContactsUseCase(IContactUseCase):
+    def execute(self, company_id: str, query: str) -> list[Contact]:
+        return self._contact_repository.search_contacts(
+            company_id=company_id, query=query
+        )

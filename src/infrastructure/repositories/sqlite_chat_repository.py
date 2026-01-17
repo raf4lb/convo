@@ -38,7 +38,7 @@ class SQLiteChatRepository(IChatRepository):
         else:
             self._chat_dao.insert(chat_data)
 
-    def get_by_id(self, chat_id: str) -> Chat | None:
+    def get_by_id(self, chat_id: str) -> Chat:
         row = self._chat_dao.get_by_id(chat_id)
         if not row:
             raise ChatNotFoundError
@@ -57,7 +57,7 @@ class SQLiteChatRepository(IChatRepository):
         self,
         company_id: str,
         contact_id: str,
-    ) -> Chat | None:
+    ) -> Chat:
         row = self._chat_dao.get_company_chat_by_contact_id(
             company_id=company_id,
             contact_id=contact_id,

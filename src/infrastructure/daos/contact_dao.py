@@ -124,6 +124,20 @@ class SQLiteContactDAO:
             )
             return cursor.fetchall()
 
+    def search_contacts(self, company_id: str, query: str) -> list[tuple]:
+        with self._connect() as conn:
+            lower_query = f"%{query.lower()}%"
+            cursor = conn.execute(
+                """
+                SELECT id, name, phone_number, email, company_id, is_blocked, last_contact_at, created_at, updated_at
+                FROM contacts
+                WHERE company_id = ? AND (LOWER(name) LIKE ? OR phone_number LIKE ? OR LOWER(email) LIKE ?)
+                ORDER BY name ASC
+                """,
+                (company_id, lower_query, f"%{query}%", lower_query),
+            )
+            return cursor.fetchall()
+
     def delete(self, contact_id: str) -> None:
         with self._connect() as conn:
             conn.execute("DELETE FROM contacts WHERE id = ?", (contact_id,))

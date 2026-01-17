@@ -11,7 +11,7 @@ class InMemoryUserRepository(IUserRepository):
         self.users[user.id] = user
         return user
 
-    def get_by_id(self, user_id: str) -> User | None:
+    def get_by_id(self, user_id: str) -> User:
         user = self.users.get(user_id)
         if user is None:
             raise UserNotFoundError

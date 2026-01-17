@@ -37,7 +37,7 @@ class SQLiteUserRepository(IUserRepository):
         else:
             self.user_dao.insert(user_data)
 
-    def get_by_id(self, user_id: str) -> User | None:
+    def get_by_id(self, user_id: str) -> User:
         row = self.user_dao.get_by_id(user_id=user_id)
         if not row:
             raise UserNotFoundError

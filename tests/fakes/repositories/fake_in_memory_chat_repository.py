@@ -11,7 +11,7 @@ class InMemoryChatRepository(IChatRepository):
         self.chats[chat.id] = chat
         return chat
 
-    def get_by_id(self, chat_id: str) -> Chat | None:
+    def get_by_id(self, chat_id: str) -> Chat:
         chat = self.chats.get(chat_id)
         if chat is None:
             raise ChatNotFoundError
@@ -27,10 +27,8 @@ class InMemoryChatRepository(IChatRepository):
         self.get_by_id(chat_id=chat_id)
         self.chats.pop(chat_id)
 
-    def get_company_chat_by_contact_id(
-        self, company_id: str, contact_id: str
-    ) -> Chat | None:
+    def get_company_chat_by_contact_id(self, company_id: str, contact_id: str) -> Chat:
         for chat in self.chats.values():
             if chat.company_id == company_id and chat.contact_id == contact_id:
                 return chat
-        return None
+        raise ChatNotFoundError

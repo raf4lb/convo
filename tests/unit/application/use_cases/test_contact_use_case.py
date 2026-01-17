@@ -5,6 +5,7 @@ from src.application.use_cases.contact_use_cases import (
     DeleteContactUseCase,
     GetCompanyContactsUseCase,
     GetContactUseCase,
+    SearchContactsUseCase,
     UpdateContactUseCase,
 )
 from src.domain.errors import ContactNotFoundError
@@ -100,3 +101,54 @@ def test_get_company_contacts_use_case(contact, contact_repository):
     assert len(contacts) >= 1
     assert any(c.id == contact.id for c in contacts)
     assert all(c.company_id == company_id for c in contacts)
+
+
+def test_search_contacts_use_case(contact_factory, contact_repository, company):
+    # Arrange
+    contact_factory(
+        name="John Doe",
+        phone_number="123456789",
+        email="john@example.com",
+        company_id=company.id,
+    )
+    contact_factory(
+        name="Jane Smith",
+        phone_number="987654321",
+        email="jane@example.com",
+        company_id=company.id,
+    )
+
+    contact_factory(
+        name="Alice Brown",
+        phone_number="555555555",
+        email="alice@other.com",
+        company_id=company.id,
+    )
+    # Different company
+    contact_factory(
+        name="John Other",
+        phone_number="111111111",
+        company_id="other_company",
+    )
+
+    use_case = SearchContactsUseCase(contact_repository=contact_repository)
+
+    # Act - Search by name (case-insensitive)
+    results_name = use_case.execute(company_id=company.id, query="JOHN")
+
+    # Act - Search by phone
+    results_phone = use_case.execute(company_id=company.id, query="9876")
+
+    # Act - Search by email
+    results_email = use_case.execute(company_id=company.id, query="EXAMPLE")
+
+    # Assert
+    assert len(results_name) == 1
+    assert results_name[0].name == "John Doe"
+
+    assert len(results_phone) == 1
+    assert results_phone[0].name == "Jane Smith"
+
+    assert len(results_email) == 2
+    assert any(c.name == "John Doe" for c in results_email)
+    assert any(c.name == "Jane Smith" for c in results_email)

@@ -20,13 +20,19 @@ Content-Type: application/json
   "phone_number": "5588999034444"
 }
 
+
+###
+
+GET http://localhost:8000/contacts/company/474d2fd7-2e99-452b-a4db-fe93ecf8729c
+
+
 ###
 
 GET http://localhost:8000/contacts
 
 ###
 
-GET http://localhost:8000/contacts/9c5a16eb-fced-40de-a8d9-d102017b3097
+GET http://localhost:8000/contacts/company/474d2fd7-2e99-452b-a4db-fe93ecf8729c/phone/5521977776666
 
 ###
 
@@ -82,3 +88,7 @@ GET http://localhost:8000/chats/?company_id=35796957-9540-4230-94ab-0447d0e7f28b
 ###
 
 GET localhost:8000/messages/2fcf21de-6b37-4daf-ab35-2008950ad2b7
+
+###
+
+GET localhost:8000/contacts/search?company_id=474d2fd7-2e99-452b-a4db-fe93ecf8729c&query=Carlos
