@@ -294,8 +294,12 @@ def test_contact_dao_search_contacts(sqlite3_database):
     company_id = generate_uuid4()
     other_company_id = generate_uuid4()
 
-    insert_company(sqlite3_database, company_id=company_id, company_name="Search Company")
-    insert_company(sqlite3_database, company_id=other_company_id, company_name="Other Company")
+    insert_company(
+        sqlite3_database, company_id=company_id, company_name="Search Company"
+    )
+    insert_company(
+        sqlite3_database, company_id=other_company_id, company_name="Other Company"
+    )
 
     # Contact that should be found by name
     insert_contact(
@@ -334,7 +338,9 @@ def test_contact_dao_search_contacts(sqlite3_database):
     results_phone = contact_dao.search_contacts(company_id=company_id, query="8888")
 
     # 3. Search that should not return anything
-    results_none = contact_dao.search_contacts(company_id=company_id, query="John Other")
+    results_none = contact_dao.search_contacts(
+        company_id=company_id, query="John Other"
+    )
 
     # Assert
     assert len(results_name) == 1
