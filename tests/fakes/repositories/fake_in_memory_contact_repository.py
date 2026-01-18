@@ -135,6 +135,7 @@ class InMemoryContactRepository(IContactRepository):
                 lower_query in contact.name.lower()
                 or query in contact.phone_number
                 or (contact.email and lower_query in contact.email.lower())
+                or lower_query in [tag.lower() for tag in contact.tags]
             )
         ]
         results.sort(key=lambda x: x.name)

@@ -22,7 +22,7 @@ class CreateContactUseCase(IContactUseCase):
             phone_number=phone_number,
             email=email,
             company_id=company_id,
-            tags=tags,
+            tags=[tag.lower() for tag in tags] if tags else [],
             notes=notes,
         )
         self._contact_repository.save(contact)
@@ -67,7 +67,7 @@ class UpdateContactUseCase(IContactUseCase):
         if is_blocked is not UNSET:
             contact.is_blocked = is_blocked
         if tags is not UNSET:
-            contact.tags = tags
+            contact.tags = [tag.lower() for tag in tags]
         if notes is not UNSET:
             contact.notes = notes
         if last_contact_at is not UNSET:
