@@ -56,6 +56,10 @@ def contact_factory(company, contact_repository):
             "phone_number": "5588999034444",
             "email": None,
             "company_id": company.id,
+            "is_blocked": False,
+            "tags": [],
+            "notes": None,
+            "last_contact_at": None,
             "created_at": None,
             "updated_at": None,
         }

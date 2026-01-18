@@ -17,9 +17,11 @@ class SQLiteContactRepository(IContactRepository):
             email=row[3],
             company_id=row[4],
             is_blocked=bool(row[5]),
-            last_contact_at=row[6],
-            created_at=row[7],
-            updated_at=row[8],
+            tags=row[6].split(",") if row[6] else [],
+            notes=row[7],
+            last_contact_at=row[8],
+            created_at=row[9],
+            updated_at=row[10],
         )
 
     def save(self, contact: Contact) -> None:
@@ -31,6 +33,8 @@ class SQLiteContactRepository(IContactRepository):
             "email": contact.email,
             "company_id": contact.company_id,
             "is_blocked": contact.is_blocked,
+            "tags": ",".join(contact.tags) if contact.tags else None,
+            "notes": contact.notes,
             "last_contact_at": contact.last_contact_at,
             "updated_at": contact.updated_at,
         }

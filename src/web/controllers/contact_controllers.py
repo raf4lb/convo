@@ -19,6 +19,8 @@ def format_contact(contact: Contact) -> dict:
         "email": contact.email,
         "company_id": contact.company_id,
         "is_blocked": contact.is_blocked,
+        "tags": contact.tags,
+        "notes": contact.notes,
         "last_contact_at": contact.last_contact_at.isoformat()
         if contact.last_contact_at
         else None,
@@ -31,10 +33,12 @@ class CreateCompanyContactHttpController(IContactHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
         use_case = CreateContactUseCase(contact_repository=self._contact_repository)
         contact = use_case.execute(
+            company_id=request.body["company_id"],
             name=request.body["name"],
             phone_number=request.body["phone_number"],
             email=request.body.get("email"),
-            company_id=request.body["company_id"],
+            tags=request.body.get("tags"),
+            notes=request.body.get("notes"),
         )
 
         return HttpResponse(

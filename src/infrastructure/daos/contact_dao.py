@@ -15,10 +15,11 @@ class SQLiteContactDAO:
         with self._connect() as conn:
             conn.execute(
                 """
-                INSERT INTO contacts (id, name, phone_number, email, company_id,
-                                      is_blocked, last_contact_at)
-                VALUES (:id, :name, :phone_number, :email, :company_id,
-                        :is_blocked, :last_contact_at)
+                INSERT INTO contacts (
+                    id, name, phone_number, email, company_id, is_blocked, tags, notes, last_contact_at
+                ) VALUES (
+                    :id, :name, :phone_number, :email, :company_id, :is_blocked, :tags, :notes, :last_contact_at
+                )
                 """,
                 contact_data,
             )
@@ -28,14 +29,16 @@ class SQLiteContactDAO:
         with self._connect() as conn:
             conn.execute(
                 """
-                UPDATE contacts
-                SET name            = :name,
-                    phone_number    = :phone_number,
-                    email           = :email,
-                    company_id      = :company_id,
-                    is_blocked      = :is_blocked,
+                UPDATE contacts SET
+                    name = :name,
+                    phone_number = :phone_number,
+                    email = :email,
+                    company_id = :company_id,
+                    is_blocked = :is_blocked,
+                    tags = :tags,
+                    notes = :notes,
                     last_contact_at = :last_contact_at,
-                    updated_at      = :updated_at
+                    updated_at = :updated_at
                 WHERE id = :id
                 """,
                 contact_data,

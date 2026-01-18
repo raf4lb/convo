@@ -39,10 +39,10 @@ def test_chat_dao_insert(sqlite3_database):
     contact_id = generate_uuid4()
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name="Contact Name",
+        id=contact_id,
+        name="Contact Name",
         company_id="contact@test.com",
-        contact_phone="5511999999999",
+        phone="5511999999999",
     )
     chat_id = generate_uuid4()
     chat_data = {
@@ -81,10 +81,10 @@ def test_chat_dao_update(sqlite3_database):
     contact_id = generate_uuid4()
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name="Contact Name",
+        id=contact_id,
+        name="Contact Name",
         company_id="contact@test.com",
-        contact_phone="5511999999999",
+        phone="5511999999999",
     )
     chat_id = generate_uuid4()
     insert_chat(

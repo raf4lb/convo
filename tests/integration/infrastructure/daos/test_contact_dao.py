@@ -10,30 +10,35 @@ DEFAULT_NUMBER = "5588123456789"
 
 def insert_contact(
     sqlite3_database: str,
-    contact_id: str,
-    contact_name: str,
-    contact_email: str = "test@contact.com",
-    contact_phone: str = DEFAULT_NUMBER,
+    id: str,
+    name: str,
+    email: str = "test@contact.com",
+    phone: str = DEFAULT_NUMBER,
     company_id: str | None = None,
     is_blocked: bool = False,
+    tags: list[str] = None,
+    notes: str | None = None,
     last_contact_at: datetime | None = None,
 ) -> None:
     with sqlite3.connect(database=sqlite3_database) as conn:
+        tags = ",".join(tags) if tags else None
         conn.execute(
             """
             INSERT INTO contacts (
                 id, name, phone_number, email, company_id,
-                is_blocked, last_contact_at
+                is_blocked, tags, notes, last_contact_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                contact_id,
-                contact_name,
-                contact_phone,
-                contact_email,
+                id,
+                name,
+                phone,
+                email,
                 company_id,
                 1 if is_blocked else 0,
+                tags,
+                notes,
                 last_contact_at,
             ),
         )
@@ -52,6 +57,8 @@ def test_contact_dao_insert(sqlite3_database):
         "email": "test@contact.com",
         "company_id": None,
         "is_blocked": False,
+        "tags": "tag1,tag2",
+        "notes": "Notes",
         "last_contact_at": None,
     }
 
@@ -74,11 +81,11 @@ def test_contact_dao_update(sqlite3_database):
     contact_id = generate_uuid4()
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name="Contact Name",
-        contact_email="test@contact.com",
+        id=contact_id,
+        name="Contact Name",
+        email="test@contact.com",
         company_id="contact@test.com",
-        contact_phone="5511999999999",
+        phone="5511999999999",
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
     new_contact_name = "New Contact Name"
@@ -91,6 +98,8 @@ def test_contact_dao_update(sqlite3_database):
         "company_id": None,
         "is_blocked": False,
         "last_contact_at": get_now(),
+        "tags": "tag1,tag2",
+        "notes": "Notes",
         "updated_at": get_now(),
     }
 
@@ -116,9 +125,9 @@ def test_contact_dao_get_by_id(sqlite3_database):
     contact_phone = "5588123456789"
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name=contact_name,
-        contact_phone=contact_phone,
+        id=contact_id,
+        name=contact_name,
+        phone=contact_phone,
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
 
@@ -136,13 +145,13 @@ def test_contact_dao_get_all(sqlite3_database):
     # Arrange
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="Contact 1",
+        id=generate_uuid4(),
+        name="Contact 1",
     )
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="Contact 2",
+        id=generate_uuid4(),
+        name="Contact 2",
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
 
@@ -158,8 +167,8 @@ def test_contact_dao_delete(sqlite3_database):
     contact_id = generate_uuid4()
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name="Contact Name",
+        id=contact_id,
+        name="Contact Name",
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
 
@@ -183,9 +192,9 @@ def test_contact_dao_get_by_phone_number(sqlite3_database):
     phone_number = "5511911112222"
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name=contact_name,
-        contact_phone=phone_number,
+        id=contact_id,
+        name=contact_name,
+        phone=phone_number,
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
 
@@ -213,9 +222,9 @@ def test_contact_dao_get_company_contact_by_phone_number(sqlite3_database):
 
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=contact_id,
-        contact_name=contact_name,
-        contact_phone=phone_number,
+        id=contact_id,
+        name=contact_name,
+        phone=phone_number,
         company_id=company_id,
     )
     contact_dao = SQLiteContactDAO(db_path=sqlite3_database)
@@ -260,21 +269,21 @@ def test_contact_dao_get_by_company_id(sqlite3_database):
 
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="Contact A",
+        id=generate_uuid4(),
+        name="Contact A",
         company_id=company_id,
     )
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="Contact B",
+        id=generate_uuid4(),
+        name="Contact B",
         company_id=company_id,
     )
 
     insert_contact(
         sqlite3_database=sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="Other Company Contact",
+        id=generate_uuid4(),
+        name="Other Company Contact",
         company_id=generate_uuid4(),
     )
 
@@ -304,27 +313,27 @@ def test_contact_dao_search_contacts(sqlite3_database):
     # Contact that should be found by name
     insert_contact(
         sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="John Doe",
-        contact_phone="5511999999999",
-        contact_email="john@test.com",
+        id=generate_uuid4(),
+        name="John Doe",
+        phone="5511999999999",
+        email="john@test.com",
         company_id=company_id,
     )
     # Contact that should be found by phone
     insert_contact(
         sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="Jane Smith",
-        contact_phone="5511888888888",
-        contact_email="jane@test.com",
+        id=generate_uuid4(),
+        name="Jane Smith",
+        phone="5511888888888",
+        email="jane@test.com",
         company_id=company_id,
     )
     # Contact from another company (should not be found)
     insert_contact(
         sqlite3_database,
-        contact_id=generate_uuid4(),
-        contact_name="John Other",
-        contact_phone="5511777777777",
+        id=generate_uuid4(),
+        name="John Other",
+        phone="5511777777777",
         company_id=other_company_id,
     )
 

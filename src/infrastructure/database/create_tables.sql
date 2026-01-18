@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS contacts (
     email TEXT,
     company_id TEXT,
     is_blocked BOOLEAN DEFAULT 0 NOT NULL,
+    tags TEXT,
+    notes TEXT,
     last_contact_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,

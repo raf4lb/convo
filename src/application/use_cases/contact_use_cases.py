@@ -13,6 +13,8 @@ class CreateContactUseCase(IContactUseCase):
         phone_number: str,
         email: str | None = None,
         company_id: str | None = None,
+        tags: list[str] | None = None,
+        notes: str | None = None,
     ) -> Contact:
         contact = Contact(
             id=generate_uuid4(),
@@ -20,6 +22,8 @@ class CreateContactUseCase(IContactUseCase):
             phone_number=phone_number,
             email=email,
             company_id=company_id,
+            tags=tags,
+            notes=notes,
         )
         self._contact_repository.save(contact)
         return contact
@@ -46,6 +50,8 @@ class UpdateContactUseCase(IContactUseCase):
         email: str | None | UnsetType = UNSET,
         company_id: str | None | UnsetType = UNSET,
         is_blocked: bool | UnsetType = UNSET,
+        tags: list[str] | UnsetType = UNSET,
+        notes: str | None | UnsetType = UNSET,
         last_contact_at: datetime | None | UnsetType = UNSET,
     ) -> Contact:
         contact = self._contact_repository.get_by_id(contact_id)
@@ -60,6 +66,10 @@ class UpdateContactUseCase(IContactUseCase):
             contact.company_id = company_id
         if is_blocked is not UNSET:
             contact.is_blocked = is_blocked
+        if tags is not UNSET:
+            contact.tags = tags
+        if notes is not UNSET:
+            contact.notes = notes
         if last_contact_at is not UNSET:
             contact.last_contact_at = last_contact_at
 
