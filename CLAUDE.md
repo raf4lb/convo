@@ -171,3 +171,10 @@ When adding a new entity or feature:
 - Python 3.13+ required
 - Imports sorted automatically by Ruff
 - Print statements allowed only in run_* scripts
+
+## Git Commit Conventions
+
+- Use conventional commit format: `type: description`
+- Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
+- **Do not include** AI assistant co-author attributions (e.g., "Co-Authored-By") in commit messages
+- Keep commit messages concise and descriptive
