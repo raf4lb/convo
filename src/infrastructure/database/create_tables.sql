@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS messages (
     FOREIGN KEY (chat_id) REFERENCES chats(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY (received_by) REFERENCES contacts(id)
-        ON DELETE CASCADE
+    FOREIGN KEY (received_by) REFERENCES users(id)
+        ON DELETE SET NULL
         ON UPDATE CASCADE
 );
