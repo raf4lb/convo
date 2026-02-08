@@ -25,10 +25,7 @@ def create_app() -> FastAPI:
 
     app.state.settings = load_settings()
 
-    repositories = create_repositories(
-        database_type=app.state.settings.DATABASE_TYPE,
-        settings=app.state.settings,
-    )
+    repositories = create_repositories(settings=app.state.settings)
 
     app.state.user_repository = repositories["user"]
     app.state.company_repository = repositories["company"]

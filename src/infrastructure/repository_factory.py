@@ -54,13 +54,13 @@ from tests.fakes.repositories.fake_in_memory_user_repository import (
 )
 
 
-def create_repositories(database_type: DatabaseType, settings: AppSettings) -> dict:
+def create_repositories(settings: AppSettings) -> dict:
     """
     Factory function to create all repositories based on database type.
 
     Args:
-        database_type: Type of database (DatabaseType enum)
         settings: Application settings containing database configuration
+                  (database type is extracted from settings.DATABASE_TYPE)
 
     Returns:
         Dictionary with repository instances:
@@ -72,6 +72,8 @@ def create_repositories(database_type: DatabaseType, settings: AppSettings) -> d
             "message": IMessageRepository
         }
     """
+    database_type = settings.DATABASE_TYPE
+
     if database_type == DatabaseType.SQLITE:
         setup_sqlite_converters()
         db_path = settings.DATABASE_NAME
