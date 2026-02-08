@@ -8,32 +8,38 @@ Convo is a conversation/chat management API built with FastAPI following Clean A
 
 ## Commands
 
+**IMPORTANT:** All `run_*` commands must be executed inside the Docker container using the pattern:
+```bash
+docker exec convo_api uv run python <command>
+```
+
 ### Running the Application
 ```bash
-python main.py              # Run development server with hot reload
+docker compose up           # Start all services (API, database, ngrok)
+docker compose down         # Stop all services
 ```
 
 ### Testing
 ```bash
-python run_tests.py         # Run all tests with pytest
-python run_tests.py -v      # Run with verbose output
-python run_tests.py tests/unit/  # Run specific test directory
-python run_tests.py tests/unit/application/use_cases/test_user_use_case.py  # Run single test file
-python run_tests.py -k test_name  # Run tests matching pattern
-python run_coverage.py      # Run tests with coverage report
+docker exec convo_api uv run python run_tests.py         # Run all tests with pytest
+docker exec convo_api uv run python run_tests.py -v      # Run with verbose output
+docker exec convo_api uv run python run_tests.py tests/unit/  # Run specific test directory
+docker exec convo_api uv run python run_tests.py tests/unit/application/use_cases/test_user_use_case.py  # Run single test file
+docker exec convo_api uv run python run_tests.py -k test_name  # Run tests matching pattern
+docker exec convo_api uv run python run_coverage.py      # Run tests with coverage report
 ```
 
 ### Code Quality
 ```bash
-python run_linter.py .      # Check code with Ruff
-python run_linter.py --fix . # Auto-fix linting issues
-python run_formatter.py .   # Format code with Ruff
-python run_formatter.py --check .  # Check formatting without changes
+docker exec convo_api uv run python run_linter.py .      # Check code with Ruff
+docker exec convo_api uv run python run_linter.py --fix . # Auto-fix linting issues
+docker exec convo_api uv run python run_formatter.py .   # Format code with Ruff
+docker exec convo_api uv run python run_formatter.py --check .  # Check formatting without changes
 ```
 
 ### Deployment
 ```bash
-python run_deploy.py        # Build Docker image and deploy to Kubernetes
+docker exec convo_api uv run python run_deploy.py        # Build Docker image and deploy to Kubernetes
 ```
 
 ## Architecture
