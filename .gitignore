@@ -19,6 +19,7 @@ package-lock.json
 # Build outputs
 apps/ui/build/
 apps/ui/dist/
+apps/ui/.vite/
 apps/api/.coverage
 
 # IDEs

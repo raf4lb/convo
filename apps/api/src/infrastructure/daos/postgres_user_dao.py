@@ -18,8 +18,8 @@ class PostgresUserDAO:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO users (id, name, email, type, company_id, is_active)
-                    VALUES (%(id)s, %(name)s, %(email)s, %(type)s, %(company_id)s, %(is_active)s)
+                    INSERT INTO users (id, name, email, type, password_hash, company_id, is_active)
+                    VALUES (%(id)s, %(name)s, %(email)s, %(type)s, %(password_hash)s, %(company_id)s, %(is_active)s)
                 """,
                     user_data,
                 )
@@ -41,6 +41,20 @@ class PostgresUserDAO:
                     WHERE id = %(id)s
                 """,
                     user_data,
+                )
+            conn.commit()
+
+    def update_password(self, user_id: str, password_hash: str) -> None:
+        """Update only the password hash for a user."""
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE users
+                    SET password_hash = %(password_hash)s
+                    WHERE id = %(id)s
+                """,
+                    {"id": user_id, "password_hash": password_hash},
                 )
             conn.commit()
 
@@ -66,6 +80,19 @@ class PostgresUserDAO:
                     ORDER BY created_at DESC
                 """)
                 return cursor.fetchall()
+
+    def get_by_email(self, email: str) -> tuple:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, name, email, type, password_hash, company_id, is_active, created_at, updated_at
+                    FROM users
+                    WHERE email = %s
+                """,
+                    (email,),
+                )
+                return cursor.fetchone()
 
     def delete(self, user_id: str) -> None:
         with self._connect() as conn:

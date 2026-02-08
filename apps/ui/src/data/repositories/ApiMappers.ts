@@ -84,7 +84,7 @@ export interface UserDTO {
   updated_at: string | null;
 }
 
-function mapBackendTypeToRole(type: "administrator" | "manager" | "staff"): UserRole {
+export function mapBackendTypeToRole(type: "administrator" | "manager" | "staff"): UserRole {
   const mapping = {
     administrator: UserRole.ADMINISTRATOR,
     manager: UserRole.MANAGER,

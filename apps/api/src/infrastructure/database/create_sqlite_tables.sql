@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     type TEXT NOT NULL,
+    password_hash TEXT,
     company_id TEXT,
     is_active BOOLEAN DEFAULT 1 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

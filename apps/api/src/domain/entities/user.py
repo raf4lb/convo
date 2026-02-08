@@ -12,6 +12,7 @@ class User(BaseEntity):
         name: str,
         email: str,
         type: UserTypes,
+        password_hash: str | None = None,
         company_id: str | None = None,
         is_active: bool = True,
         created_at: datetime | None = None,
@@ -22,6 +23,7 @@ class User(BaseEntity):
         self.name = name
         self.email = email
         self.type = type
+        self.password_hash = password_hash
         self.company_id = company_id
         self.is_active = is_active
 
@@ -59,3 +61,7 @@ class User(BaseEntity):
             errors.append("invalid updated at")
 
         return errors
+
+    def has_password(self) -> bool:
+        """Check if the user has a password set."""
+        return self.password_hash is not None and self.password_hash != ""

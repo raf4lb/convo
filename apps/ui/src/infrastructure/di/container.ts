@@ -30,6 +30,7 @@ import { GetUsersByCompany } from "../../domain/use-cases/user/GetUsersByCompany
 import { SearchUsers } from "../../domain/use-cases/user/SearchUsers";
 import { UpdateUser } from "../../domain/use-cases/user/UpdateUser";
 import { InMemoryEventBus } from "../events/EventBus";
+import { AuthInterceptor } from "../http/AuthInterceptor";
 import { HttpClient } from "../http/HttpClient";
 import { WebSocketAdapter } from "../websocket/WebSocketAdapter";
 import { onMessageReceivedHandler } from "../websocket/WebSocketHandlers";
@@ -42,13 +43,18 @@ messagesWebSocket.addHandler(onMessageReceivedHandler);
 // EventBus
 export const eventBus = new InMemoryEventBus();
 
+// HTTP Client with Auth Interceptor
+const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const client = new HttpClient(baseUrl, 30000, 3);
+const authInterceptor = new AuthInterceptor(baseUrl);
+client.addResponseInterceptor(authInterceptor.createResponseInterceptor());
+
 // Repositories (Singleton instances)
 const conversationRepository = new ConversationRepository();
 const metricsRepository = new MetricsRepository();
-const client = new HttpClient("http://localhost:8000", 30000, 3);
 const companyRepository = new ApiCompanyRepository(client);
 const userRepository = new ApiUserRepository(client);
-const authRepository = new AuthRepository(userRepository, companyRepository);
+const authRepository = new AuthRepository(client, companyRepository);
 const customerRepository = new ApiCustomerRepository(client);
 const attendantStatsRepository = new AttendantStatsRepository();
 

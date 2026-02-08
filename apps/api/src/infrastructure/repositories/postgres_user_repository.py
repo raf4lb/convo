@@ -11,15 +11,32 @@ class PostgresUserRepository(IUserRepository):
 
     @staticmethod
     def _parse_row(row: tuple) -> User:
+        """Parse row from get_by_id or get_all (without password_hash)."""
         return User(
             id=row[0],
             name=row[1],
             email=row[2],
             type=UserTypes(row[3]),
+            password_hash=None,
             company_id=row[4],
             is_active=row[5],
             created_at=row[6],
             updated_at=row[7],
+        )
+
+    @staticmethod
+    def _parse_row_with_password(row: tuple) -> User:
+        """Parse row from get_by_email (with password_hash)."""
+        return User(
+            id=row[0],
+            name=row[1],
+            email=row[2],
+            type=UserTypes(row[3]),
+            password_hash=row[4],
+            company_id=row[5],
+            is_active=row[6],
+            created_at=row[7],
+            updated_at=row[8],
         )
 
     def save(self, user: User) -> None:
@@ -29,6 +46,7 @@ class PostgresUserRepository(IUserRepository):
             "name": user.name,
             "email": user.email,
             "type": user.type.value,
+            "password_hash": user.password_hash,
             "company_id": user.company_id,
             "is_active": user.is_active,
             "created_at": user.created_at,
@@ -47,6 +65,13 @@ class PostgresUserRepository(IUserRepository):
 
         return self._parse_row(row=row)
 
+    def get_by_email(self, email: str) -> User:
+        row = self.user_dao.get_by_email(email=email)
+        if not row:
+            raise UserNotFoundError
+
+        return self._parse_row_with_password(row=row)
+
     def get_all(self) -> list[User]:
         rows = self.user_dao.get_all()
         return [self._parse_row(row=row) for row in rows]
@@ -54,3 +79,8 @@ class PostgresUserRepository(IUserRepository):
     def delete(self, user_id: str) -> None:
         self.get_by_id(user_id=user_id)
         self.user_dao.delete(user_id=user_id)
+
+    def update_password(self, user_id: str, password_hash: str) -> None:
+        """Update only the password for a user."""
+        self.get_by_id(user_id=user_id)  # Verify user exists
+        self.user_dao.update_password(user_id=user_id, password_hash=password_hash)

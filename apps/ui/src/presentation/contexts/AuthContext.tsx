@@ -20,8 +20,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_KEY = "auth_token";
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,18 +30,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const validateStoredSession = async () => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (token) {
-        const validSession = await validateSessionUseCase.execute(token);
-        if (validSession) {
-          setSession(validSession);
-        } else {
-          localStorage.removeItem(TOKEN_KEY);
-        }
+      const validSession = await validateSessionUseCase.execute("");
+      if (validSession) {
+        setSession(validSession);
       }
     } catch (error) {
-      console.error("Error validating session:", error);
-      localStorage.removeItem(TOKEN_KEY);
+      throw new Error("Error validating session: " + error.toString());
     } finally {
       setLoading(false);
     }
@@ -52,18 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const newSession = await loginUseCase.execute(email, password);
     setSession(newSession);
-    localStorage.setItem(TOKEN_KEY, newSession.token);
   };
 
   const logout = async () => {
     try {
-      if (session) {
-        await logoutUseCase.execute(session.token);
-      }
+      await logoutUseCase.execute("");
       setSession(null);
-      localStorage.removeItem(TOKEN_KEY);
     } catch (error) {
-      console.error("Error logging out:", error);
+      throw new Error("Error logging out: " + error.toString());
     }
   };
 

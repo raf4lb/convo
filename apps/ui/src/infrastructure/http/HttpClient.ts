@@ -6,6 +6,14 @@ export type HttpResponse = {
   data: unknown;
 };
 
+export type RequestInterceptor = (
+  url: string,
+  // eslint-disable-next-line no-undef
+  init: RequestInit,
+) => Promise<{ url: string; init: RequestInit }>;
+
+export type ResponseInterceptor = (response: Response) => Promise<Response>;
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type QueryParams = Record<string, string | number | boolean | undefined>;
@@ -21,6 +29,8 @@ interface RequestOptionsWithBody extends RequestOptions {
 
 export class HttpClient {
   private readonly defaultHeaders: HttpHeaders;
+  private requestInterceptors: RequestInterceptor[] = [];
+  private responseInterceptors: ResponseInterceptor[] = [];
 
   constructor(
     private readonly baseUrl: string,
@@ -32,6 +42,14 @@ export class HttpClient {
       "Content-Type": "application/json",
       ...defaultHeaders,
     };
+  }
+
+  addRequestInterceptor(interceptor: RequestInterceptor): void {
+    this.requestInterceptors.push(interceptor);
+  }
+
+  addResponseInterceptor(interceptor: ResponseInterceptor): void {
+    this.responseInterceptors.push(interceptor);
   }
 
   /**
@@ -46,10 +64,22 @@ export class HttpClient {
     const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
 
     try {
-      return await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
+      let modifiedUrl = url;
+      let modifiedOptions = { ...options, signal: controller.signal };
+
+      for (const interceptor of this.requestInterceptors) {
+        const result = await interceptor(modifiedUrl, modifiedOptions);
+        modifiedUrl = result.url;
+        modifiedOptions = result.init;
+      }
+
+      let response = await fetch(modifiedUrl, modifiedOptions);
+
+      for (const interceptor of this.responseInterceptors) {
+        response = await interceptor(response);
+      }
+
+      return response;
     } finally {
       clearTimeout(timeoutId);
     }
@@ -86,6 +116,7 @@ export class HttpClient {
           ...options?.headers,
         },
         body: options?.body && method !== "GET" ? JSON.stringify(options.body) : undefined,
+        credentials: "include",
       });
 
       const data = await response.json().catch(() => null);

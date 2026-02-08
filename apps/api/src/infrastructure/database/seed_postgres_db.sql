@@ -13,14 +13,14 @@ VALUES
     ('6dfaada5-37b1-442d-a21b-b63edf12bbd0', 'Comércio Digital SA', 'contato@comerciodigital.com', '5521998765432', 'mock-api-key-456', TRUE, FALSE, '2024-02-20 00:00:00+00', '2024-02-20 00:00:00+00')
 ON CONFLICT (id) DO NOTHING;
 
--- Insert users
-INSERT INTO users (id, name, email, type, company_id, is_active, created_at, updated_at)
+-- Insert users (password for all: Password123)
+INSERT INTO users (id, name, email, type, password_hash, company_id, is_active, created_at, updated_at)
 VALUES
-    ('03f1d919-cba6-479f-baec-5fcbc77b9d85', 'Admin User', 'admin@techsolutions.com', 'administrator', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-15 00:00:00+00', NULL),
-    ('e8bf801b-d16a-4736-8df9-df9d9278293c', 'João Silva', 'joao@techsolutions.com', 'staff', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-20 00:00:00+00', NULL),
-    ('3b757f19-4cba-448a-b114-31d54c53adf9', 'Ana Costa', 'ana@techsolutions.com', 'staff', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-20 00:00:00+00', NULL),
-    ('23d04704-3770-4e4e-b5fe-b73359a400f5', 'Carlos Mendes', 'carlos@techsolutions.com', 'manager', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-18 00:00:00+00', NULL),
-    ('b7b5c158-355d-45c2-b021-7e1bdbdd0f87', 'Admin Comércio', 'admin@comerciodigital.com', 'administrator', '6dfaada5-37b1-442d-a21b-b63edf12bbd0', TRUE, '2024-02-20 00:00:00+00', NULL)
+    ('03f1d919-cba6-479f-baec-5fcbc77b9d85', 'Admin User', 'admin@techsolutions.com', 'administrator', '$2b$12$K1VscGyaJdHcN5lioNvm9ugNt1Z4h9D3I5BCQt4w/RVpsNE68W3NC', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-15 00:00:00+00', NULL),
+    ('e8bf801b-d16a-4736-8df9-df9d9278293c', 'João Silva', 'joao@techsolutions.com', 'staff', '$2b$12$K1VscGyaJdHcN5lioNvm9ugNt1Z4h9D3I5BCQt4w/RVpsNE68W3NC', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-20 00:00:00+00', NULL),
+    ('3b757f19-4cba-448a-b114-31d54c53adf9', 'Ana Costa', 'ana@techsolutions.com', 'staff', '$2b$12$K1VscGyaJdHcN5lioNvm9ugNt1Z4h9D3I5BCQt4w/RVpsNE68W3NC', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-20 00:00:00+00', NULL),
+    ('23d04704-3770-4e4e-b5fe-b73359a400f5', 'Carlos Mendes', 'carlos@techsolutions.com', 'manager', '$2b$12$K1VscGyaJdHcN5lioNvm9ugNt1Z4h9D3I5BCQt4w/RVpsNE68W3NC', '474d2fd7-2e99-452b-a4db-fe93ecf8729c', TRUE, '2024-01-18 00:00:00+00', NULL),
+    ('b7b5c158-355d-45c2-b021-7e1bdbdd0f87', 'Admin Comércio', 'admin@comerciodigital.com', 'administrator', '$2b$12$K1VscGyaJdHcN5lioNvm9ugNt1Z4h9D3I5BCQt4w/RVpsNE68W3NC', '6dfaada5-37b1-442d-a21b-b63edf12bbd0', TRUE, '2024-02-20 00:00:00+00', NULL)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert contacts

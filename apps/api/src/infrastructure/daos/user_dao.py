@@ -15,8 +15,8 @@ class SQLiteUserDAO:
         with self._connect() as conn:
             conn.execute(
                 """
-                INSERT INTO users (id, name, email, type, company_id, is_active)
-                VALUES (:id, :name, :email, :type, :company_id, :is_active)
+                INSERT INTO users (id, name, email, type, password_hash, company_id, is_active)
+                VALUES (:id, :name, :email, :type, :password_hash, :company_id, :is_active)
             """,
                 user_data,
             )
@@ -40,6 +40,19 @@ class SQLiteUserDAO:
             )
             conn.commit()
 
+    def update_password(self, user_id: str, password_hash: str) -> None:
+        """Update only the password hash for a user."""
+        with self._connect() as conn:
+            conn.execute(
+                """
+                UPDATE users
+                SET password_hash = :password_hash
+                WHERE id = :id
+            """,
+                {"id": user_id, "password_hash": password_hash},
+            )
+            conn.commit()
+
     def get_by_id(self, user_id: str) -> tuple:
         with self._connect() as conn:
             cursor = conn.execute(
@@ -60,6 +73,18 @@ class SQLiteUserDAO:
                 ORDER BY created_at DESC
             """)
             return cursor.fetchall()
+
+    def get_by_email(self, email: str) -> tuple:
+        with self._connect() as conn:
+            cursor = conn.execute(
+                """
+                SELECT id, name, email, type, password_hash, company_id, is_active, created_at, updated_at
+                FROM users
+                WHERE email = ?
+            """,
+                (email,),
+            )
+            return cursor.fetchone()
 
     def delete(self, user_id: str) -> None:
         with self._connect() as conn:

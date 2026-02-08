@@ -13,6 +13,11 @@ class AppSettings:
     DATABASE_URL: str
     WEBHOOK_VERIFY_TOKEN: str
     CORS_ORIGINS: list[str]
+    JWT_SECRET: str
+    JWT_ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
+    SECURE_COOKIES: bool
 
 
 def load_settings():
@@ -33,4 +38,9 @@ def load_settings():
         DATABASE_URL=os.getenv("DATABASE_URL"),
         WEBHOOK_VERIFY_TOKEN=os.getenv("WEBHOOK_VERIFY_TOKEN"),
         CORS_ORIGINS=os.getenv("CORS_ORIGINS").split(","),
+        JWT_SECRET=os.getenv("JWT_SECRET", "dev-secret-change-in-production"),
+        JWT_ALGORITHM=os.getenv("JWT_ALGORITHM", "HS256"),
+        ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15")),
+        REFRESH_TOKEN_EXPIRE_DAYS=int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7")),
+        SECURE_COOKIES=os.getenv("SECURE_COOKIES", "false").lower() == "true",
     )
