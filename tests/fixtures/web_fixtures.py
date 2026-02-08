@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from src.infrastructure.enums import DatabaseType
 from src.infrastructure.settings import AppSettings
 from src.web.framework.app import create_app
 
@@ -8,6 +9,7 @@ from src.web.framework.app import create_app
 @pytest.fixture
 def app_settings():
     return AppSettings(
+        DATABASE_TYPE=DatabaseType.INMEMORY,
         DATABASE_NAME="DATABASE_NAME",
         DATABASE_USER="DATABASE_USER",
         DATABASE_PASSWORD="DATABASE_PASSWORD",
