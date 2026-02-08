@@ -8,6 +8,7 @@ dependencies = [
     "fastapi[standard]>=0.128.0",
     "flask>=3.1.2",
     "gunicorn>=23.0.0",
+    "psycopg2-binary>=2.9.10",
     "pytest>=8.4.2",
     "ruff>=0.14.2",
     "uvicorn>=0.40.0",
@@ -26,6 +27,7 @@ ignore = ["E501", "F403"]
 # Ignorar prints especificamente em arquivos de scripts
 [tool.ruff.lint.per-file-ignores]
 "src/infrastructure/database/init_db.py" = ["T201"]
+"src/infrastructure/database/init_postgres_db.py" = ["T201"]
 "run_*" = ["T201"]
 
 [tool.ruff.format]

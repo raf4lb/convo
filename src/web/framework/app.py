@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.infrastructure.repository_factory import create_repositories
 from src.infrastructure.settings import load_settings
 from src.web.framework.routes.chat_routes import chat_routes
 from src.web.framework.routes.company_routes import company_routes
@@ -9,21 +10,6 @@ from src.web.framework.routes.message_routes import message_routes
 from src.web.framework.routes.readiness_routes import readiness_routes
 from src.web.framework.routes.user_routes import user_routes
 from src.web.framework.routes.webhook_routes import webhook_routes
-from tests.fakes.repositories.fake_in_memory_chat_repository import (
-    InMemoryChatRepository,
-)
-from tests.fakes.repositories.fake_in_memory_company_repository import (
-    InMemoryCompanyRepository,
-)
-from tests.fakes.repositories.fake_in_memory_contact_repository import (
-    InMemoryContactRepository,
-)
-from tests.fakes.repositories.fake_in_memory_message_repository import (
-    InMemoryMessageRepository,
-)
-from tests.fakes.repositories.fake_in_memory_user_repository import (
-    InMemoryUserRepository,
-)
 
 
 def create_app() -> FastAPI:
@@ -37,21 +23,18 @@ def create_app() -> FastAPI:
     app.include_router(message_routes)
     app.include_router(webhook_routes)
 
-    # setup_sqlite_converters()
-    # DATABASE_NAME = "app.db"
-    # user_dao = SQLiteUserDAO(DATABASE_NAME)
-    # app.config["user_repository"] = SQLiteUserRepository(user_dao=user_dao)
-    #
-    # company_dao = SQLiteCompanyDAO(DATABASE_NAME)
-    # app.config["company_repository"] = SQLiteCompanyRepository(company_dao=company_dao)
-
-    app.state.user_repository = InMemoryUserRepository()
-    app.state.company_repository = InMemoryCompanyRepository()
-    app.state.contact_repository = InMemoryContactRepository()
-    app.state.chat_repository = InMemoryChatRepository()
-    app.state.message_repository = InMemoryMessageRepository()
-
     app.state.settings = load_settings()
+
+    repositories = create_repositories(
+        database_type=app.state.settings.DATABASE_TYPE,
+        settings=app.state.settings,
+    )
+
+    app.state.user_repository = repositories["user"]
+    app.state.company_repository = repositories["company"]
+    app.state.contact_repository = repositories["contact"]
+    app.state.chat_repository = repositories["chat"]
+    app.state.message_repository = repositories["message"]
 
     origins = app.state.settings.CORS_ORIGINS
 
