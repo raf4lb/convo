@@ -38,6 +38,7 @@ def user_factory(company, user_repository):
             "email": "email@gmail.com",
             "type": UserTypes.STAFF,
             "company_id": company.id,
+            "is_active": True,
         }
         user_data.update(**kwargs)
         user = User(**user_data)

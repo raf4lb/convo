@@ -42,6 +42,7 @@ class CreateUserUseCase(IUserUseCase):
         email: str,
         type: UserTypes,
         company_id: str | None = None,
+        is_active: bool = True,
     ) -> User:
         user = User(
             id=generate_uuid4(),
@@ -49,6 +50,7 @@ class CreateUserUseCase(IUserUseCase):
             email=email,
             type=type,
             company_id=company_id,
+            is_active=is_active,
         )
 
         if errors := validate_user(user, self._company_repository):
@@ -74,6 +76,7 @@ class UpdateUserUseCase(IUserUseCase):
         email: str | UnsetType = UNSET,
         type: UserTypes | UnsetType = UNSET,
         company_id: str | None | UnsetType = UNSET,
+        is_active: bool | UnsetType = UNSET,
     ) -> User:
         user = self._user_repository.get_by_id(user_id)
 
@@ -85,6 +88,8 @@ class UpdateUserUseCase(IUserUseCase):
             user.type = type
         if company_id is not UNSET:
             user.company_id = company_id
+        if is_active is not UNSET:
+            user.is_active = is_active
 
         if errors := validate_user(user, self._company_repository):
             raise InvalidUserError(errors=errors)

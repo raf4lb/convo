@@ -183,3 +183,96 @@ def test_delete_user_endpoint_non_existing_user(
     # Assert
     assert response.status_code == StatusCodes.NOT_FOUND.value
     assert response.json().get("detail") == "user not found"
+
+
+def test_create_user_with_is_active_false(
+    client,
+    user_repository,
+    company_repository,
+):
+    # Arrange
+    client.app.state.user_repository = user_repository
+    client.app.state.company_repository = company_repository
+    data = {
+        "name": "Inactive User",
+        "email": "inactive@test.com",
+        "type": UserTypes.STAFF.value,
+        "company_id": None,
+        "is_active": False,
+    }
+
+    # Act
+    response = client.post("/users/", json=data)
+
+    # Assert
+    assert response.status_code == StatusCodes.CREATED.value
+    created_user = response.json()
+    assert created_user.get("is_active") is False
+    fetched_user = user_repository.get_by_id(user_id=created_user.get("id"))
+    assert fetched_user.is_active is False
+
+
+def test_get_user_includes_is_active(
+    client,
+    staff_user,
+    user_repository,
+):
+    # Arrange
+    client.app.state.user_repository = user_repository
+
+    # Act
+    response = client.get(f"/users/{staff_user.id}")
+
+    # Assert
+    assert response.status_code == StatusCodes.OK.value
+    user_data = response.json()
+    assert "is_active" in user_data
+    assert user_data.get("is_active") is True
+
+
+def test_update_user_is_active(
+    client,
+    staff_user,
+    user_repository,
+    company_repository,
+):
+    # Arrange
+    client.app.state.user_repository = user_repository
+    client.app.state.company_repository = company_repository
+    data = {
+        "name": staff_user.name,
+        "email": staff_user.email,
+        "type": staff_user.type.value,
+        "is_active": False,
+    }
+
+    # Act
+    response = client.put(f"/users/{staff_user.id}", json=data)
+
+    # Assert
+    assert response.status_code == StatusCodes.OK.value
+    updated_user = response.json()
+    assert updated_user.get("is_active") is False
+    fetched_user = user_repository.get_by_id(user_id=staff_user.id)
+    assert fetched_user.is_active is False
+
+
+def test_list_users_includes_is_active(
+    client,
+    user_factory,
+    user_repository,
+):
+    # Arrange
+    client.app.state.user_repository = user_repository
+    user_factory(is_active=True)
+    user_factory(is_active=False)
+
+    # Act
+    response = client.get("/users/")
+
+    # Assert
+    assert response.status_code == StatusCodes.OK.value
+    results = response.json().get("results")
+    assert len(results) == 2
+    for user in results:
+        assert "is_active" in user

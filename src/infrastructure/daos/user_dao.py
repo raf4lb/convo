@@ -15,8 +15,8 @@ class SQLiteUserDAO:
         with self._connect() as conn:
             conn.execute(
                 """
-                INSERT INTO users (id, name, email, type, company_id)
-                VALUES (:id, :name, :email, :type, :company_id)
+                INSERT INTO users (id, name, email, type, company_id, is_active)
+                VALUES (:id, :name, :email, :type, :company_id, :is_active)
             """,
                 user_data,
             )
@@ -32,6 +32,7 @@ class SQLiteUserDAO:
                     email = :email,
                     type = :type,
                     company_id = :company_id,
+                    is_active = :is_active,
                     updated_at = :updated_at
                 WHERE id = :id
             """,
@@ -43,7 +44,7 @@ class SQLiteUserDAO:
         with self._connect() as conn:
             cursor = conn.execute(
                 """
-                SELECT id, name, email, type, company_id, created_at, updated_at
+                SELECT id, name, email, type, company_id, is_active, created_at, updated_at
                 FROM users
                 WHERE id = ?
             """,
@@ -54,7 +55,7 @@ class SQLiteUserDAO:
     def get_all(self) -> list[tuple]:
         with self._connect() as conn:
             cursor = conn.execute("""
-                SELECT id, name, email, type, company_id, created_at, updated_at
+                SELECT id, name, email, type, company_id, is_active, created_at, updated_at
                 FROM users
                 ORDER BY created_at DESC
             """)

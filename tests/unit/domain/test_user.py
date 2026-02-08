@@ -139,3 +139,21 @@ def test_validate_user_invalid_updated_at():
 
     # Assert
     assert errors[0] == "invalid updated at"
+
+
+def test_validate_user_invalid_is_active():
+    # Arrange
+    user = User(
+        id=generate_uuid4(),
+        type=UserTypes.ADMINISTRATOR,
+        name="Test User",
+        email="email@test.com",
+        company_id=generate_uuid4(),
+        is_active="not a bool",
+    )
+
+    # Act
+    errors = user.validate()
+
+    # Assert
+    assert "invalid is_active" in errors

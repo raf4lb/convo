@@ -12,14 +12,15 @@ def insert_user(
     user_id: str,
     user_name: str,
     email: str = DEFAULT_EMAIL,
+    is_active: bool = True,
 ) -> None:
     with sqlite3.connect(database=sqlite3_database) as conn:
         conn.execute(
             """
-            INSERT INTO users (id, name, email, type)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO users (id, name, email, type, is_active)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (user_id, user_name, email, UserTypes.STAFF.value),
+            (user_id, user_name, email, UserTypes.STAFF.value, is_active),
         )
         conn.commit()
 
@@ -34,6 +35,7 @@ def test_user_dao_insert(sqlite3_database):
         "email": DEFAULT_EMAIL,
         "type": UserTypes.STAFF.value,
         "company_id": None,
+        "is_active": True,
     }
     user_dao = SQLiteUserDAO(db_path=sqlite3_database)
 
@@ -69,6 +71,7 @@ def test_user_dao_update(sqlite3_database):
         "email": DEFAULT_EMAIL,
         "type": UserTypes.STAFF.value,
         "company_id": None,
+        "is_active": True,
         "updated_at": get_now(),
     }
     user_dao.update(user_data=user_data)
@@ -148,6 +151,39 @@ def test_user_dao_delete(sqlite3_database):
     with sqlite3.connect(database=sqlite3_database) as conn:
         cursor = conn.execute(
             "SELECT COUNT(name) FROM users WHERE id = ?",
+            (user_id,),
+        )
+        data = cursor.fetchone()
+        assert data[0] == 0
+
+
+def test_user_dao_update_is_active(sqlite3_database):
+    # Arrange
+    user_id = generate_uuid4()
+    insert_user(
+        sqlite3_database=sqlite3_database,
+        user_id=user_id,
+        user_name="User Name",
+        is_active=True,
+    )
+    user_dao = SQLiteUserDAO(db_path=sqlite3_database)
+
+    # Act
+    user_data = {
+        "id": user_id,
+        "name": "User Name",
+        "email": DEFAULT_EMAIL,
+        "type": UserTypes.STAFF.value,
+        "company_id": None,
+        "is_active": False,
+        "updated_at": get_now(),
+    }
+    user_dao.update(user_data=user_data)
+
+    # Assert
+    with sqlite3.connect(database=sqlite3_database) as conn:
+        cursor = conn.execute(
+            "SELECT is_active FROM users WHERE id = ?",
             (user_id,),
         )
         data = cursor.fetchone()

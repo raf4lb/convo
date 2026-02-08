@@ -172,3 +172,61 @@ def test_list_user_use_case(user_factory, user_repository):
 
     # Assert
     assert len(users) == 2
+
+
+def test_create_user_with_is_active_false(user_repository, company_repository):
+    # Arrange
+    use_case = CreateUserUseCase(
+        user_repository=user_repository,
+        company_repository=company_repository,
+    )
+
+    # Act
+    user = use_case.execute(
+        name="Inactive User",
+        email="inactive@test.com",
+        type=UserTypes.STAFF,
+        is_active=False,
+    )
+
+    # Assert
+    assert user.is_active is False
+    saved_user = user_repository.get_by_id(user.id)
+    assert saved_user.is_active is False
+
+
+def test_create_user_default_is_active_true(user_repository, company_repository):
+    # Arrange
+    use_case = CreateUserUseCase(
+        user_repository=user_repository,
+        company_repository=company_repository,
+    )
+
+    # Act
+    user = use_case.execute(
+        name="Active User",
+        email="active@test.com",
+        type=UserTypes.STAFF,
+    )
+
+    # Assert
+    assert user.is_active is True
+
+
+def test_update_user_toggle_is_active(staff_user, user_repository, company_repository):
+    # Arrange
+    use_case = UpdateUserUseCase(
+        user_repository=user_repository,
+        company_repository=company_repository,
+    )
+
+    # Act
+    updated_user = use_case.execute(
+        user_id=staff_user.id,
+        is_active=False,
+    )
+
+    # Assert
+    assert updated_user.is_active is False
+    saved_user = user_repository.get_by_id(staff_user.id)
+    assert saved_user.is_active is False

@@ -13,6 +13,7 @@ class User(BaseEntity):
         email: str,
         type: UserTypes,
         company_id: str | None = None,
+        is_active: bool = True,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
     ):
@@ -22,6 +23,7 @@ class User(BaseEntity):
         self.email = email
         self.type = type
         self.company_id = company_id
+        self.is_active = is_active
 
     def validate(self) -> list[str]:
         errors = []
@@ -46,6 +48,9 @@ class User(BaseEntity):
 
         if not isinstance(self.email, str):
             errors.append("invalid email")
+
+        if not isinstance(self.is_active, bool):
+            errors.append("invalid is_active")
 
         if not isinstance(self.created_at, datetime):
             errors.append("invalid created at")

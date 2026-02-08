@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     type TEXT NOT NULL,
     company_id TEXT,
+    is_active BOOLEAN DEFAULT 1 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     FOREIGN KEY (company_id) REFERENCES companies(id)

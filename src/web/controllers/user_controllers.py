@@ -32,6 +32,7 @@ class CreateUserHttpController(IUserHttpController):
                 email=request.body["email"],
                 type=UserTypes(request.body["type"]),
                 company_id=request.body["company_id"],
+                is_active=request.body.get("is_active", True),
             )
         except InvalidUserError as e:
             return HttpResponse(
@@ -47,6 +48,7 @@ class CreateUserHttpController(IUserHttpController):
                 "name": user.name,
                 "email": user.email,
                 "company_id": user.company_id,
+                "is_active": user.is_active,
                 "created_at": user.created_at.isoformat(),
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None,
             },
@@ -70,6 +72,7 @@ class GetUserHttpController(IUserHttpController):
                 "name": user.name,
                 "email": user.email,
                 "company_id": user.company_id,
+                "is_active": user.is_active,
                 "created_at": user.created_at.isoformat(),
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None,
             },
@@ -88,13 +91,17 @@ class UpdateUserHttpController(IUserHttpController):
             user_repository=self._repository,
             company_repository=self._company_repository,
         )
+        kwargs = {
+            "user_id": request.path_params["id"],
+            "name": request.body["name"],
+            "email": request.body["email"],
+            "type": UserTypes(request.body["type"]),
+        }
+        if "is_active" in request.body:
+            kwargs["is_active"] = request.body["is_active"]
+
         try:
-            user = use_case.execute(
-                user_id=request.path_params["id"],
-                name=request.body["name"],
-                email=request.body["email"],
-                type=UserTypes(request.body["type"]),
-            )
+            user = use_case.execute(**kwargs)
         except UserNotFoundError:
             return HttpResponse(
                 status_code=StatusCodes.NOT_FOUND.value,
@@ -107,6 +114,7 @@ class UpdateUserHttpController(IUserHttpController):
                 "name": user.name,
                 "email": user.email,
                 "company_id": user.company_id,
+                "is_active": user.is_active,
                 "created_at": user.created_at.isoformat(),
                 "updated_at": user.updated_at.isoformat(),
             },
@@ -137,6 +145,7 @@ class ListUserHttpController(IUserHttpController):
                     "name": user.name,
                     "email": user.email,
                     "company_id": user.company_id,
+                    "is_active": user.is_active,
                     "created_at": user.created_at.isoformat(),
                     "updated_at": user.updated_at.isoformat()
                     if user.updated_at

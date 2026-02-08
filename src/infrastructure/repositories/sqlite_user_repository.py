@@ -16,8 +16,9 @@ class SQLiteUserRepository(IUserRepository):
             email=row[2],
             type=row[3],
             company_id=row[4],
-            created_at=row[5],
-            updated_at=row[6],
+            is_active=row[5],
+            created_at=row[6],
+            updated_at=row[7],
         )
 
     def save(self, user: User) -> None:
@@ -28,6 +29,7 @@ class SQLiteUserRepository(IUserRepository):
             "email": user.email,
             "type": user.type.value,
             "company_id": user.company_id,
+            "is_active": user.is_active,
             "created_at": user.created_at,
             "updated_at": user.updated_at,
         }
