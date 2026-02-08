@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: convo-ui-service
+spec:
+  type: NodePort
+  selector:
+    app: convo-ui
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30000

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: convo-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: convo-ui
+  template:
+    metadata:
+      labels:
+        app: convo-ui
+    spec:
+      containers:
+        - name: convo-ui
+          image: raf4lb/convo-ui:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
