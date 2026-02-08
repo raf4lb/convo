@@ -19,6 +19,13 @@ docker compose up           # Start all services (API, database, ngrok)
 docker compose down         # Stop all services
 ```
 
+### Database Seeding
+```bash
+docker exec convo_api uv run python run_seed_db.py  # Seed PostgreSQL with test data
+```
+
+Seeds the PostgreSQL database with test data (2 companies, 5 users, 6 contacts, 5 chats, 24 messages). Useful for development and testing with realistic data. Can be re-run safely without errors.
+
 ### Testing
 ```bash
 docker exec convo_api uv run python run_tests.py         # Run all tests with pytest

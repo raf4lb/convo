@@ -23,6 +23,10 @@ def init_postgres_database(database_url: str) -> None:
     with open(schema_file) as f:
         schema_sql = f.read()
 
+    # Convert SQLAlchemy format to psycopg2 format if needed
+    if database_url.startswith("postgresql+asyncpg://"):
+        database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+
     try:
         conn = create_connection(database_url)
         cursor = conn.cursor()

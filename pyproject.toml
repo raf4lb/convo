@@ -28,6 +28,7 @@ ignore = ["E501", "F403"]
 [tool.ruff.lint.per-file-ignores]
 "src/infrastructure/database/init_db.py" = ["T201"]
 "src/infrastructure/database/init_postgres_db.py" = ["T201"]
+"src/infrastructure/database/seed_postgres_db.py" = ["T201"]
 "run_*" = ["T201"]
 
 [tool.ruff.format]

@@ -3,6 +3,11 @@ import psycopg2
 
 class PostgresMessageDAO:
     def __init__(self, database_url: str):
+        # Convert SQLAlchemy format to psycopg2 format if needed
+        if database_url.startswith("postgresql+asyncpg://"):
+            database_url = database_url.replace(
+                "postgresql+asyncpg://", "postgresql://"
+            )
         self.database_url = database_url
 
     def _connect(self):
