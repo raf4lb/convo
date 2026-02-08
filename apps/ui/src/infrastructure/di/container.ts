@@ -2,11 +2,11 @@
 
 import { ApiCompanyRepository } from "../../data/repositories/ApiCompanyRepository";
 import { ApiCustomerRepository } from "../../data/repositories/ApiCustomerRepository";
+import { ApiUserRepository } from "../../data/repositories/ApiUserRepository";
 import { AttendantStatsRepository } from "../../data/repositories/AttendantStatsRepository";
 import { AuthRepository } from "../../data/repositories/AuthRepository";
 import { ConversationRepository } from "../../data/repositories/ConversationRepository";
 import { MetricsRepository } from "../../data/repositories/MetricsRepository";
-import { UserRepository } from "../../data/repositories/UserRepository";
 import { Login } from "../../domain/use-cases/auth/Login";
 import { Logout } from "../../domain/use-cases/auth/Logout";
 import { ValidateSession } from "../../domain/use-cases/auth/ValidateSession";
@@ -47,7 +47,7 @@ const conversationRepository = new ConversationRepository();
 const metricsRepository = new MetricsRepository();
 const client = new HttpClient("http://localhost:8000", 30000, 3);
 const companyRepository = new ApiCompanyRepository(client);
-const userRepository = new UserRepository();
+const userRepository = new ApiUserRepository(client);
 const authRepository = new AuthRepository(userRepository, companyRepository);
 const customerRepository = new ApiCustomerRepository(client);
 const attendantStatsRepository = new AttendantStatsRepository();

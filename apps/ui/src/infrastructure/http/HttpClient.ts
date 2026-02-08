@@ -1,4 +1,4 @@
-export type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export type HttpHeaders = Record<string, string>;
 
 export type HttpResponse = {
@@ -129,6 +129,14 @@ export class HttpClient {
 
   post(path: string, options?: RequestOptionsWithBody): Promise<HttpResponse> {
     return this.request("POST", path, {
+      body: options?.body,
+      headers: options?.headers,
+      query: options?.query,
+    });
+  }
+
+  put(path: string, options?: RequestOptionsWithBody): Promise<HttpResponse> {
+    return this.request("PUT", path, {
       body: options?.body,
       headers: options?.headers,
       query: options?.query,

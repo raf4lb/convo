@@ -1,4 +1,5 @@
 from src.domain.entities.user import User
+from src.domain.enums import UserTypes
 from src.domain.errors import UserNotFoundError
 from src.domain.repositories.user_repository import IUserRepository
 from src.infrastructure.daos.postgres_user_dao import PostgresUserDAO
@@ -14,7 +15,7 @@ class PostgresUserRepository(IUserRepository):
             id=row[0],
             name=row[1],
             email=row[2],
-            type=row[3],
+            type=UserTypes(row[3]),
             company_id=row[4],
             is_active=row[5],
             created_at=row[6],

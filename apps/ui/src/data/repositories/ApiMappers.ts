@@ -1,5 +1,6 @@
 import { Company } from "../../domain/entities/Company";
 import { Customer } from "../../domain/entities/Customer";
+import { AuthUser, User, UserRole } from "../../domain/entities/User";
 
 export interface CompanyDTO {
   id: string;
@@ -71,3 +72,55 @@ export function mapToCustomer(dto: CustomerDTO): Customer {
     isBlocked: dto.is_blocked,
   };
 }
+
+export interface UserDTO {
+  id: string;
+  name: string;
+  email: string;
+  company_id: string;
+  type: "administrator" | "manager" | "staff";
+  is_active: boolean;
+  created_at: string;
+  updated_at: string | null;
+}
+
+function mapBackendTypeToRole(type: "administrator" | "manager" | "staff"): UserRole {
+  const mapping = {
+    administrator: UserRole.ADMINISTRATOR,
+    manager: UserRole.MANAGER,
+    staff: UserRole.ATTENDANT,
+  };
+  return mapping[type];
+}
+
+function mapRoleToBackendType(role: UserRole): "administrator" | "manager" | "staff" {
+  const mapping = {
+    [UserRole.ADMINISTRATOR]: "administrator" as const,
+    [UserRole.MANAGER]: "manager" as const,
+    [UserRole.ATTENDANT]: "staff" as const,
+  };
+  return mapping[role];
+}
+
+export function mapToUser(dto: UserDTO): User {
+  // TODO: data validation
+  return {
+    id: dto.id,
+    companyId: dto.company_id,
+    name: dto.name,
+    email: dto.email,
+    password: "", // Backend never returns password for security
+    role: mapBackendTypeToRole(dto.type),
+    isActive: dto.is_active,
+    createdAt: new Date(dto.created_at),
+    lastLoginAt: undefined, // Backend doesn't track this yet
+  };
+}
+
+export function mapToAuthUser(dto: UserDTO): AuthUser {
+  const user = mapToUser(dto);
+  const { password: _, ...authUser } = user;
+  return authUser;
+}
+
+export { mapRoleToBackendType };
