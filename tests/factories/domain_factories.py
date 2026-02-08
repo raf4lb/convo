@@ -89,15 +89,14 @@ def chat_factory(company, sender_contact, chat_repository):
 
 
 @pytest.fixture
-def message_factory(chat, receiver_contact, message_repository):
+def message_factory(chat, message_repository):
     def _create_message(**kwargs):
         message_data = {
             "id": generate_uuid4(),
             "external_id": "wamid.HBgLNTUxMTk4ODg4Nzc3NhUCABIYFDNFNkA1NkUwRjIyNUEzQTZEMTAA",
             "external_timestamp": datetime(2025, 11, 2, tzinfo=UTC),
             "chat_id": chat.id,
-            "received_by": receiver_contact.id,
-            "is_received": True,
+            "sent_by_user_id": None,  # Default to contact-sent messages
             "text": "Text",
         }
         message_data.update(**kwargs)

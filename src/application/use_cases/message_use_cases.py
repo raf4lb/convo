@@ -73,8 +73,7 @@ class ReceiveMessageUseCase(IMessageUseCase):
             external_id=message_external_id,
             external_timestamp=message_timestamp,
             chat_id=chat.id,
-            received_by=chat.attached_user_id,
-            is_received=True,
+            sent_by_user_id=None,  # Message is from contact
             text=text,
         )
         self._message_repository.save(message)

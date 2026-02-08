@@ -63,15 +63,14 @@ CREATE TABLE IF NOT EXISTS messages (
     external_id TEXT NOT NULL,
     external_timestamp TIMESTAMP NOT NULL,
     chat_id TEXT NOT NULL,
-    is_received INTEGER NOT NULL CHECK (is_received IN (0, 1)),
     text TEXT NOT NULL,
-    received_by TEXT,
+    sent_by_user_id TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
     FOREIGN KEY (chat_id) REFERENCES chats(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY (received_by) REFERENCES users(id)
+    FOREIGN KEY (sent_by_user_id) REFERENCES users(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE
 );

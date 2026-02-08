@@ -93,9 +93,8 @@ class GetMessageHttpController(IMessageHttpController):
             "external_id": message.external_id,
             "external_timestamp": message.external_timestamp.isoformat(),
             "chat_id": message.chat_id,
-            "is_received": message.is_received,
+            "sent_by_user_id": message.sent_by_user_id,
             "text": message.text,
-            "received_by": message.received_by,
             "created_at": message.created_at.isoformat(),
             "updated_at": message.updated_at.isoformat()
             if message.updated_at

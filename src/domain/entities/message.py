@@ -10,9 +10,8 @@ class Message(BaseEntity):
         external_id: str,
         external_timestamp: datetime,
         chat_id: str,
-        is_received: bool,
         text: str,
-        received_by: str | None = None,
+        sent_by_user_id: str | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
     ):
@@ -21,6 +20,13 @@ class Message(BaseEntity):
         self.external_id = external_id
         self.external_timestamp = external_timestamp
         self.chat_id = chat_id
-        self.is_received = is_received
         self.text = text
-        self.received_by = received_by
+        self.sent_by_user_id = sent_by_user_id
+
+    def is_from_contact(self) -> bool:
+        """Returns True if message was sent by the contact (customer)."""
+        return self.sent_by_user_id is None
+
+    def is_from_user(self) -> bool:
+        """Returns True if message was sent by a user (company attendant)."""
+        return self.sent_by_user_id is not None
