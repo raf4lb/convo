@@ -63,23 +63,28 @@ class GetCompanyHttpController(ICompanyHttpController):
 class UpdateCompanyHttpController(ICompanyHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
         use_case = UpdateCompanyUseCase(company_repository=self._repository)
-        company = use_case.execute(
-            company_id=request.path_params["id"],
-            name=request.body["name"],
-            email=request.body["email"],
-            phone=request.body["phone"],
-            is_active=request.body.get("is_active"),
-            attendant_sees_all_conversations=request.body.get(
+        kwargs = {
+            "company_id": request.path_params["id"],
+            "name": request.body["name"],
+            "email": request.body["email"],
+            "phone": request.body["phone"],
+        }
+
+        # Only include optional fields if present in request
+        if "is_active" in request.body:
+            kwargs["is_active"] = request.body["is_active"]
+        if "attendant_sees_all_conversations" in request.body:
+            kwargs["attendant_sees_all_conversations"] = request.body[
                 "attendant_sees_all_conversations"
-            ),
-            whatsapp_api_key=request.body.get("whatsapp_api_key"),
-        )
+            ]
+        if "whatsapp_api_key" in request.body:
+            kwargs["whatsapp_api_key"] = request.body["whatsapp_api_key"]
+
+        company = use_case.execute(**kwargs)
+
         return HttpResponse(
             status_code=StatusCodes.OK.value,
-            body={
-                "id": company.id,
-                "name": company.name,
-            },
+            body=format_company(company),
         )
 
 

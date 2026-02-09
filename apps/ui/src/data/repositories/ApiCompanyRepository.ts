@@ -49,7 +49,7 @@ export class ApiCompanyRepository implements ICompanyRepository {
       whatsapp_api_key: whatsappApiKey,
       attendant_sees_all_conversations: attendantSeesAllConversations,
     };
-    const res = await this.client.patch(path, payload);
+    const res = await this.client.patch(path, { body: payload });
     const body = res.data;
     return mapToCompany(body as CompanyDTO);
   }
