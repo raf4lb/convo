@@ -13,14 +13,22 @@ def insert_user(
     user_name: str,
     email: str = DEFAULT_EMAIL,
     is_active: bool = True,
+    password_hash: str = "test_hash",
 ) -> None:
     with sqlite3.connect(database=sqlite3_database) as conn:
         conn.execute(
             """
-            INSERT INTO users (id, name, email, type, is_active)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO users (id, name, email, type, password_hash, is_active)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (user_id, user_name, email, UserTypes.STAFF.value, is_active),
+            (
+                user_id,
+                user_name,
+                email,
+                UserTypes.STAFF.value,
+                password_hash,
+                is_active,
+            ),
         )
         conn.commit()
 
@@ -34,6 +42,7 @@ def test_user_dao_insert(sqlite3_database):
         "name": user_name,
         "email": DEFAULT_EMAIL,
         "type": UserTypes.STAFF.value,
+        "password_hash": "test_hash",
         "company_id": None,
         "is_active": True,
     }
@@ -70,6 +79,7 @@ def test_user_dao_update(sqlite3_database):
         "name": new_user_name,
         "email": DEFAULT_EMAIL,
         "type": UserTypes.STAFF.value,
+        "password_hash": "test_hash",
         "company_id": None,
         "is_active": True,
         "updated_at": get_now(),
@@ -174,6 +184,7 @@ def test_user_dao_update_is_active(sqlite3_database):
         "name": "User Name",
         "email": DEFAULT_EMAIL,
         "type": UserTypes.STAFF.value,
+        "password_hash": "test_hash",
         "company_id": None,
         "is_active": False,
         "updated_at": get_now(),

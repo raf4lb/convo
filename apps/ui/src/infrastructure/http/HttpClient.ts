@@ -8,7 +8,6 @@ export type HttpResponse = {
 
 export type RequestInterceptor = (
   url: string,
-  // eslint-disable-next-line no-undef
   init: RequestInit,
 ) => Promise<{ url: string; init: RequestInit }>;
 
@@ -55,11 +54,7 @@ export class HttpClient {
   /**
    * Executes fetch with timeout support using AbortController.
    */
-  private async fetchWithTimeout(
-    url: string,
-    // eslint-disable-next-line no-undef
-    options: RequestInit,
-  ): Promise<Response> {
+  private async fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
 

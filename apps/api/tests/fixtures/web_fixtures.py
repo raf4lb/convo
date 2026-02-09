@@ -16,6 +16,11 @@ def app_settings():
         DATABASE_URL="DATABASE_URL",
         WEBHOOK_VERIFY_TOKEN="WEBHOOK_VERIFY_TOKEN",
         CORS_ORIGINS=[],
+        JWT_SECRET="test-secret-key",
+        JWT_ALGORITHM="HS256",
+        ACCESS_TOKEN_EXPIRE_MINUTES=15,
+        REFRESH_TOKEN_EXPIRE_DAYS=7,
+        SECURE_COOKIES=False,
     )
 
 
