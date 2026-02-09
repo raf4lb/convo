@@ -5,5 +5,4 @@ class DatabaseType(str, Enum):
     """Supported database backend types."""
 
     INMEMORY = "inmemory"
-    SQLITE = "sqlite"
     POSTGRES = "postgres"

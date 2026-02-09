@@ -74,20 +74,16 @@ This project follows Clean Architecture with clear layer separation:
 - **interfaces.py**: Use case base interfaces
 
 ### Infrastructure Layer (`src/infrastructure/`)
-- **repositories/**: Repository implementations (SQLite and PostgreSQL)
+- **repositories/**: Repository implementations (PostgreSQL)
   - Implement domain repository interfaces
   - Depend on DAOs for database operations
-  - `sqlite_*_repository.py`: SQLite implementations
   - `postgres_*_repository.py`: PostgreSQL implementations
 - **daos/**: Data Access Objects for direct database interaction
   - Handle raw SQL queries
   - Convert between database rows and dictionaries
-  - `*_dao.py`: SQLite DAOs
   - `postgres_*_dao.py`: PostgreSQL DAOs
 - **database/**: Database setup and migrations
-  - `create_sqlite_tables.sql`: SQLite database schema
   - `create_postgres_tables.sql`: PostgreSQL database schema
-  - `sqlite_setup.py`: SQLite type converters for Python types
   - `postgres_setup.py`: PostgreSQL connection factory
   - `init_postgres_db.py`: PostgreSQL database initialization script
 - **repository_factory.py**: Factory for creating repositories based on database type
@@ -129,16 +125,14 @@ response = controller.handle(request=await request_adapter(request))
 ### Repository Pattern
 - Domain defines interfaces in `src/domain/repositories/`
 - Infrastructure provides multiple implementations:
-  - SQLite repositories in `src/infrastructure/repositories/sqlite_*_repository.py`
   - PostgreSQL repositories in `src/infrastructure/repositories/postgres_*_repository.py`
 - Tests use fake in-memory implementations from `tests/fakes/repositories/`
 - Repository selection is handled by `repository_factory.py` based on `DATABASE_TYPE` environment variable
 
 ### Database Selection
-The application supports three database backends controlled by the `DATABASE_TYPE` environment variable:
-- `inmemory`: In-memory repositories (default, for development/testing)
-- `sqlite`: SQLite database (for local development)
-- `postgres`: PostgreSQL database (for production)
+The application supports two database backends controlled by the `DATABASE_TYPE` environment variable:
+- `inmemory`: In-memory repositories (for testing)
+- `postgres`: PostgreSQL database (for local development and production)
 
 The repository factory (`src/infrastructure/repository_factory.py`) automatically creates the appropriate repository implementations based on this setting.
 
@@ -166,15 +160,14 @@ Main entities and relationships:
 
 All tables use TEXT primary keys (UUIDs) and include created_at/updated_at timestamps.
 
-**Schema files:**
-- `src/infrastructure/database/create_sqlite_tables.sql`: SQLite schema
+**Schema file:**
 - `src/infrastructure/database/create_postgres_tables.sql`: PostgreSQL schema with timezone-aware timestamps
 
 ## Environment Variables
 
 Required in `.env` file:
-- `DATABASE_TYPE`: Database backend type (`inmemory`, `sqlite`, or `postgres`)
-- `DATABASE_NAME`: Database file name (for SQLite) or database name (for PostgreSQL)
+- `DATABASE_TYPE`: Database backend type (`inmemory` or `postgres`)
+- `DATABASE_NAME`: Database name (for PostgreSQL)
 - `DATABASE_USER`: Database user (for PostgreSQL)
 - `DATABASE_PASSWORD`: Database password (for PostgreSQL)
 - `DATABASE_URL`: Full database connection URL
@@ -192,7 +185,7 @@ When adding a new entity or feature:
 3. **Application Layer**: Create use cases in `src/application/use_cases/`
 4. **Web Layer**: Add controllers in `src/web/controllers/` and routes in `src/web/framework/routes/`
 5. **Testing**: Create fake repository and add unit/integration tests
-6. **Database**: Update both SQL schema files if needed
+6. **Database**: Update PostgreSQL schema file if needed
 7. **Repository Factory**: Update `src/infrastructure/repository_factory.py`
 
 ## Code Style

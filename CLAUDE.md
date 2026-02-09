@@ -137,16 +137,12 @@ docker exec convo_api uv run python run_deploy.py        # Deploy to Kubernetes
 - **interfaces.py**: Use case base interfaces
 
 ### Infrastructure Layer (`apps/api/src/infrastructure/`)
-- **repositories/**: Repository implementations (SQLite and PostgreSQL)
-  - `sqlite_*_repository.py`: SQLite implementations
+- **repositories/**: Repository implementations (PostgreSQL)
   - `postgres_*_repository.py`: PostgreSQL implementations
 - **daos/**: Data Access Objects for direct database interaction
-  - `*_dao.py`: SQLite DAOs
   - `postgres_*_dao.py`: PostgreSQL DAOs
 - **database/**: Database setup and migrations
-  - `create_sqlite_tables.sql`: SQLite schema
   - `create_postgres_tables.sql`: PostgreSQL schema
-  - `sqlite_setup.py`: Type converters
   - `postgres_setup.py`: Connection factory
   - `init_postgres_db.py`: Database initialization
 - **repository_factory.py**: Creates repositories based on database type
@@ -182,9 +178,8 @@ response = controller.handle(request=await request_adapter(request))
 
 ### Database Selection
 Controlled by `DATABASE_TYPE` environment variable:
-- `inmemory`: In-memory repositories (default, testing)
-- `sqlite`: SQLite database (local development)
-- `postgres`: PostgreSQL database (production)
+- `inmemory`: In-memory repositories (testing)
+- `postgres`: PostgreSQL database (local development and production)
 
 ## API Testing Structure
 
@@ -201,7 +196,7 @@ Controlled by `DATABASE_TYPE` environment variable:
 ## API Environment Variables
 
 Required in `apps/api/.env`:
-- `DATABASE_TYPE`: Database backend (`inmemory`, `sqlite`, `postgres`)
+- `DATABASE_TYPE`: Database backend (`inmemory`, `postgres`)
 - `DATABASE_NAME`: Database file/name
 - `DATABASE_USER`: Database user (PostgreSQL)
 - `DATABASE_PASSWORD`: Database password (PostgreSQL)
@@ -218,7 +213,7 @@ See `apps/api/.env.example` for templates.
 3. **Application Layer**: Create use cases in `src/application/use_cases/`
 4. **Web Layer**: Add controllers and routes
 5. **Testing**: Create fake repository and tests
-6. **Database**: Update both SQL schema files
+6. **Database**: Update PostgreSQL schema file
 7. **Repository Factory**: Update `src/infrastructure/repository_factory.py`
 
 ## API Code Style

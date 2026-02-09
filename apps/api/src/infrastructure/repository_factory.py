@@ -1,13 +1,8 @@
-from src.infrastructure.daos.chat_dao import SQLiteChatDAO
-from src.infrastructure.daos.company_dao import SQLiteCompanyDAO
-from src.infrastructure.daos.contact_dao import SQLiteContactDAO
 from src.infrastructure.daos.postgres_chat_dao import PostgresChatDAO
 from src.infrastructure.daos.postgres_company_dao import PostgresCompanyDAO
 from src.infrastructure.daos.postgres_contact_dao import PostgresContactDAO
 from src.infrastructure.daos.postgres_message_dao import PostgresMessageDAO
 from src.infrastructure.daos.postgres_user_dao import PostgresUserDAO
-from src.infrastructure.daos.user_dao import SQLiteUserDAO
-from src.infrastructure.database.sqlite_setup import setup_sqlite_converters
 from src.infrastructure.enums import DatabaseType
 from src.infrastructure.repositories.postgres_chat_repository import (
     PostgresChatRepository,
@@ -23,18 +18,6 @@ from src.infrastructure.repositories.postgres_message_repository import (
 )
 from src.infrastructure.repositories.postgres_user_repository import (
     PostgresUserRepository,
-)
-from src.infrastructure.repositories.sqlite_chat_repository import (
-    SQLiteChatRepository,
-)
-from src.infrastructure.repositories.sqlite_company_repository import (
-    SQLiteCompanyRepository,
-)
-from src.infrastructure.repositories.sqlite_contact_repository import (
-    SQLiteContactRepository,
-)
-from src.infrastructure.repositories.sqlite_user_repository import (
-    SQLiteUserRepository,
 )
 from src.infrastructure.settings import AppSettings
 from tests.fakes.repositories.fake_in_memory_chat_repository import (
@@ -74,24 +57,7 @@ def create_repositories(settings: AppSettings) -> dict:
     """
     database_type = settings.DATABASE_TYPE
 
-    if database_type == DatabaseType.SQLITE:
-        setup_sqlite_converters()
-        db_path = settings.DATABASE_NAME
-
-        user_dao = SQLiteUserDAO(db_path)
-        company_dao = SQLiteCompanyDAO(db_path)
-        contact_dao = SQLiteContactDAO(db_path)
-        chat_dao = SQLiteChatDAO(db_path)
-
-        return {
-            "user": SQLiteUserRepository(user_dao),
-            "company": SQLiteCompanyRepository(company_dao),
-            "contact": SQLiteContactRepository(contact_dao),
-            "chat": SQLiteChatRepository(chat_dao),
-            "message": InMemoryMessageRepository(),
-        }
-
-    elif database_type == DatabaseType.POSTGRES:
+    if database_type == DatabaseType.POSTGRES:
         database_url = settings.DATABASE_URL
 
         user_dao = PostgresUserDAO(database_url)
