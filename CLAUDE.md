@@ -193,6 +193,82 @@ Controlled by `DATABASE_TYPE` environment variable:
 - **tests/factories/**: Test entity factories
 - **tests/fakes/**: In-memory repositories
 
+### DAO Integration Tests
+
+DAO tests use a separate test database (`convo_test_db`) with transaction rollback strategy. Each test runs in an isolated transaction that is automatically rolled back after completion, ensuring no data pollution between tests.
+
+**Running Tests:**
+```bash
+# Run all tests (includes automatic database setup for DAO tests)
+docker exec convo_api uv run python run_tests.py
+
+# Run only DAO tests
+docker exec convo_api uv run python run_tests.py tests/integration/infrastructure/daos/ -v
+
+# Run specific DAO test file
+docker exec convo_api uv run python run_tests.py tests/integration/infrastructure/daos/test_postgres_company_dao.py -v
+
+# Run with marker
+docker exec convo_api uv run python run_tests.py -m dao
+
+# Skip database setup (unit tests only, faster)
+docker exec convo_api uv run python run_tests.py --no-db
+```
+
+**Test Database Setup:**
+- Test database is automatically created/reset when running tests (unless `--no-db` flag is used)
+- Setup is done via `scripts/setup_test_db.py` which uses psycopg2 to create/drop the database
+- Schema is initialized automatically on first test run via fixtures
+- The `--no-db` flag skips database setup for faster unit test execution
+
+**Test Pattern:**
+Each DAO test follows this pattern:
+- Uses `company_dao` fixture for DAO instance (or other DAO fixtures)
+- Uses `db_cursor` fixture for raw SQL verification
+- Runs in isolated transaction (automatic rollback after test)
+- No manual cleanup required
+
+**Example:**
+```python
+@pytest.mark.dao
+def test_insert_company(company_dao, db_cursor):
+    # Arrange
+    company_data = {
+        "id": str(uuid.uuid4()),
+        "name": "Test Company",
+        "email": "test@company.com",
+        "phone": "+1234567890",
+        "is_active": True,
+        "attendant_sees_all_conversations": False,
+        "whatsapp_api_key": "test_api_key",
+    }
+
+    # Act
+    company_dao.insert(company_data)
+
+    # Assert - Verify via raw SQL
+    db_cursor.execute(
+        "SELECT name, email FROM companies WHERE id = %s",
+        (company_data["id"],),
+    )
+    row = db_cursor.fetchone()
+    assert row[0] == "Test Company"
+    assert row[1] == "test@company.com"
+```
+
+**Adding More DAO Tests:**
+To add tests for additional DAOs:
+1. Create fixture in `tests/fixtures/dao_fixtures.py` following the `company_dao` pattern
+2. Create test file in `tests/integration/infrastructure/daos/`
+3. Use `@pytest.mark.dao` and `@pytest.mark.integration` decorators
+4. Follow the established test pattern from `test_postgres_company_dao.py`
+
+**Available Fixtures:**
+- `test_database_url`: Session-scoped, provides test database URL
+- `db_connection`: Function-scoped, provides connection with auto-rollback
+- `db_cursor`: Function-scoped, provides cursor for raw SQL queries
+- `company_dao`: Function-scoped, provides PostgresCompanyDAO instance
+
 ## API Environment Variables
 
 Required in `apps/api/.env`:
@@ -201,6 +277,7 @@ Required in `apps/api/.env`:
 - `DATABASE_USER`: Database user (PostgreSQL)
 - `DATABASE_PASSWORD`: Database password (PostgreSQL)
 - `DATABASE_URL`: Full connection URL
+- `TEST_DATABASE_URL`: Test database connection URL (for DAO integration tests)
 - `WEBHOOK_VERIFY_TOKEN`: Webhook verification token
 - `CORS_ORIGINS`: Comma-separated allowed origins
 
