@@ -1,5 +1,6 @@
 from src.application.use_cases.chat_use_cases import ListChatsByCompanyUseCase
-from src.web.controllers.interfaces import IChatHttpController
+from src.application.use_cases.message_use_cases import MarkChatAsReadUseCase
+from src.web.controllers.interfaces import IChatHttpController, IMessageHttpController
 from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
 # class CreateCompanyHttpController(ICompanyHttpController):
@@ -91,4 +92,16 @@ class ListChatsByCompanyHttpController(IChatHttpController):
         return HttpResponse(
             status_code=StatusCodes.OK.value,
             body=body,
+        )
+
+
+class MarkChatAsReadHttpController(IMessageHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = MarkChatAsReadUseCase(message_repository=self._message_repository)
+        chat_id = request.path_params["chat_id"]
+        updated_count = use_case.execute(chat_id=chat_id)
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body={"updated_count": updated_count},
         )

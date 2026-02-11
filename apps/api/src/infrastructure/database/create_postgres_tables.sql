@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS messages (
     chat_id TEXT NOT NULL,
     text TEXT NOT NULL,
     sent_by_user_id TEXT,
+    read BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE,
     FOREIGN KEY (chat_id) REFERENCES chats(id)

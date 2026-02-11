@@ -59,7 +59,5 @@ class PostgresMessageRepository(IMessageRepository):
         self.message_dao.delete(message_id=message_id)
 
     def mark_chat_messages_as_read(self, chat_id: str) -> int:
-        # TODO: Implement this method when infrastructure layer is updated
-        raise NotImplementedError(
-            "mark_chat_messages_as_read not yet implemented in PostgresMessageRepository"
-        )
+        updated_count = self.message_dao.mark_chat_messages_as_read(chat_id=chat_id)
+        return updated_count

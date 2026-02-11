@@ -18,8 +18,8 @@ class PostgresMessageDAO:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO messages (id, external_id, external_timestamp, chat_id, text, sent_by_user_id)
-                    VALUES (%(id)s, %(external_id)s, %(external_timestamp)s, %(chat_id)s, %(text)s, %(sent_by_user_id)s)
+                    INSERT INTO messages (id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read)
+                    VALUES (%(id)s, %(external_id)s, %(external_timestamp)s, %(chat_id)s, %(text)s, %(sent_by_user_id)s, %(read)s)
                     """,
                     message_data,
                 )
@@ -37,6 +37,7 @@ class PostgresMessageDAO:
                         chat_id = %(chat_id)s,
                         text = %(text)s,
                         sent_by_user_id = %(sent_by_user_id)s,
+                        read = %(read)s,
                         updated_at = %(updated_at)s
                     WHERE id = %(id)s
                     """,
@@ -49,7 +50,7 @@ class PostgresMessageDAO:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, created_at, updated_at
+                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read, created_at, updated_at
                     FROM messages
                     WHERE id = %s
                     """,
@@ -62,7 +63,7 @@ class PostgresMessageDAO:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, created_at, updated_at
+                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read, created_at, updated_at
                     FROM messages
                     WHERE chat_id = %s
                     ORDER BY external_timestamp ASC
@@ -76,7 +77,7 @@ class PostgresMessageDAO:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, created_at, updated_at
+                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read, created_at, updated_at
                     FROM messages
                     WHERE external_id = %s
                     """,
@@ -89,7 +90,7 @@ class PostgresMessageDAO:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, created_at, updated_at
+                    SELECT id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read, created_at, updated_at
                     FROM messages
                     ORDER BY created_at DESC
                     """
@@ -101,3 +102,18 @@ class PostgresMessageDAO:
             with conn.cursor() as cursor:
                 cursor.execute("DELETE FROM messages WHERE id = %s", (message_id,))
             conn.commit()
+
+    def mark_chat_messages_as_read(self, chat_id: str) -> int:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE messages
+                    SET read = TRUE, updated_at = CURRENT_TIMESTAMP
+                    WHERE chat_id = %s AND read = FALSE
+                    """,
+                    (chat_id,),
+                )
+                updated_count = cursor.rowcount
+            conn.commit()
+        return updated_count
