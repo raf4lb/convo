@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const NEAR_BOTTOM_THRESHOLD = 100; // pixels
 const THROTTLE_MS = 100;
@@ -31,7 +31,7 @@ export function useScrollToBottom(): UseScrollToBottomReturn {
     setIsNearBottom(distanceFromBottom <= NEAR_BOTTOM_THRESHOLD);
   }, []);
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
     const element = scrollRef.current;
     if (!element) {
       return;
@@ -53,13 +53,13 @@ export function useScrollToBottom(): UseScrollToBottomReturn {
       checkIfNearBottom();
     };
 
-    element.addEventListener('scroll', handleScroll, { passive: true });
+    element.addEventListener("scroll", handleScroll, { passive: true });
 
     // Initial check
     checkIfNearBottom();
 
     return () => {
-      element.removeEventListener('scroll', handleScroll);
+      element.removeEventListener("scroll", handleScroll);
     };
   }, [checkIfNearBottom]);
 

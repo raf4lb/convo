@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import {
   ArrowLeft,
   Check,
@@ -47,7 +48,7 @@ export function ChatArea({ conversationId, onBack, activeTab }: ChatAreaProps) {
     if (!chatAreaState.loading && messages.length > 0 && conversationId) {
       // Use setTimeout to ensure DOM has rendered
       setTimeout(() => {
-        scrollToBottom('auto');
+        scrollToBottom("auto");
       }, 0);
     }
   }, [conversationId, chatAreaState.loading, messages.length, scrollToBottom]);
@@ -57,7 +58,7 @@ export function ChatArea({ conversationId, onBack, activeTab }: ChatAreaProps) {
     if (!chatAreaState.loading && messages.length > 0 && isNearBottom) {
       // Use smooth scroll for new messages
       setTimeout(() => {
-        scrollToBottom('smooth');
+        scrollToBottom("smooth");
       }, 0);
     }
   }, [messages.length, isNearBottom, chatAreaState.loading, scrollToBottom]);
