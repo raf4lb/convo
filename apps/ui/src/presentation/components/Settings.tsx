@@ -5,10 +5,11 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Switch } from "../../components/ui/switch";
-import { Permission } from "../../domain/entities/Permission";
 import { useSettingsState } from "../hooks/useSettings";
 
 import { Dashboard } from "./Dashboard";
+
+import { Permission } from "@/domain/entities/Permission.ts";
 
 export function Settings() {
   const settingsState = useSettingsState();

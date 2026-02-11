@@ -7,16 +7,9 @@ import { Login } from "./presentation/components/Login";
 import { Settings } from "./presentation/components/Settings";
 import { Sidebar } from "./presentation/components/Sidebar";
 import { UserManagement } from "./presentation/components/UserManagement";
-import { AuthProvider, useAuth } from "./presentation/contexts/AuthContext";
-
-export enum View {
-  CONVERSATIONS = "conversations",
-  CUSTOMERS = "customers",
-  DASHBOARD = "dashboard",
-  USERS = "users",
-  SETTINGS = "settings",
-  PROFILE = "profile",
-}
+import { View } from "./presentation/constants/views";
+import { AuthProvider } from "./presentation/contexts/AuthContext";
+import { useAuth } from "./presentation/hooks/useAuth";
 
 function AppContent() {
   const { session, loading } = useAuth();

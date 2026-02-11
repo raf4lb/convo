@@ -1,6 +1,5 @@
 import { BarChart3, LogOut, MessageSquare, Settings, User, Users } from "lucide-react";
 
-import { View } from "../../App";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,10 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
-import { Permission } from "../../domain/entities/Permission";
-import { useAuth } from "../contexts/AuthContext";
+import { View } from "../constants/views";
+import { useAuth } from "../hooks/useAuth";
 
 import { Login } from "./Login";
+
+import { Permission } from "@/domain/entities/Permission.ts";
 
 interface SidebarProps {
   selectedView: View;

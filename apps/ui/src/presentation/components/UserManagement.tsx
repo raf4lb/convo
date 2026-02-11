@@ -29,13 +29,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { Permission } from "../../domain/entities/Permission";
-import { AuthUser, User, UserRole } from "../../domain/entities/User";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useUsers } from "../hooks/useUsers";
 
 import { RoleBadge } from "./RoleBadge";
 import { UserFormDialog } from "./UserFormDialog";
+
+import { Permission } from "@/domain/entities/Permission.ts";
+import { AuthUser, User, UserRole } from "@/domain/entities/User.ts";
 
 export function UserManagement() {
   const { session, hasPermission } = useAuth();

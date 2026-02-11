@@ -1,7 +1,7 @@
-import { Company } from "../../entities/Company";
-import { Permission, RolePermissions } from "../../entities/Permission";
-import { UserRole } from "../../entities/User";
-import { ICompanyRepository } from "../../repositories/ICompanyRepository";
+import {Company} from "../../entities/Company";
+import {Permission, RolePermissions} from "../../entities/Permission";
+import {UserRole} from "../../entities/User";
+import {ICompanyRepository} from "../../repositories/ICompanyRepository";
 
 export class UpdateCompany {
   constructor(private readonly companyRepository: ICompanyRepository) {}
@@ -21,15 +21,14 @@ export class UpdateCompany {
 
     this.validatePermissions(updaterRole);
 
-    const company = await this.companyRepository.update(
-      companyId,
-      name,
-      email,
-      phone,
-      whatsappApiKey,
-      attendantSeesAllConversations,
+    return await this.companyRepository.update(
+        companyId,
+        name,
+        email,
+        phone,
+        whatsappApiKey,
+        attendantSeesAllConversations,
     );
-    return company;
   }
 
   private validatePermissions(updaterRole: UserRole): void {

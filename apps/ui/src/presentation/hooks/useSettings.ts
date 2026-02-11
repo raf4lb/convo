@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import { getCompanyUseCase, updateCompanyUseCase } from "../../infrastructure/di/container";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "./useAuth";
+
+import { getCompanyUseCase, updateCompanyUseCase } from "@/infrastructure/di/container.ts";
+
 
 interface CompanyUpdateFormData {
   name: string;

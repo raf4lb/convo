@@ -1,7 +1,8 @@
 import { Shield, User, UserCog } from "lucide-react";
 
 import { Badge } from "../../components/ui/badge";
-import { UserRole } from "../../domain/entities/User";
+
+import { UserRole } from "@/domain/entities/User.ts";
 
 interface RoleBadgeProps {
   role: UserRole;

@@ -1,7 +1,7 @@
-import { Conversation, ConversationStatus } from "../../domain/entities/Conversation";
-import { Message } from "../../domain/entities/Message";
-import { AuthUser } from "../../domain/entities/User";
-import { IConversationRepository } from "../../domain/repositories/IConversationRepository";
+import { Conversation, ConversationStatus } from "@/domain/entities/Conversation";
+import { Message } from "@/domain/entities/Message";
+import { AuthUser } from "@/domain/entities/User";
+import { IConversationRepository } from "@/domain/repositories/IConversationRepository";
 
 const mockConversations: Conversation[] = [
   {

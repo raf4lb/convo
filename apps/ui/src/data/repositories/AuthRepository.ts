@@ -1,7 +1,7 @@
-import { AuthSession } from "../../domain/entities/AuthSession";
-import { IAuthRepository } from "../../domain/repositories/IAuthRepository";
-import { ICompanyRepository } from "../../domain/repositories/ICompanyRepository";
-import { HttpClient } from "../../infrastructure/http/HttpClient";
+import { AuthSession } from "@/domain/entities/AuthSession";
+import { IAuthRepository } from "@/domain/repositories/IAuthRepository";
+import { ICompanyRepository } from "@/domain/repositories/ICompanyRepository";
+import { HttpClient } from "@/infrastructure/http/HttpClient";
 
 import { mapBackendTypeToRole } from "./ApiMappers";
 

@@ -2,9 +2,6 @@ import { Message } from "../../entities/Message";
 import { MessageReceivedEvent } from "../../events/MessageReceivedEvent";
 import { IEventBus } from "../../ports/IEventBus";
 import { IConversationRepository } from "../../repositories/IConversationRepository";
-
-export type Subscriber = (messages: Message[]) => void;
-
 export class ReceiveMessage {
   constructor(
     private readonly conversationRepository: IConversationRepository,

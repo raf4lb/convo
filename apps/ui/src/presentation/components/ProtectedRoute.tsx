@@ -3,8 +3,9 @@ import { ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 
 import { Alert, AlertDescription } from "../../components/ui/alert";
-import { Permission } from "../../domain/entities/Permission";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
+
+import { Permission } from "@/domain/entities/Permission.ts";
 
 interface ProtectedRouteProps {
   children: ReactNode;

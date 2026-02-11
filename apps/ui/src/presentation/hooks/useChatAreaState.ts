@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Conversation } from "../../domain/entities/Conversation";
-import { Permission } from "../../domain/entities/Permission";
-import { UserRole } from "../../domain/entities/User";
+import { useAuth } from "./useAuth";
+import { useConversationMessages } from "./useConversationMessages";
+import { useUsers } from "./useUsers";
+
+import { Conversation } from "@/domain/entities/Conversation";
+import { Permission } from "@/domain/entities/Permission";
+import { UserRole } from "@/domain/entities/User";
 import {
   ConversationAssignedEvent,
   ConversationAssignedPayload,
-} from "../../domain/events/ConversationAssignedEvent";
-import { EventType } from "../../domain/events/IDomainEvent";
-import { IEventBus } from "../../domain/ports/IEventBus";
+} from "@/domain/events/ConversationAssignedEvent";
+import { EventType } from "@/domain/events/IDomainEvent";
+import { IEventBus } from "@/domain/ports/IEventBus";
 import {
   assignConversationToAttendantUseCase,
   getConversationUseCase,
-} from "../../infrastructure/di/container";
-import { useAuth } from "../contexts/AuthContext";
+} from "@/infrastructure/di/container";
 
-import { useConversationMessages } from "./useConversationMessages";
-import { useUsers } from "./useUsers";
 
 export function useChatAreaState(conversationId: string | null, eventBus: IEventBus) {
   const { session, hasPermission } = useAuth();

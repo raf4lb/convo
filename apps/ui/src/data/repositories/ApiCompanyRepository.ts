@@ -1,8 +1,9 @@
-import { Company } from "../../domain/entities/Company";
-import { ICompanyRepository } from "../../domain/repositories/ICompanyRepository";
-import { HttpClient } from "../../infrastructure/http/HttpClient";
-
 import { CompanyDTO, mapToCompany } from "./ApiMappers";
+
+import { Company } from "@/domain/entities/Company";
+import { ICompanyRepository } from "@/domain/repositories/ICompanyRepository";
+import { HttpClient } from "@/infrastructure/http/HttpClient";
+
 
 export class ApiCompanyRepository implements ICompanyRepository {
   constructor(private readonly client: HttpClient) {}

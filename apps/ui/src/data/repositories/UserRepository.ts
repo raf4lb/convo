@@ -1,5 +1,5 @@
-import { AuthUser, User, UserRole } from "../../domain/entities/User";
-import { IUserRepository } from "../../domain/repositories/IUserRepository";
+import { AuthUser, User, UserRole } from "@/domain/entities/User";
+import { IUserRepository } from "@/domain/repositories/IUserRepository";
 
 const mockUsers: User[] = [
   {

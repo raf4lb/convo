@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { AuthUser, UserRole } from "../../domain/entities/User";
+import { useAuth } from "./useAuth";
+
+import { AuthUser, UserRole } from "@/domain/entities/User.ts";
 import {
   createUserUseCase,
   deleteUserUseCase,
   getUsersByCompanyUseCase,
   searchUsersUseCase,
   updateUserUseCase,
-} from "../../infrastructure/di/container";
-import { useAuth } from "../contexts/AuthContext";
+} from "@/infrastructure/di/container.ts";
+
 
 export function useUsers() {
   const { session } = useAuth();

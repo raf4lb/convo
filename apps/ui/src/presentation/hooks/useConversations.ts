@@ -1,23 +1,25 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 
-import { Conversation } from "../../domain/entities/Conversation";
+import { useAuth } from "./useAuth";
+
+import { Conversation } from "@/domain/entities/Conversation";
 import {
   ConversationAssignedEvent,
   ConversationAssignedPayload,
-} from "../../domain/events/ConversationAssignedEvent";
-import { EventType } from "../../domain/events/IDomainEvent";
+} from "@/domain/events/ConversationAssignedEvent";
+import { EventType } from "@/domain/events/IDomainEvent";
 import {
   MessageReceivedEvent,
   MessageReceivedPayload,
-} from "../../domain/events/MessageReceivedEvent";
-import { MessageSentEvent, MessageSentPayload } from "../../domain/events/MessageSentEvent";
-import { IEventBus } from "../../domain/ports/IEventBus";
+} from "@/domain/events/MessageReceivedEvent";
+import { MessageSentEvent, MessageSentPayload } from "@/domain/events/MessageSentEvent";
+import { IEventBus } from "@/domain/ports/IEventBus";
 import {
   getConversationsUseCase,
   getConversationUseCase,
   searchConversationsUseCase,
-} from "../../infrastructure/di/container";
-import { useAuth } from "../contexts/AuthContext";
+} from "@/infrastructure/di/container";
+
 
 export interface ConversationsHook {
   conversations: Conversation[];

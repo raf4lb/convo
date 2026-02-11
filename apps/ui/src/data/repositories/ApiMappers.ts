@@ -1,6 +1,6 @@
-import { Company } from "../../domain/entities/Company";
-import { Customer } from "../../domain/entities/Customer";
-import { AuthUser, User, UserRole } from "../../domain/entities/User";
+import { Company } from "@/domain/entities/Company";
+import { Customer } from "@/domain/entities/Customer";
+import { AuthUser, User, UserRole } from "@/domain/entities/User";
 
 export interface CompanyDTO {
   id: string;

@@ -7,8 +7,8 @@ import {
   HourlyData,
   StatusData,
   AttendantDetailedPerformance,
-} from "../../domain/entities/Metrics";
-import { getDashboardMetricsUseCase, metricsRepository } from "../../infrastructure/di/container";
+} from "@/domain/entities/Metrics.ts";
+import { getDashboardMetricsUseCase, metricsRepository } from "@/infrastructure/di/container.ts";
 
 export function useMetrics() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);

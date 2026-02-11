@@ -1,8 +1,9 @@
-import { Customer } from "../../domain/entities/Customer";
-import { ICustomerRepository } from "../../domain/repositories/ICustomerRepository";
-import { HttpClient } from "../../infrastructure/http/HttpClient";
-
 import { CustomerDTO, mapToCustomer } from "./ApiMappers";
+
+import { Customer } from "@/domain/entities/Customer";
+import { ICustomerRepository } from "@/domain/repositories/ICustomerRepository";
+import { HttpClient } from "@/infrastructure/http/HttpClient";
+
 
 export class ApiCustomerRepository implements ICustomerRepository {
   constructor(private readonly client: HttpClient) {}

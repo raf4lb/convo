@@ -1,4 +1,13 @@
-import { Check, Headset, MoreVertical, Paperclip, Send, Smile, User } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Headset,
+  MoreVertical,
+  Paperclip,
+  Send,
+  Smile,
+  User,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
 import { Badge } from "../../components/ui/badge";
@@ -12,14 +21,16 @@ import {
 } from "../../components/ui/command";
 import { Input } from "../../components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
-import { eventBus } from "../../infrastructure/di/container";
 import { useChatAreaState } from "../hooks/useChatAreaState";
+
+import { eventBus } from "@/infrastructure/di/container.ts";
 
 interface ChatAreaProps {
   conversationId: string | null;
+  onBack?: () => void;
 }
 
-export function ChatArea({ conversationId }: ChatAreaProps) {
+export function ChatArea({ conversationId, onBack }: ChatAreaProps) {
   const chatAreaState = useChatAreaState(conversationId, eventBus);
 
   const conversation = chatAreaState.conversation;
@@ -133,6 +144,11 @@ export function ChatArea({ conversationId }: ChatAreaProps) {
       {/* Chat Header */}
       <div className="h-16 border-b border-neutral-200 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          {onBack && (
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
           <Avatar>
             <AvatarFallback className="bg-linear-to-br from-green-400 to-green-600 text-white">
               {conversation?.customerName.charAt(0) || "U"}

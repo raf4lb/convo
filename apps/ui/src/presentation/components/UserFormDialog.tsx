@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { AuthUser, User, UserRole } from "../../domain/entities/User";
+
+import { AuthUser, User, UserRole } from "@/domain/entities/User.ts";
 
 interface UserDialogProps {
   open: boolean;

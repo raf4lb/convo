@@ -1,6 +1,6 @@
-import { Permission, RolePermissions } from "../../entities/Permission";
-import { AuthUser, UserRole } from "../../entities/User";
-import { IUserRepository } from "../../repositories/IUserRepository";
+import {Permission, RolePermissions} from "../../entities/Permission";
+import {AuthUser, UserRole} from "../../entities/User";
+import {IUserRepository} from "../../repositories/IUserRepository";
 
 export class CreateUser {
   constructor(private userRepository: IUserRepository) {}
@@ -38,7 +38,7 @@ export class CreateUser {
     }
 
     // Create user
-    const user = await this.userRepository.create({
+    return await this.userRepository.create({
       companyId: data.companyId,
       name: data.name,
       email: data.email,
@@ -46,8 +46,6 @@ export class CreateUser {
       role: data.role,
       isActive: true,
     });
-
-    return user;
   }
 
   private validatePermissions(targetRole: UserRole, creatorRole: UserRole): void {

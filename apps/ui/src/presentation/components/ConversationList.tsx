@@ -1,9 +1,10 @@
 import { Headset } from "lucide-react";
 
 import { Badge } from "../../components/ui/badge";
-import { Conversation } from "../../domain/entities/Conversation";
-import { UserRole } from "../../domain/entities/User";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
+
+import { Conversation } from "@/domain/entities/Conversation.ts";
+import { UserRole } from "@/domain/entities/User.ts";
 
 interface ConversationListProps {
   selectedConversation: string | null;

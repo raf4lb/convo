@@ -5,8 +5,8 @@ import {
   DashboardMetrics,
   HourlyData,
   StatusData,
-} from "../../domain/entities/Metrics";
-import { IMetricsRepository } from "../../domain/repositories/IMetricsRepository";
+} from "@/domain/entities/Metrics";
+import { IMetricsRepository } from "@/domain/repositories/IMetricsRepository";
 
 export class MetricsRepository implements IMetricsRepository {
   async getDashboardMetrics(): Promise<DashboardMetrics> {

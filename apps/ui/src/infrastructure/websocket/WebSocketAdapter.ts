@@ -1,6 +1,4 @@
-// src/infra/websocket/WebSocketAdapter.ts
-
-import { IWebSocketAdapter, OnMessageHandler } from "../../domain/ports/IWebSocketAdapter";
+import { IWebSocketAdapter, OnMessageHandler } from "@/domain/ports/IWebSocketAdapter";
 
 export class WebSocketAdapter implements IWebSocketAdapter {
   private socket?: WebSocket;

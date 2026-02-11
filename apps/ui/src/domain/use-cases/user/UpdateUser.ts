@@ -1,6 +1,6 @@
-import { Permission, RolePermissions } from "../../entities/Permission";
-import { AuthUser, User, UserRole } from "../../entities/User";
-import { IUserRepository } from "../../repositories/IUserRepository";
+import {Permission, RolePermissions} from "../../entities/Permission";
+import {AuthUser, User, UserRole} from "../../entities/User";
+import {IUserRepository} from "../../repositories/IUserRepository";
 
 export class UpdateUser {
   constructor(private userRepository: IUserRepository) {}
@@ -21,8 +21,7 @@ export class UpdateUser {
     }
 
     // Update user
-    const user = await this.userRepository.update(userId, updates);
-    return user;
+    return await this.userRepository.update(userId, updates);
   }
 
   private validatePermissions(targetRole: UserRole, updaterRole: UserRole): void {

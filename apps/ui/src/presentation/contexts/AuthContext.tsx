@@ -1,24 +1,15 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
-import { AuthSession } from "../../domain/entities/AuthSession";
-import { Permission } from "../../domain/entities/Permission";
+import { AuthContext } from "./authContextDefinition";
+
+import { AuthSession } from "@/domain/entities/AuthSession.ts";
+import { Permission } from "@/domain/entities/Permission.ts";
 import {
   checkPermissionUseCase,
   loginUseCase,
   logoutUseCase,
   validateSessionUseCase,
-} from "../../infrastructure/di/container";
-
-interface AuthContextType {
-  session: AuthSession | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  hasPermission: (permission: Permission) => boolean;
-  hasAnyPermission: (permissions: Permission[]) => boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+} from "@/infrastructure/di/container.ts";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
@@ -72,12 +63,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

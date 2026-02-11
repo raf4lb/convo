@@ -1,5 +1,5 @@
-import { IDomainEvent } from "../../domain/events/IDomainEvent";
-import { EventHandler, IEventBus } from "../../domain/ports/IEventBus";
+import { IDomainEvent } from "@/domain/events/IDomainEvent";
+import { EventHandler, IEventBus } from "@/domain/ports/IEventBus";
 
 /**
  * Implementação simples de EventBus em memória.

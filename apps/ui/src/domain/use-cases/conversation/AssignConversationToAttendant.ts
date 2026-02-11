@@ -15,6 +15,6 @@ export class AssignConversationToAttendant {
   ): Promise<void> {
     await this.conversationRepository.assignAttendant(conversationId, userId, userName);
     const event = new ConversationAssignedEvent({ conversationId, userId, userName });
-    this.eventBus.publish(event);
+    await this.eventBus.publish(event);
   }
 }

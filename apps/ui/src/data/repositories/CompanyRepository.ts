@@ -1,5 +1,5 @@
-import { Company } from "../../domain/entities/Company";
-import { ICompanyRepository } from "../../domain/repositories/ICompanyRepository";
+import { Company } from "@/domain/entities/Company";
+import { ICompanyRepository } from "@/domain/repositories/ICompanyRepository";
 
 const mockCompanies: Company[] = [
   {

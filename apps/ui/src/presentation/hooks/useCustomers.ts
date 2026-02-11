@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Customer } from "../../domain/entities/Customer";
+import { useAuth } from "./useAuth";
+
+import { Customer } from "@/domain/entities/Customer.ts";
 import {
   createCustomerUseCase,
   getCustomersByCompanyUseCase,
   searchCustomersUseCase,
-} from "../../infrastructure/di/container";
-import { useAuth } from "../contexts/AuthContext";
+} from "@/infrastructure/di/container";
+
 
 export function useCustomers() {
   const { session } = useAuth();

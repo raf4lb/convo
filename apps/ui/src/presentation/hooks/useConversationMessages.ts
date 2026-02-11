@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Message } from "../../domain/entities/Message";
-import { EventType } from "../../domain/events/IDomainEvent";
-import { MessageReceivedEvent } from "../../domain/events/MessageReceivedEvent";
-import { MessageSentEvent } from "../../domain/events/MessageSentEvent";
-import { IEventBus } from "../../domain/ports/IEventBus";
+import { Message } from "@/domain/entities/Message";
+import { EventType } from "@/domain/events/IDomainEvent";
+import { MessageReceivedEvent } from "@/domain/events/MessageReceivedEvent";
+import { MessageSentEvent } from "@/domain/events/MessageSentEvent";
+import { IEventBus } from "@/domain/ports/IEventBus";
 import {
   getConversationMessagesUseCase,
   sendMessageUseCase,
-} from "../../infrastructure/di/container";
+} from "@/infrastructure/di/container";
 
 export function useConversationMessages(conversationId: string | null, eventBus: IEventBus) {
   const [messages, setMessages] = useState<Message[]>([]);

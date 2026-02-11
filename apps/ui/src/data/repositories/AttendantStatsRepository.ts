@@ -1,5 +1,5 @@
-import { AttendantStats } from "../../domain/entities/AttendantStats";
-import { IAttendantStatsRepository } from "../../domain/repositories/IAttendantStatsRepository";
+import { AttendantStats } from "@/domain/entities/AttendantStats";
+import { IAttendantStatsRepository } from "@/domain/repositories/IAttendantStatsRepository";
 
 const mockStats: AttendantStats[] = [
   {
