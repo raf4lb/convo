@@ -20,7 +20,7 @@ class AppSettings:
     SECURE_COOKIES: bool
 
 
-def load_settings():
+def load_settings() -> AppSettings:
     db_type_str = os.getenv("DATABASE_TYPE", "inmemory")
     try:
         database_type = DatabaseType(db_type_str)

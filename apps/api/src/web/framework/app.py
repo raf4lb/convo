@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.infrastructure.repository_factory import create_repositories
 from src.infrastructure.security.jwt_service import JWTService
-from src.infrastructure.settings import load_settings
+from src.infrastructure.settings import AppSettings, load_settings
 from src.web.framework.routes.auth_routes import auth_routes
 from src.web.framework.routes.chat_routes import chat_routes
 from src.web.framework.routes.company_routes import company_routes
@@ -15,7 +15,7 @@ from src.web.framework.routes.webhook_routes import webhook_routes
 from src.web.middleware.auth_middleware import auth_middleware
 
 
-def create_app() -> FastAPI:
+def create_app(settings: AppSettings | None = None) -> FastAPI:
     app = FastAPI(title="Convo API")
 
     app.include_router(readiness_routes)
@@ -27,10 +27,14 @@ def create_app() -> FastAPI:
     app.include_router(message_routes)
     app.include_router(webhook_routes)
 
-    app.state.settings = load_settings()
-    app.state.jwt_service = JWTService(settings=app.state.settings)
+    # Load settings from environment if not provided
+    if settings is None:
+        settings = load_settings()
 
-    repositories = create_repositories(settings=app.state.settings)
+    app.state.settings = settings
+    app.state.jwt_service = JWTService(settings=settings)
+
+    repositories = create_repositories(settings=settings)
 
     app.state.user_repository = repositories["user"]
     app.state.company_repository = repositories["company"]
@@ -38,7 +42,7 @@ def create_app() -> FastAPI:
     app.state.chat_repository = repositories["chat"]
     app.state.message_repository = repositories["message"]
 
-    origins = app.state.settings.CORS_ORIGINS
+    origins = settings.CORS_ORIGINS
 
     app.add_middleware(
         CORSMiddleware,

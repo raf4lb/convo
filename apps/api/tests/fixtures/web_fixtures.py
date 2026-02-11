@@ -26,9 +26,7 @@ def app_settings():
 
 @pytest.fixture
 def app(app_settings):
-    app = create_app()
-    app.state.settings = app_settings
-    return app
+    return create_app(settings=app_settings)
 
 
 @pytest.fixture
