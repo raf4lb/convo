@@ -139,8 +139,28 @@ class DeleteUserHttpController(IUserHttpController):
 
 class ListUserHttpController(IUserHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
+        company_id = request.query_params.get("company_id")
+        if not company_id:
+            return HttpResponse(
+                status_code=StatusCodes.BAD_REQUEST.value,
+                body={"detail": "company_id is required"},
+            )
+
+        role_str = request.query_params.get("role")
+        search = request.query_params.get("search")
+
+        role = None
+        if role_str:
+            try:
+                role = UserTypes(role_str)
+            except ValueError:
+                return HttpResponse(
+                    status_code=StatusCodes.BAD_REQUEST.value,
+                    body={"detail": f"invalid role: {role_str}"},
+                )
+
         use_case = ListUserUseCase(user_repository=self._repository)
-        users = use_case.execute()
+        users = use_case.execute(company_id=company_id, role=role, search_query=search)
         data = {
             "results": [
                 {

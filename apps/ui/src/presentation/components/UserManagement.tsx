@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Edit, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 
@@ -48,6 +48,16 @@ export function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
   const [deleting, setDeleting] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!session) return null;
 
@@ -58,14 +68,31 @@ export function UserManagement() {
 
   const handleSearch = (query: string, role?: UserRole | "all") => {
     setSearchQuery(query);
-    const roleToSearch = role !== "all" ? role : undefined;
-    search(query, roleToSearch);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounce search by 300ms
+    searchTimeoutRef.current = setTimeout(() => {
+      const roleToSearch = role !== "all" ? role : undefined;
+      search(query, roleToSearch);
+    }, 300);
   };
 
   const handleRoleFilterChange = (role: string) => {
     const selectedRole = role as UserRole | "all";
     setRoleFilter(selectedRole);
-    handleSearch(searchQuery, selectedRole);
+
+    // Cancel any pending search
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Search immediately when filter changes
+    const roleToSearch = selectedRole !== "all" ? selectedRole : undefined;
+    search(searchQuery, roleToSearch);
   };
 
   const handleCreate = async (data: Partial<User>) => {

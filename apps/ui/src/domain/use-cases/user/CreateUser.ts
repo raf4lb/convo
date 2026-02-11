@@ -32,7 +32,7 @@ export class CreateUser {
     }
 
     // Check if email already exists
-    const existingUser = await this.userRepository.getByEmail(data.email);
+    const existingUser = await this.userRepository.getByEmail(data.companyId, data.email);
     if (existingUser) {
       throw new Error("Email já cadastrado");
     }

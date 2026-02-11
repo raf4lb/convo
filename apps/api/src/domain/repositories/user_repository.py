@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.domain.entities.user import User
+from src.domain.enums import UserTypes
 
 
 class IUserRepository(ABC):
@@ -21,3 +22,16 @@ class IUserRepository(ABC):
 
     @abstractmethod
     def update_password(self, user_id: str, password_hash: str) -> None: ...
+
+    @abstractmethod
+    def get_by_company_id(self, company_id: str) -> list[User]: ...
+
+    @abstractmethod
+    def get_by_company_and_role(
+        self, company_id: str, role: UserTypes
+    ) -> list[User]: ...
+
+    @abstractmethod
+    def search_users(
+        self, company_id: str, query: str, role: UserTypes | None = None
+    ) -> list[User]: ...

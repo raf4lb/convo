@@ -86,3 +86,23 @@ class PostgresUserRepository(IUserRepository):
         """Update only the password for a user."""
         self.get_by_id(user_id=user_id)  # Verify user exists
         self.user_dao.update_password(user_id=user_id, password_hash=password_hash)
+
+    def get_by_company_id(self, company_id: str) -> list[User]:
+        rows = self.user_dao.get_by_company_id(company_id=company_id)
+        return [self._parse_row(row=row) for row in rows]
+
+    def get_by_company_and_role(self, company_id: str, role: UserTypes) -> list[User]:
+        rows = self.user_dao.get_by_company_and_role(
+            company_id=company_id, role=role.value
+        )
+        return [self._parse_row(row=row) for row in rows]
+
+    def search_users(
+        self, company_id: str, query: str, role: UserTypes | None = None
+    ) -> list[User]:
+        rows = self.user_dao.search_users(
+            company_id=company_id,
+            query=query,
+            role=role.value if role else None,
+        )
+        return [self._parse_row(row=row) for row in rows]

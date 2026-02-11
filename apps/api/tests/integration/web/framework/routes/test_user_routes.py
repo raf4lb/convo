@@ -7,6 +7,7 @@ from src.web.http_types import StatusCodes
 
 def test_list_users_endpoint(
     client,
+    company,
     user_factory,
     user_repository,
 ):
@@ -15,7 +16,7 @@ def test_list_users_endpoint(
     users = [user_factory() for _ in range(3)]
 
     # Act
-    response = client.get("/users/")
+    response = client.get(f"/users/?company_id={company.id}")
 
     # Assert
     assert response.status_code == StatusCodes.OK.value
@@ -259,6 +260,7 @@ def test_update_user_is_active(
 
 def test_list_users_includes_is_active(
     client,
+    company,
     user_factory,
     user_repository,
 ):
@@ -268,7 +270,7 @@ def test_list_users_includes_is_active(
     user_factory(is_active=False)
 
     # Act
-    response = client.get("/users/")
+    response = client.get(f"/users/?company_id={company.id}")
 
     # Assert
     assert response.status_code == StatusCodes.OK.value

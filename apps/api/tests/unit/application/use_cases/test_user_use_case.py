@@ -161,14 +161,14 @@ def test_delete_user_use_case(staff_user, user_repository):
         user_repository.get_by_id(staff_user.id)
 
 
-def test_list_user_use_case(user_factory, user_repository):
+def test_list_user_use_case(company, user_factory, user_repository):
     # Arrange
     user_factory(name="User 1")
     user_factory(name="User 2")
     use_case = ListUserUseCase(user_repository=user_repository)
 
     # Act
-    users = use_case.execute()
+    users = use_case.execute(company_id=company.id)
 
     # Assert
     assert len(users) == 2

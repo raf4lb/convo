@@ -66,7 +66,7 @@ export class ApiCustomerRepository implements ICustomerRepository {
     return mapToCustomer(body as CustomerDTO);
   }
 
-  async update(id: string, updates: Partial<Customer>): Promise<Customer> {
+  async update(_id: string, _updates: Partial<Customer>): Promise<Customer> {
     // const index = this.customers.findIndex((c) => c.id === id);
     // if (index === -1) {
     //   throw new Error("Customer not found");
@@ -76,7 +76,7 @@ export class ApiCustomerRepository implements ICustomerRepository {
     throw new Error("Not implemented");
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(_id: string): Promise<void> {
     // const index = this.customers.findIndex((c) => c.id === id);
     // if (index !== -1) {
     //   this.customers.splice(index, 1);

@@ -1,6 +1,6 @@
 import { UserDTO, mapToUser, mapToAuthUser, mapRoleToBackendType } from "./ApiMappers";
 
-import { AuthUser, User } from "@/domain/entities/User";
+import { AuthUser, User, UserRole } from "@/domain/entities/User";
 import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { HttpClient } from "@/infrastructure/http/HttpClient";
 
@@ -15,11 +15,10 @@ export class ApiUserRepository implements IUserRepository {
     return body ? mapToUser(body as UserDTO) : null;
   }
 
-  async getByEmail(email: string): Promise<User | null> {
-    // Workaround: Backend lacks GET /users/email/{email}
-    // Fetch all users and filter client-side
-    const path = "/users/";
-    const res = await this.client.get(path);
+  async getByEmail(companyId: string, email: string): Promise<User | null> {
+    const res = await this.client.get("/users/", {
+      query: { company_id: companyId, search: email },
+    });
     const body = res.data;
 
     if (!body || typeof body !== "object" || !("results" in body)) {
@@ -35,11 +34,18 @@ export class ApiUserRepository implements IUserRepository {
     return users.find((user) => user.email === email) || null;
   }
 
-  async getByCompanyId(companyId: string): Promise<AuthUser[]> {
-    // Workaround: Backend lacks GET /users/company/{companyId}
-    // Fetch all users and filter client-side
-    const path = "/users/";
-    const res = await this.client.get(path);
+  async getByCompanyId(companyId: string, role?: UserRole, search?: string): Promise<AuthUser[]> {
+    const query: Record<string, string> = { company_id: companyId };
+
+    if (role) {
+      query.role = mapRoleToBackendType(role);
+    }
+
+    if (search?.trim()) {
+      query.search = search.trim();
+    }
+
+    const res = await this.client.get("/users/", { query });
     const body = res.data;
 
     if (!body || typeof body !== "object" || !("results" in body)) {
@@ -51,9 +57,7 @@ export class ApiUserRepository implements IUserRepository {
       throw new Error("Invalid API response");
     }
 
-    return results
-      .filter((dto: UserDTO) => dto.company_id === companyId)
-      .map((dto: UserDTO) => mapToAuthUser(dto));
+    return results.map((dto: UserDTO) => mapToAuthUser(dto));
   }
 
   async create(data: Omit<User, "id" | "createdAt">): Promise<AuthUser> {

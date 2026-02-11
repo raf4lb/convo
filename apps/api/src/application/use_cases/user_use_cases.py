@@ -110,5 +110,19 @@ class DeleteUserUseCase(IUserUseCase):
 
 
 class ListUserUseCase(IUserUseCase):
-    def execute(self) -> list[User]:
-        return self._user_repository.get_all()
+    def execute(
+        self,
+        company_id: str,
+        role: UserTypes | None = None,
+        search_query: str | None = None,
+    ) -> list[User]:
+        if search_query:
+            return self._user_repository.search_users(
+                company_id=company_id, query=search_query, role=role
+            )
+        elif role:
+            return self._user_repository.get_by_company_and_role(
+                company_id=company_id, role=role
+            )
+        else:
+            return self._user_repository.get_by_company_id(company_id=company_id)

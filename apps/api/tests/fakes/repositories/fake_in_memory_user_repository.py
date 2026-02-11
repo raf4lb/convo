@@ -1,4 +1,5 @@
 from src.domain.entities.user import User
+from src.domain.enums import UserTypes
 from src.domain.errors import UserNotFoundError
 from src.domain.repositories.user_repository import IUserRepository
 
@@ -34,3 +35,27 @@ class InMemoryUserRepository(IUserRepository):
         user = self.get_by_id(user_id)
         user.password_hash = password_hash
         self.save(user)
+
+    def get_by_company_id(self, company_id: str) -> list[User]:
+        return [user for user in self.users.values() if user.company_id == company_id]
+
+    def get_by_company_and_role(self, company_id: str, role: UserTypes) -> list[User]:
+        return [
+            user
+            for user in self.users.values()
+            if user.company_id == company_id and user.type == role
+        ]
+
+    def search_users(
+        self, company_id: str, query: str, role: UserTypes | None = None
+    ) -> list[User]:
+        results = []
+        query_lower = query.lower()
+        for user in self.users.values():
+            if user.company_id != company_id:
+                continue
+            if role and user.type != role:
+                continue
+            if query_lower in user.name.lower() or query_lower in user.email.lower():
+                results.append(user)
+        return results
