@@ -32,3 +32,28 @@ class InMemoryChatRepository(IChatRepository):
             if chat.company_id == company_id and chat.contact_id == contact_id:
                 return chat
         raise ChatNotFoundError
+
+    def get_unassigned_by_company_id(self, company_id: str) -> list[Chat]:
+        return [
+            chat
+            for chat in self.chats.values()
+            if chat.company_id == company_id and chat.attached_user_id is None
+        ]
+
+    def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[Chat]:
+        return [
+            chat
+            for chat in self.chats.values()
+            if chat.company_id == company_id and chat.attached_user_id == attendant_id
+        ]
+
+    def search_chats(
+        self, company_id: str, query: str, user_id: str | None = None
+    ) -> list[Chat]:
+        # Simple search implementation for testing
+        results = [
+            chat for chat in self.chats.values() if chat.company_id == company_id
+        ]
+        if user_id:
+            results = [chat for chat in results if chat.attached_user_id == user_id]
+        return results

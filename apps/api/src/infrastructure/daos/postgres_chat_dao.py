@@ -111,3 +111,72 @@ class PostgresChatDAO:
             with conn.cursor() as cursor:
                 cursor.execute("DELETE FROM chats WHERE id = %s", (chat_id,))
             conn.commit()
+
+    def get_unassigned_by_company_id(self, company_id: str) -> list[tuple]:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, company_id, contact_id, status, attached_user_id, created_at, updated_at
+                    FROM chats
+                    WHERE company_id = %s AND attached_user_id IS NULL
+                    ORDER BY created_at DESC
+                    """,
+                    (company_id,),
+                )
+                return cursor.fetchall()
+
+    def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[tuple]:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, company_id, contact_id, status, attached_user_id, created_at, updated_at
+                    FROM chats
+                    WHERE company_id = %s AND attached_user_id = %s
+                    ORDER BY created_at DESC
+                    """,
+                    (company_id, attendant_id),
+                )
+                return cursor.fetchall()
+
+    def search_chats(
+        self, company_id: str, query: str, user_id: str | None = None
+    ) -> list[tuple]:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                # Search in contact name, phone, or message content
+                search_pattern = f"%{query}%"
+                base_query = """
+                    SELECT DISTINCT c.id, c.company_id, c.contact_id, c.status, c.attached_user_id, c.created_at, c.updated_at
+                    FROM chats c
+                    LEFT JOIN contacts ct ON c.contact_id = ct.id
+                    LEFT JOIN messages m ON c.id = m.chat_id
+                    WHERE c.company_id = %s
+                    AND (
+                        ct.name ILIKE %s
+                        OR ct.phone_number ILIKE %s
+                        OR m.text ILIKE %s
+                    )
+                """
+
+                if user_id:
+                    # Filter by user if provided
+                    base_query += " AND c.attached_user_id = %s"
+                    cursor.execute(
+                        base_query + " ORDER BY c.created_at DESC",
+                        (
+                            company_id,
+                            search_pattern,
+                            search_pattern,
+                            search_pattern,
+                            user_id,
+                        ),
+                    )
+                else:
+                    cursor.execute(
+                        base_query + " ORDER BY c.created_at DESC",
+                        (company_id, search_pattern, search_pattern, search_pattern),
+                    )
+
+                return cursor.fetchall()

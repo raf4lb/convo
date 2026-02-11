@@ -1,5 +1,16 @@
-from src.application.use_cases.chat_use_cases import ListChatsByCompanyUseCase
-from src.application.use_cases.message_use_cases import MarkChatAsReadUseCase
+from src.application.use_cases.chat_use_cases import (
+    AssignAttendantToChatUseCase,
+    GetChatsByAttendantUseCase,
+    GetUnassignedChatsUseCase,
+    ListChatsByCompanyUseCase,
+    SearchChatsUseCase,
+)
+from src.application.use_cases.message_use_cases import (
+    GetChatMessagesUseCase,
+    MarkChatAsReadUseCase,
+    SendMessageUseCase,
+)
+from src.domain.errors import ChatNotFoundError
 from src.web.controllers.interfaces import IChatHttpController, IMessageHttpController
 from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 
@@ -104,4 +115,182 @@ class MarkChatAsReadHttpController(IMessageHttpController):
         return HttpResponse(
             status_code=StatusCodes.OK.value,
             body={"updated_count": updated_count},
+        )
+
+
+class GetUnassignedChatsHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = GetUnassignedChatsUseCase(chat_repository=self._chat_repository)
+        chats = use_case.execute(company_id=request.query_params["company_id"])
+        body = {
+            "results": [
+                {
+                    "id": chat.id,
+                    "company_id": chat.company_id,
+                    "contact_id": chat.contact_id,
+                    "status": chat.status.value,
+                    "attached_user_id": chat.attached_user_id,
+                    "created_at": chat.created_at.isoformat(),
+                    "updated_at": chat.updated_at.isoformat()
+                    if chat.updated_at
+                    else None,
+                }
+                for chat in chats
+            ],
+        }
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body=body,
+        )
+
+
+class GetChatsByAttendantHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = GetChatsByAttendantUseCase(chat_repository=self._chat_repository)
+        chats = use_case.execute(
+            company_id=request.query_params["company_id"],
+            attendant_id=request.query_params["attendant_id"],
+        )
+        body = {
+            "results": [
+                {
+                    "id": chat.id,
+                    "company_id": chat.company_id,
+                    "contact_id": chat.contact_id,
+                    "status": chat.status.value,
+                    "attached_user_id": chat.attached_user_id,
+                    "created_at": chat.created_at.isoformat(),
+                    "updated_at": chat.updated_at.isoformat()
+                    if chat.updated_at
+                    else None,
+                }
+                for chat in chats
+            ],
+        }
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body=body,
+        )
+
+
+class SearchChatsHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = SearchChatsUseCase(chat_repository=self._chat_repository)
+        chats = use_case.execute(
+            company_id=request.query_params["company_id"],
+            query=request.query_params["query"],
+            user_id=request.query_params.get("user_id"),
+        )
+        body = {
+            "results": [
+                {
+                    "id": chat.id,
+                    "company_id": chat.company_id,
+                    "contact_id": chat.contact_id,
+                    "status": chat.status.value,
+                    "attached_user_id": chat.attached_user_id,
+                    "created_at": chat.created_at.isoformat(),
+                    "updated_at": chat.updated_at.isoformat()
+                    if chat.updated_at
+                    else None,
+                }
+                for chat in chats
+            ],
+        }
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body=body,
+        )
+
+
+class AssignAttendantToChatHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = AssignAttendantToChatUseCase(chat_repository=self._chat_repository)
+        chat_id = request.path_params["chat_id"]
+        attendant_id = request.body.get("attendant_id")
+
+        try:
+            chat = use_case.execute(chat_id=chat_id, attendant_id=attendant_id)
+        except ChatNotFoundError:
+            return HttpResponse(
+                status_code=StatusCodes.NOT_FOUND.value,
+                body={"detail": "chat not found"},
+            )
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body={
+                "id": chat.id,
+                "company_id": chat.company_id,
+                "contact_id": chat.contact_id,
+                "status": chat.status.value,
+                "attached_user_id": chat.attached_user_id,
+                "created_at": chat.created_at.isoformat(),
+                "updated_at": chat.updated_at.isoformat() if chat.updated_at else None,
+            },
+        )
+
+
+class GetChatMessagesHttpController(IMessageHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = GetChatMessagesUseCase(message_repository=self._message_repository)
+        chat_id = request.path_params["chat_id"]
+        messages = use_case.execute(chat_id=chat_id)
+
+        body = {
+            "results": [
+                {
+                    "id": message.id,
+                    "external_id": message.external_id,
+                    "external_timestamp": message.external_timestamp.isoformat(),
+                    "chat_id": message.chat_id,
+                    "text": message.text,
+                    "sent_by_user_id": message.sent_by_user_id,
+                    "read": message.read,
+                    "created_at": message.created_at.isoformat(),
+                    "updated_at": message.updated_at.isoformat()
+                    if message.updated_at
+                    else None,
+                }
+                for message in messages
+            ],
+        }
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body=body,
+        )
+
+
+class SendMessageHttpController(IMessageHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = SendMessageUseCase(message_repository=self._message_repository)
+        chat_id = request.path_params["chat_id"]
+        text = request.body["text"]
+        sent_by_user_id = request.body["sent_by_user_id"]
+
+        message = use_case.execute(
+            chat_id=chat_id,
+            text=text,
+            sent_by_user_id=sent_by_user_id,
+        )
+
+        return HttpResponse(
+            status_code=StatusCodes.CREATED.value,
+            body={
+                "id": message.id,
+                "external_id": message.external_id,
+                "external_timestamp": message.external_timestamp.isoformat(),
+                "chat_id": message.chat_id,
+                "text": message.text,
+                "sent_by_user_id": message.sent_by_user_id,
+                "read": message.read,
+                "created_at": message.created_at.isoformat(),
+                "updated_at": message.updated_at.isoformat()
+                if message.updated_at
+                else None,
+            },
         )

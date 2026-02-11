@@ -1,11 +1,11 @@
+import { mapBackendTypeToRole } from "./ApiMappers";
+
 import { AuthSession } from "@/domain/entities/AuthSession";
 import { IAuthRepository } from "@/domain/repositories/IAuthRepository";
 import { ICompanyRepository } from "@/domain/repositories/ICompanyRepository";
 import { HttpClient } from "@/infrastructure/http/HttpClient";
 
-import { mapBackendTypeToRole } from "./ApiMappers";
-
-export class AuthRepository implements IAuthRepository {
+export class ApiAuthRepository implements IAuthRepository {
   constructor(
     private httpClient: HttpClient,
     private companyRepository: ICompanyRepository,

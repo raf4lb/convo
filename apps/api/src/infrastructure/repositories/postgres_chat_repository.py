@@ -72,3 +72,21 @@ class PostgresChatRepository(IChatRepository):
     def delete(self, chat_id: str) -> None:
         self.get_by_id(chat_id=chat_id)
         self._chat_dao.delete(chat_id)
+
+    def get_unassigned_by_company_id(self, company_id: str) -> list[Chat]:
+        rows = self._chat_dao.get_unassigned_by_company_id(company_id=company_id)
+        return [self._parse_row(row=row) for row in rows]
+
+    def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[Chat]:
+        rows = self._chat_dao.get_by_attendant_id(
+            company_id=company_id, attendant_id=attendant_id
+        )
+        return [self._parse_row(row=row) for row in rows]
+
+    def search_chats(
+        self, company_id: str, query: str, user_id: str | None = None
+    ) -> list[Chat]:
+        rows = self._chat_dao.search_chats(
+            company_id=company_id, query=query, user_id=user_id
+        )
+        return [self._parse_row(row=row) for row in rows]

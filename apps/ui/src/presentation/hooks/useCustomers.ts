@@ -9,7 +9,6 @@ import {
   searchCustomersUseCase,
 } from "@/infrastructure/di/container";
 
-
 export function useCustomers() {
   const { session } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);

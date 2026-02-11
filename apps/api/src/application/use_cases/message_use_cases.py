@@ -111,3 +111,35 @@ class MarkChatAsReadUseCase(IMessageUseCase):
     def execute(self, chat_id: str) -> int:
         updated_count = self._message_repository.mark_chat_messages_as_read(chat_id)
         return updated_count
+
+
+class GetChatMessagesUseCase(IMessageUseCase):
+    def execute(self, chat_id: str) -> list[Message]:
+        return self._message_repository.get_by_chat_id(chat_id=chat_id)
+
+
+class SendMessageUseCase(IMessageUseCase):
+    def execute(
+        self,
+        chat_id: str,
+        text: str,
+        sent_by_user_id: str,
+        external_id: str | None = None,
+        external_timestamp: datetime | None = None,
+    ) -> Message:
+        # For user-sent messages, generate an external_id if not provided
+        if not external_id:
+            external_id = f"user_msg_{generate_uuid4()}"
+        if not external_timestamp:
+            external_timestamp = get_now()
+
+        message = Message(
+            id=generate_uuid4(),
+            external_id=external_id,
+            external_timestamp=external_timestamp,
+            chat_id=chat_id,
+            text=text,
+            sent_by_user_id=sent_by_user_id,
+            read=True,  # User-sent messages are marked as read
+        )
+        return self._message_repository.save(message)

@@ -1,8 +1,9 @@
+import { UserDTO, mapToUser, mapToAuthUser, mapRoleToBackendType } from "./ApiMappers";
+
 import { AuthUser, User } from "@/domain/entities/User";
 import { IUserRepository } from "@/domain/repositories/IUserRepository";
 import { HttpClient } from "@/infrastructure/http/HttpClient";
 
-import { UserDTO, mapToUser, mapToAuthUser, mapRoleToBackendType } from "./ApiMappers";
 
 export class ApiUserRepository implements IUserRepository {
   constructor(private readonly client: HttpClient) {}

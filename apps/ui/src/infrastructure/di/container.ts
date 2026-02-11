@@ -6,13 +6,13 @@ import { HttpClient } from "../http/HttpClient";
 import { WebSocketAdapter } from "../websocket/WebSocketAdapter";
 import { onMessageReceivedHandler } from "../websocket/WebSocketHandlers";
 
+import { ApiAuthRepository } from "@/data/repositories/ApiAuthRepository.ts";
 import { ApiCompanyRepository } from "@/data/repositories/ApiCompanyRepository";
+import { ApiConversationRepository } from "@/data/repositories/ApiConversationRepository";
 import { ApiCustomerRepository } from "@/data/repositories/ApiCustomerRepository";
 import { ApiUserRepository } from "@/data/repositories/ApiUserRepository";
-import { AttendantStatsRepository } from "@/data/repositories/AttendantStatsRepository";
-import { AuthRepository } from "@/data/repositories/AuthRepository";
-import { ConversationRepository } from "@/data/repositories/ConversationRepository";
-import { MetricsRepository } from "@/data/repositories/MetricsRepository";
+import { MockAttendantStatsRepository } from "@/data/repositories/MockAttendantStatsRepository";
+import { MockMetricsRepository } from "@/data/repositories/MockMetricsRepository";
 import { Login } from "@/domain/use-cases/auth/Login";
 import { Logout } from "@/domain/use-cases/auth/Logout";
 import { ValidateSession } from "@/domain/use-cases/auth/ValidateSession";
@@ -36,7 +36,6 @@ import { GetUsersByCompany } from "@/domain/use-cases/user/GetUsersByCompany";
 import { SearchUsers } from "@/domain/use-cases/user/SearchUsers";
 import { UpdateUser } from "@/domain/use-cases/user/UpdateUser";
 
-
 // WebSockets
 const WS_MESSAGES_URL = "wss://echo.websocket.org";
 export const messagesWebSocket = new WebSocketAdapter(WS_MESSAGES_URL);
@@ -52,13 +51,13 @@ const authInterceptor = new AuthInterceptor(baseUrl);
 client.addResponseInterceptor(authInterceptor.createResponseInterceptor());
 
 // Repositories (Singleton instances)
-const conversationRepository = new ConversationRepository();
-const metricsRepository = new MetricsRepository();
+const conversationRepository = new ApiConversationRepository(client);
+const metricsRepository = new MockMetricsRepository();
 const companyRepository = new ApiCompanyRepository(client);
 const userRepository = new ApiUserRepository(client);
-const authRepository = new AuthRepository(client, companyRepository);
+const authRepository = new ApiAuthRepository(client, companyRepository);
 const customerRepository = new ApiCustomerRepository(client);
-const attendantStatsRepository = new AttendantStatsRepository();
+const attendantStatsRepository = new MockAttendantStatsRepository();
 
 // Company Use Cases
 export const updateCompanyUseCase = new UpdateCompany(companyRepository);

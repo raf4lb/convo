@@ -4,7 +4,6 @@ import { useAuth } from "./useAuth";
 
 import { getCompanyUseCase, updateCompanyUseCase } from "@/infrastructure/di/container.ts";
 
-
 interface CompanyUpdateFormData {
   name: string;
   email: string;

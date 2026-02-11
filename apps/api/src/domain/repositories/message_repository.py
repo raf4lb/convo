@@ -21,3 +21,6 @@ class IMessageRepository(ABC):
 
     @abstractmethod
     def mark_chat_messages_as_read(self, chat_id: str) -> int: ...
+
+    @abstractmethod
+    def get_by_chat_id(self, chat_id: str) -> list[Message]: ...

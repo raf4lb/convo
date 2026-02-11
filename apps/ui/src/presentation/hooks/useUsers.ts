@@ -11,7 +11,6 @@ import {
   updateUserUseCase,
 } from "@/infrastructure/di/container.ts";
 
-
 export function useUsers() {
   const { session } = useAuth();
   const [users, setUsers] = useState<AuthUser[]>([]);

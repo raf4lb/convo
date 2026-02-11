@@ -2,8 +2,14 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from src.web.controllers.chat_controllers import (
+    AssignAttendantToChatHttpController,
+    GetChatMessagesHttpController,
+    GetChatsByAttendantHttpController,
+    GetUnassignedChatsHttpController,
     ListChatsByCompanyHttpController,
     MarkChatAsReadHttpController,
+    SearchChatsHttpController,
+    SendMessageHttpController,
 )
 from src.web.framework.adapter import request_adapter
 
@@ -14,6 +20,54 @@ chat_routes = APIRouter(prefix="/chats")
 async def list_company_chats(request: Request) -> JSONResponse:
     repository = request.app.state.chat_repository
     controller = ListChatsByCompanyHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.get("/unassigned")
+async def get_unassigned_chats(request: Request) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = GetUnassignedChatsHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.get("/by-attendant")
+async def get_chats_by_attendant(request: Request) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = GetChatsByAttendantHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.get("/search")
+async def search_chats(request: Request) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = SearchChatsHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.patch("/{chat_id}/assign")
+async def assign_attendant_to_chat(request: Request, chat_id: str) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = AssignAttendantToChatHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.get("/{chat_id}/messages")
+async def get_chat_messages(request: Request, chat_id: str) -> JSONResponse:
+    message_repository = request.app.state.message_repository
+    controller = GetChatMessagesHttpController(message_repository=message_repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.post("/{chat_id}/messages")
+async def send_message(request: Request, chat_id: str) -> JSONResponse:
+    message_repository = request.app.state.message_repository
+    controller = SendMessageHttpController(message_repository=message_repository)
     response = controller.handle(request=await request_adapter(request))
     return JSONResponse(content=response.body, status_code=response.status_code)
 

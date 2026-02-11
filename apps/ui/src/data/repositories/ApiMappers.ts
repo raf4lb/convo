@@ -61,7 +61,7 @@ export function mapToCustomer(dto: CustomerDTO): Customer {
   // TODO: data validation
   return {
     id: dto.id,
-    companyId: dto.name,
+    companyId: dto.company_id,
     name: dto.name,
     phone: dto.phone_number,
     email: dto.email,
@@ -124,3 +124,39 @@ export function mapToAuthUser(dto: UserDTO): AuthUser {
 }
 
 export { mapRoleToBackendType };
+
+export interface ChatDTO {
+  id: string;
+  company_id: string;
+  contact_id: string;
+  status: string;
+  attached_user_id: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface MessageDTO {
+  id: string;
+  external_id: string;
+  external_timestamp: string;
+  chat_id: string;
+  text: string;
+  sent_by_user_id: string | null;
+  read: boolean;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface ContactDTO {
+  id: string;
+  name: string;
+  phone_number: string;
+  email: string | null;
+  company_id: string;
+  is_blocked: boolean;
+  tags: string[];
+  notes: string | null;
+  last_contact_at: string | null;
+  created_at: string;
+  updated_at: string | null;
+}

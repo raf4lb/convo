@@ -18,7 +18,6 @@ import {
   getConversationUseCase,
 } from "@/infrastructure/di/container";
 
-
 export function useChatAreaState(conversationId: string | null, eventBus: IEventBus) {
   const { session, hasPermission } = useAuth();
   const { messages, loading, isSendingMessage, sendMessage } = useConversationMessages(

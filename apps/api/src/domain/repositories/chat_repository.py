@@ -25,3 +25,14 @@ class IChatRepository(ABC):
 
     @abstractmethod
     def delete(self, chat_id: str) -> None: ...
+
+    @abstractmethod
+    def get_unassigned_by_company_id(self, company_id: str) -> list[Chat]: ...
+
+    @abstractmethod
+    def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[Chat]: ...
+
+    @abstractmethod
+    def search_chats(
+        self, company_id: str, query: str, user_id: str | None = None
+    ) -> list[Chat]: ...

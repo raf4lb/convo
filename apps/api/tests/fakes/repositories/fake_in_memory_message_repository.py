@@ -39,3 +39,8 @@ class InMemoryMessageRepository(IMessageRepository):
                 message.updated_at = get_now()
                 updated_count += 1
         return updated_count
+
+    def get_by_chat_id(self, chat_id: str) -> list[Message]:
+        return [
+            message for message in self.messages.values() if message.chat_id == chat_id
+        ]

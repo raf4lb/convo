@@ -1,6 +1,6 @@
-import {Permission, RolePermissions} from "../../entities/Permission";
-import {AuthUser, UserRole} from "../../entities/User";
-import {IUserRepository} from "../../repositories/IUserRepository";
+import { Permission, RolePermissions } from "../../entities/Permission";
+import { AuthUser, UserRole } from "../../entities/User";
+import { IUserRepository } from "../../repositories/IUserRepository";
 
 export class CreateUser {
   constructor(private userRepository: IUserRepository) {}

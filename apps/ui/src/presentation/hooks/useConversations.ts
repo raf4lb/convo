@@ -8,10 +8,7 @@ import {
   ConversationAssignedPayload,
 } from "@/domain/events/ConversationAssignedEvent";
 import { EventType } from "@/domain/events/IDomainEvent";
-import {
-  MessageReceivedEvent,
-  MessageReceivedPayload,
-} from "@/domain/events/MessageReceivedEvent";
+import { MessageReceivedEvent, MessageReceivedPayload } from "@/domain/events/MessageReceivedEvent";
 import { MessageSentEvent, MessageSentPayload } from "@/domain/events/MessageSentEvent";
 import { IEventBus } from "@/domain/ports/IEventBus";
 import {
@@ -19,7 +16,6 @@ import {
   getConversationUseCase,
   searchConversationsUseCase,
 } from "@/infrastructure/di/container";
-
 
 export interface ConversationsHook {
   conversations: Conversation[];

@@ -68,3 +68,7 @@ class PostgresMessageRepository(IMessageRepository):
     def mark_chat_messages_as_read(self, chat_id: str) -> int:
         updated_count = self.message_dao.mark_chat_messages_as_read(chat_id=chat_id)
         return updated_count
+
+    def get_by_chat_id(self, chat_id: str) -> list[Message]:
+        rows = self.message_dao.get_by_chat_id(chat_id=chat_id)
+        return [self._parse_row(row=row) for row in rows]

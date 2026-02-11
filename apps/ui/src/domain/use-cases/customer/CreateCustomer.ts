@@ -1,5 +1,5 @@
-import {Customer} from "../../entities/Customer";
-import {ICustomerRepository} from "../../repositories/ICustomerRepository";
+import { Customer } from "../../entities/Customer";
+import { ICustomerRepository } from "../../repositories/ICustomerRepository";
 
 export class CreateCustomer {
   constructor(private customerRepository: ICustomerRepository) {}
@@ -28,13 +28,6 @@ export class CreateCustomer {
     }
 
     // Create customer
-    return await this.customerRepository.create(
-        companyId,
-        name,
-        phone,
-        email,
-        tags,
-        notes,
-    );
+    return await this.customerRepository.create(companyId, name, phone, email, tags, notes);
   }
 }
