@@ -216,6 +216,7 @@ export function Chat() {
           <ChatArea
             conversationId={selectedConversationId}
             onBack={() => setSelectedConversationId(null)}
+            activeTab={activeTab}
           />
         ) : (
           // Show ConversationList when no selection
@@ -244,7 +245,7 @@ export function Chat() {
               }}
             />
           </div>
-          <ChatArea conversationId={selectedConversationId} />
+          <ChatArea conversationId={selectedConversationId} activeTab={activeTab} />
         </>
       )}
     </>

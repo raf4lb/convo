@@ -21,6 +21,7 @@ import {
 } from "../../components/ui/command";
 import { Input } from "../../components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import { TabType } from "../constants/tabTypes";
 import { useChatAreaState } from "../hooks/useChatAreaState";
 
 import { eventBus } from "@/infrastructure/di/container.ts";
@@ -28,10 +29,11 @@ import { eventBus } from "@/infrastructure/di/container.ts";
 interface ChatAreaProps {
   conversationId: string | null;
   onBack?: () => void;
+  activeTab?: TabType;
 }
 
-export function ChatArea({ conversationId, onBack }: ChatAreaProps) {
-  const chatAreaState = useChatAreaState(conversationId, eventBus);
+export function ChatArea({ conversationId, onBack, activeTab }: ChatAreaProps) {
+  const chatAreaState = useChatAreaState(conversationId, eventBus, activeTab);
 
   const conversation = chatAreaState.conversation;
   const users = chatAreaState.users;

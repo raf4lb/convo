@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { TabType } from "../constants/tabTypes";
+
 import { useAuth } from "./useAuth";
 import { useConversationMessages } from "./useConversationMessages";
 import { useUsers } from "./useUsers";
@@ -16,9 +18,14 @@ import { IEventBus } from "@/domain/ports/IEventBus";
 import {
   assignConversationToAttendantUseCase,
   getConversationUseCase,
+  markConversationAsReadUseCase,
 } from "@/infrastructure/di/container";
 
-export function useChatAreaState(conversationId: string | null, eventBus: IEventBus) {
+export function useChatAreaState(
+  conversationId: string | null,
+  eventBus: IEventBus,
+  activeTab?: TabType,
+) {
   const { session, hasPermission } = useAuth();
   const { messages, loading, isSendingMessage, sendMessage } = useConversationMessages(
     conversationId,
@@ -47,6 +54,21 @@ export function useChatAreaState(conversationId: string | null, eventBus: IEvent
           ? await getConversationUseCase.execute(conversationId, session.user)
           : null;
       setConversation(conversation);
+
+      // Mark messages as read if not in UNASSIGNED tab AND user is the assigned attendant
+      if (
+        conversationId &&
+        conversation &&
+        activeTab !== TabType.UNASSIGNED &&
+        conversation.assignedToUserId === session?.user.id
+      ) {
+        try {
+          await markConversationAsReadUseCase.execute(conversationId);
+        } catch (error) {
+          // Silently fail - don't block UI if mark-as-read fails
+          console.error("Failed to mark conversation as read:", error);
+        }
+      }
     };
     loadConversation();
 
@@ -60,7 +82,7 @@ export function useChatAreaState(conversationId: string | null, eventBus: IEvent
     return () => {
       unsubscribeConversationAssignedEvent();
     };
-  }, [conversationId, session, eventBus, onConversationAssigned]);
+  }, [conversationId, session, eventBus, onConversationAssigned, activeTab]);
 
   const canAssingConversation = hasPermission(Permission.ASSIGN_CONVERSATION);
 

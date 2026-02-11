@@ -22,6 +22,7 @@ import { AssignConversationToAttendant } from "@/domain/use-cases/conversation/A
 import { GetConversation } from "@/domain/use-cases/conversation/GetConversation";
 import { GetConversationMessages } from "@/domain/use-cases/conversation/GetConversationMessages";
 import { GetConversations } from "@/domain/use-cases/conversation/GetConversations";
+import { MarkConversationAsRead } from "@/domain/use-cases/conversation/MarkConversationAsRead";
 import { ReceiveMessage } from "@/domain/use-cases/conversation/ReceiveMessage";
 import { SearchConversations } from "@/domain/use-cases/conversation/SearchConversations";
 import { SendMessage } from "@/domain/use-cases/conversation/SendMessage";
@@ -80,6 +81,10 @@ export const assignConversationToAttendantUseCase = new AssignConversationToAtte
 export const sendMessageUseCase = new SendMessage(conversationRepository, eventBus);
 export const receiveMessageUseCase = new ReceiveMessage(conversationRepository, eventBus);
 export const searchConversationsUseCase = new SearchConversations(conversationRepository);
+export const markConversationAsReadUseCase = new MarkConversationAsRead(
+  conversationRepository,
+  eventBus,
+);
 
 // Metrics Use Cases
 export const getDashboardMetricsUseCase = new GetDashboardMetrics(metricsRepository);

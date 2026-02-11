@@ -351,4 +351,11 @@ export class ConversationRepository implements IConversationRepository {
     );
     return Promise.resolve(conversations);
   }
+
+  async markChatAsRead(conversationId: string): Promise<void> {
+    const conversation = this.conversations.find((c) => c.id === conversationId);
+    if (conversation) {
+      conversation.unread = 0;
+    }
+  }
 }

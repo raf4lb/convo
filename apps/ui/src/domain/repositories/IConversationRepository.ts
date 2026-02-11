@@ -18,4 +18,5 @@ export interface IConversationRepository {
   getUnassigned(companyId: string): Promise<Conversation[]>;
   getPending(companyId: string): Promise<Conversation[]>;
   getResolved(companyId: string): Promise<Conversation[]>;
+  markChatAsRead(conversationId: string): Promise<void>;
 }

@@ -376,4 +376,8 @@ export class ApiConversationRepository implements IConversationRepository {
     const chats = ((res.data as any).results as ChatDTO[]) || [];
     return await this.buildConversationsFromChats(chats);
   }
+
+  async markChatAsRead(conversationId: string): Promise<void> {
+    await this.client.patch(`/chats/${conversationId}/read`);
+  }
 }

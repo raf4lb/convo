@@ -4,6 +4,7 @@ import { useAuth } from "./useAuth";
 
 import { Conversation } from "@/domain/entities/Conversation";
 import { ConversationAssignedEvent } from "@/domain/events/ConversationAssignedEvent";
+import { ConversationReadEvent } from "@/domain/events/ConversationReadEvent";
 import { EventType } from "@/domain/events/IDomainEvent";
 import { MessageReceivedEvent } from "@/domain/events/MessageReceivedEvent";
 import { MessageSentEvent } from "@/domain/events/MessageSentEvent";
@@ -12,6 +13,7 @@ import {
   conversationRepository,
   getConversationsUseCase,
   getConversationUseCase,
+  markConversationAsReadUseCase,
   searchConversationsUseCase,
 } from "@/infrastructure/di/container";
 import { TabType } from "@/presentation/constants/tabTypes";
@@ -107,6 +109,27 @@ export function useConversations(eventBus: IEventBus, filter?: TabType) {
                 : conv,
             ),
           );
+
+          // Mark as read if assigned to current user
+          if (session && event.payload.userId === session.user.id) {
+            try {
+              await markConversationAsReadUseCase.execute(event.payload.conversationId);
+            } catch (error) {
+              console.error("Failed to mark conversation as read after assignment:", error);
+            }
+          }
+        },
+      );
+
+      const unsubscribeConversationReadEvent = eventBus.subscribe<ConversationReadEvent>(
+        EventType.CONVERSATION_READ,
+        async (event) => {
+          // Update unread count locally - no need to fetch from API
+          setConversations((prev) =>
+            prev.map((conv) =>
+              conv.id === event.payload.conversationId ? { ...conv, unread: 0 } : conv,
+            ),
+          );
         },
       );
 
@@ -114,6 +137,7 @@ export function useConversations(eventBus: IEventBus, filter?: TabType) {
         unsubscribeMessageSentEvent();
         unsubscribeMessageReceivedEvent();
         unsubscribeConversationAssignedEvent();
+        unsubscribeConversationReadEvent();
       };
     }
   }, [session, loadConversations, eventBus]);
