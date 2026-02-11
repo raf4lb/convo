@@ -29,19 +29,16 @@ export function useChatAreaState(conversationId: string | null, eventBus: IEvent
   const [openAssignPopover, setOpenAssignPopover] = useState(false);
   const [messageText, setMessageText] = useState("");
 
-  const onConversationAssigned = useCallback(
-    (payload: ConversationAssignedPayload) => {
-      setConversation((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          assignedToUserId: payload.userId,
-          assignedToUserName: payload.userName,
-        };
-      });
-    },
-    [],
-  );
+  const onConversationAssigned = useCallback((payload: ConversationAssignedPayload) => {
+    setConversation((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        assignedToUserId: payload.userId,
+        assignedToUserName: payload.userName,
+      };
+    });
+  }, []);
 
   useEffect(() => {
     const loadConversation = async () => {

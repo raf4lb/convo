@@ -121,7 +121,7 @@ export class ApiConversationRepository implements IConversationRepository {
       this.client
         .get(`/chats/${chat.id}/messages`)
         .then((r) => (r.data as any).results as MessageDTO[])
-        .catch(() => [] as MessageDTO[])
+        .catch(() => [] as MessageDTO[]),
     );
 
     const allMessages = await Promise.all(messagePromises);
@@ -134,9 +134,7 @@ export class ApiConversationRepository implements IConversationRepository {
 
     // Fetch all unique contacts in parallel
     const uniqueContactIds = [...new Set(chats.map((c) => c.contact_id))];
-    const contactPromises = uniqueContactIds.map((id) =>
-      this.getContact(id).catch(() => null)
-    );
+    const contactPromises = uniqueContactIds.map((id) => this.getContact(id).catch(() => null));
     const contacts = await Promise.all(contactPromises);
     const contactMap = new Map<string, ContactDTO>();
     uniqueContactIds.forEach((id, index) => {
@@ -147,11 +145,7 @@ export class ApiConversationRepository implements IConversationRepository {
 
     // Fetch all unique users in parallel
     const uniqueUserIds = [
-      ...new Set(
-        chats
-          .map((c) => c.attached_user_id)
-          .filter((id): id is string => id !== null)
-      ),
+      ...new Set(chats.map((c) => c.attached_user_id).filter((id): id is string => id !== null)),
     ];
     const userPromises = uniqueUserIds.map((id) => this.getUser(id).catch(() => null));
     const users = await Promise.all(userPromises);
@@ -235,14 +229,14 @@ export class ApiConversationRepository implements IConversationRepository {
       this.client
         .get(`/chats/${chat.id}/messages`)
         .then((r) => ((r.data as any).results as MessageDTO[]) || [])
-        .catch(() => [] as MessageDTO[])
+        .catch(() => [] as MessageDTO[]),
     );
     const allMessages = await Promise.all(messagePromises);
 
     // Fetch all unique contacts in parallel
     const uniqueContactIds = [...new Set(chats.map((c) => c.contact_id))];
     const contacts = await Promise.all(
-      uniqueContactIds.map((id) => this.getContact(id).catch(() => null))
+      uniqueContactIds.map((id) => this.getContact(id).catch(() => null)),
     );
     const contactMap = new Map<string, ContactDTO>();
     uniqueContactIds.forEach((id, index) => {
@@ -298,7 +292,7 @@ export class ApiConversationRepository implements IConversationRepository {
     const messages = ((res.data as any).results as MessageDTO[]) || [];
 
     const userIds = new Set(
-      messages.map((m) => m.sent_by_user_id).filter((id): id is string => id !== null)
+      messages.map((m) => m.sent_by_user_id).filter((id): id is string => id !== null),
     );
 
     const userMap = new Map<string, string>();
@@ -315,7 +309,7 @@ export class ApiConversationRepository implements IConversationRepository {
   async assignAttendant(
     conversationId: string,
     userId: string | null,
-    userName: string | null
+    userName: string | null,
   ): Promise<void> {
     await this.client.patch(`/chats/${conversationId}/assign`, {
       body: { attendant_id: userId },

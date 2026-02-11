@@ -74,7 +74,7 @@ export function Chat() {
 
   // Sort conversations by updated date
   const sortedConversations = [...conversationsHook.conversations].sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
   );
 
   const handleMouseDown = (e: React.MouseEvent) => {
