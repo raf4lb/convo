@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   ArrowLeft,
   Check,
@@ -23,6 +24,7 @@ import { Input } from "../../components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import { TabType } from "../constants/tabTypes";
 import { useChatAreaState } from "../hooks/useChatAreaState";
+import { useScrollToBottom } from "../hooks/useScrollToBottom";
 
 import { eventBus } from "@/infrastructure/di/container.ts";
 
@@ -34,10 +36,31 @@ interface ChatAreaProps {
 
 export function ChatArea({ conversationId, onBack, activeTab }: ChatAreaProps) {
   const chatAreaState = useChatAreaState(conversationId, eventBus, activeTab);
+  const { scrollRef, scrollToBottom, isNearBottom } = useScrollToBottom();
 
   const conversation = chatAreaState.conversation;
   const users = chatAreaState.users;
   const messages = chatAreaState.messages;
+
+  // Scroll to bottom when conversation changes
+  useEffect(() => {
+    if (!chatAreaState.loading && messages.length > 0 && conversationId) {
+      // Use setTimeout to ensure DOM has rendered
+      setTimeout(() => {
+        scrollToBottom('auto');
+      }, 0);
+    }
+  }, [conversationId, chatAreaState.loading, messages.length, scrollToBottom]);
+
+  // Scroll to bottom when new messages arrive (if user is near bottom)
+  useEffect(() => {
+    if (!chatAreaState.loading && messages.length > 0 && isNearBottom) {
+      // Use smooth scroll for new messages
+      setTimeout(() => {
+        scrollToBottom('smooth');
+      }, 0);
+    }
+  }, [messages.length, isNearBottom, chatAreaState.loading, scrollToBottom]);
 
   const buildAssignButton = () => {
     if (chatAreaState.canAssingConversation) {
@@ -192,7 +215,7 @@ export function ChatArea({ conversationId, onBack, activeTab }: ChatAreaProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
