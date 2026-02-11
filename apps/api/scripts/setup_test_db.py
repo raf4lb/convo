@@ -47,9 +47,7 @@ def setup_test_database():
         cursor = conn.cursor()
 
         # Drop test database if exists
-        cursor.execute(
-            f"SELECT 1 FROM pg_database WHERE datname = '{test_db_name}'"
-        )
+        cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = '{test_db_name}'")
         exists = cursor.fetchone()
         if exists:
             print(f"Dropping existing test database: {test_db_name}")
