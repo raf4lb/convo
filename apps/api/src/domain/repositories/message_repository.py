@@ -15,3 +15,6 @@ class IMessageRepository(ABC):
 
     @abstractmethod
     def delete(self, message_id: str) -> None: ...
+
+    @abstractmethod
+    def mark_chat_messages_as_read(self, chat_id: str) -> int: ...

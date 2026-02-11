@@ -75,6 +75,7 @@ class ReceiveMessageUseCase(IMessageUseCase):
             chat_id=chat.id,
             sent_by_user_id=None,  # Message is from contact
             text=text,
+            read=False,  # Incoming messages are unread by default
         )
         self._message_repository.save(message)
         return message
@@ -97,3 +98,9 @@ class UpdateMessageUseCase(IMessageUseCase):
 class DeleteMessageUseCase(IMessageUseCase):
     def execute(self, message_id: str) -> None:
         self._message_repository.delete(message_id)
+
+
+class MarkChatAsReadUseCase(IMessageUseCase):
+    def execute(self, chat_id: str) -> int:
+        updated_count = self._message_repository.mark_chat_messages_as_read(chat_id)
+        return updated_count

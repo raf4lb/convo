@@ -12,6 +12,7 @@ class Message(BaseEntity):
         chat_id: str,
         text: str,
         sent_by_user_id: str | None = None,
+        read: bool = False,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
     ):
@@ -22,6 +23,7 @@ class Message(BaseEntity):
         self.chat_id = chat_id
         self.text = text
         self.sent_by_user_id = sent_by_user_id
+        self.read = read
 
     def is_from_contact(self) -> bool:
         """Returns True if message was sent by the contact (customer)."""

@@ -17,8 +17,9 @@ class PostgresMessageRepository(IMessageRepository):
             chat_id=row[3],
             text=row[4],
             sent_by_user_id=row[5],
-            created_at=row[6],
-            updated_at=row[7],
+            read=row[6],
+            created_at=row[7],
+            updated_at=row[8],
         )
 
     def save(self, message: Message) -> Message:
@@ -30,6 +31,7 @@ class PostgresMessageRepository(IMessageRepository):
             "chat_id": message.chat_id,
             "text": message.text,
             "sent_by_user_id": message.sent_by_user_id,
+            "read": message.read,
             "created_at": message.created_at,
             "updated_at": message.updated_at,
         }
@@ -55,3 +57,9 @@ class PostgresMessageRepository(IMessageRepository):
     def delete(self, message_id: str) -> None:
         self.get_by_id(message_id=message_id)
         self.message_dao.delete(message_id=message_id)
+
+    def mark_chat_messages_as_read(self, chat_id: str) -> int:
+        # TODO: Implement this method when infrastructure layer is updated
+        raise NotImplementedError(
+            "mark_chat_messages_as_read not yet implemented in PostgresMessageRepository"
+        )

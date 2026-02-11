@@ -1,6 +1,7 @@
 from src.domain.entities.message import Message
 from src.domain.errors import MessageNotFoundError
 from src.domain.repositories.message_repository import IMessageRepository
+from src.helpers.helpers import get_now
 
 
 class InMemoryMessageRepository(IMessageRepository):
@@ -23,3 +24,12 @@ class InMemoryMessageRepository(IMessageRepository):
     def delete(self, message_id: str) -> None:
         self.get_by_id(message_id=message_id)
         self.messages.pop(message_id)
+
+    def mark_chat_messages_as_read(self, chat_id: str) -> int:
+        updated_count = 0
+        for message in self.messages.values():
+            if message.chat_id == chat_id and not message.read:
+                message.read = True
+                message.updated_at = get_now()
+                updated_count += 1
+        return updated_count
