@@ -39,7 +39,7 @@ class PostgresUserRepository(IUserRepository):
             updated_at=row[8],
         )
 
-    def save(self, user: User) -> None:
+    def save(self, user: User) -> User:
         existing = self.user_dao.get_by_id(user_id=user.id)
         user_data = {
             "id": user.id,
@@ -54,9 +54,11 @@ class PostgresUserRepository(IUserRepository):
         }
 
         if existing:
-            self.user_dao.update(user_data)
+            row = self.user_dao.update(user_data)
         else:
-            self.user_dao.insert(user_data)
+            row = self.user_dao.insert(user_data)
+
+        return self._parse_row(row=row)
 
     def get_by_id(self, user_id: str) -> User:
         row = self.user_dao.get_by_id(user_id=user_id)

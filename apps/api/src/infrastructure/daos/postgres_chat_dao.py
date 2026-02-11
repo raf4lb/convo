@@ -13,19 +13,22 @@ class PostgresChatDAO:
     def _connect(self):
         return psycopg2.connect(self.database_url)
 
-    def insert(self, chat_data: dict) -> None:
+    def insert(self, chat_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
                     INSERT INTO chats (id, company_id, contact_id, status, attached_user_id)
                     VALUES (%(id)s, %(company_id)s, %(contact_id)s, %(status)s, %(attached_user_id)s)
+                    RETURNING id, company_id, contact_id, status, attached_user_id, created_at, updated_at
                     """,
                     chat_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
-    def update(self, chat_data: dict) -> None:
+    def update(self, chat_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -38,10 +41,13 @@ class PostgresChatDAO:
                         attached_user_id = %(attached_user_id)s,
                         updated_at = %(updated_at)s
                     WHERE id = %(id)s
+                    RETURNING id, company_id, contact_id, status, attached_user_id, created_at, updated_at
                     """,
                     chat_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
     def get_by_id(self, chat_id: str) -> tuple | None:
         with self._connect() as conn:

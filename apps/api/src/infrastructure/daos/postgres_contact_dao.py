@@ -13,7 +13,7 @@ class PostgresContactDAO:
     def _connect(self):
         return psycopg2.connect(self.database_url)
 
-    def insert(self, contact_data: dict) -> None:
+    def insert(self, contact_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -23,12 +23,15 @@ class PostgresContactDAO:
                     ) VALUES (
                         %(id)s, %(name)s, %(phone_number)s, %(email)s, %(company_id)s, %(is_blocked)s, %(tags)s, %(notes)s, %(last_contact_at)s
                     )
+                    RETURNING id, name, phone_number, email, company_id, is_blocked, tags, notes, last_contact_at, created_at, updated_at
                     """,
                     contact_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
-    def update(self, contact_data: dict) -> None:
+    def update(self, contact_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -44,10 +47,13 @@ class PostgresContactDAO:
                         last_contact_at = %(last_contact_at)s,
                         updated_at = %(updated_at)s
                     WHERE id = %(id)s
+                    RETURNING id, name, phone_number, email, company_id, is_blocked, tags, notes, last_contact_at, created_at, updated_at
                     """,
                     contact_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
     def get_by_id(self, contact_id: str) -> tuple | None:
         with self._connect() as conn:

@@ -40,7 +40,72 @@ class ReceiveMessageHttpController(IMessageHttpController):
         }
 
     def _validate_body(self, body: dict) -> list[str]:
-        return []
+        errors = []
+
+        # Check for required top-level structure
+        if not isinstance(body, dict):
+            errors.append("Request body must be a JSON object")
+            return errors
+
+        if "entry" not in body or not isinstance(body["entry"], list):
+            errors.append("Missing or invalid 'entry' field")
+            return errors
+
+        if not body["entry"]:
+            errors.append("Empty 'entry' array")
+            return errors
+
+        try:
+            entry = body["entry"][0]
+            if "changes" not in entry or not isinstance(entry["changes"], list):
+                errors.append("Missing or invalid 'changes' field")
+                return errors
+
+            if not entry["changes"]:
+                errors.append("Empty 'changes' array")
+                return errors
+
+            change = entry["changes"][0]
+            if "value" not in change or not isinstance(change["value"], dict):
+                errors.append("Missing or invalid 'value' field")
+                return errors
+
+            value = change["value"]
+
+            # Validate required fields in value
+            if "contacts" not in value or not isinstance(value["contacts"], list):
+                errors.append("Missing or invalid 'contacts' field")
+            elif not value["contacts"]:
+                errors.append("Empty 'contacts' array")
+            else:
+                contact = value["contacts"][0]
+                if "wa_id" not in contact:
+                    errors.append("Missing 'wa_id' in contact")
+                if "profile" not in contact or "name" not in contact.get("profile", {}):
+                    errors.append("Missing 'profile.name' in contact")
+
+            if "messages" not in value or not isinstance(value["messages"], list):
+                errors.append("Missing or invalid 'messages' field")
+            elif not value["messages"]:
+                errors.append("Empty 'messages' array")
+            else:
+                message = value["messages"][0]
+                if "id" not in message:
+                    errors.append("Missing 'id' in message")
+                if "timestamp" not in message:
+                    errors.append("Missing 'timestamp' in message")
+                if "text" not in message or "body" not in message.get("text", {}):
+                    errors.append("Missing 'text.body' in message")
+
+            if "metadata" not in value or not isinstance(value["metadata"], dict):
+                errors.append("Missing or invalid 'metadata' field")
+            elif "display_phone_number" not in value["metadata"]:
+                errors.append("Missing 'display_phone_number' in metadata")
+
+        except (KeyError, IndexError, TypeError) as e:
+            errors.append(f"Invalid webhook payload structure: {str(e)}")
+
+        return errors
 
     def handle(self, request: HttpRequest) -> HttpResponse:
         if errors := self._validate_body(request.body):

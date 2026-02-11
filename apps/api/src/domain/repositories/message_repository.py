@@ -11,6 +11,9 @@ class IMessageRepository(ABC):
     def get_by_id(self, message_id: str) -> Message: ...
 
     @abstractmethod
+    def get_by_external_id(self, external_id: str) -> Message | None: ...
+
+    @abstractmethod
     def get_all(self) -> list[Message]: ...
 
     @abstractmethod

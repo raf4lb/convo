@@ -18,6 +18,12 @@ class InMemoryMessageRepository(IMessageRepository):
             raise MessageNotFoundError
         return message
 
+    def get_by_external_id(self, external_id: str) -> Message | None:
+        for message in self.messages.values():
+            if message.external_id == external_id:
+                return message
+        return None
+
     def get_all(self) -> list[Message]:
         return list(self.messages.values())
 

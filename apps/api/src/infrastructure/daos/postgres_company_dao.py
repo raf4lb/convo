@@ -13,7 +13,7 @@ class PostgresCompanyDAO:
     def _connect(self):
         return psycopg2.connect(self.database_url)
 
-    def insert(self, company_data: dict) -> None:
+    def insert(self, company_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -22,12 +22,16 @@ class PostgresCompanyDAO:
                                            attendant_sees_all_conversations, whatsapp_api_key)
                     VALUES (%(id)s, %(name)s, %(email)s, %(phone)s, %(is_active)s,
                             %(attendant_sees_all_conversations)s, %(whatsapp_api_key)s)
+                    RETURNING id, name, created_at, updated_at, email, phone, is_active,
+                              attendant_sees_all_conversations, whatsapp_api_key
                     """,
                     company_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
-    def update(self, company_data: dict) -> None:
+    def update(self, company_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -41,10 +45,14 @@ class PostgresCompanyDAO:
                         whatsapp_api_key                 = %(whatsapp_api_key)s,
                         updated_at                       = %(updated_at)s
                     WHERE id = %(id)s
+                    RETURNING id, name, created_at, updated_at, email, phone, is_active,
+                              attendant_sees_all_conversations, whatsapp_api_key
                     """,
                     company_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
     def get_by_id(self, company_id: str) -> tuple:
         with self._connect() as conn:

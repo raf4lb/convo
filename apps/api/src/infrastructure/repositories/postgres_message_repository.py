@@ -37,16 +37,23 @@ class PostgresMessageRepository(IMessageRepository):
         }
 
         if existing:
-            self.message_dao.update(message_data)
+            row = self.message_dao.update(message_data)
         else:
-            self.message_dao.insert(message_data)
+            row = self.message_dao.insert(message_data)
 
-        return message
+        return self._parse_row(row=row)
 
     def get_by_id(self, message_id: str) -> Message:
         row = self.message_dao.get_by_id(message_id=message_id)
         if not row:
             raise MessageNotFoundError
+
+        return self._parse_row(row=row)
+
+    def get_by_external_id(self, external_id: str) -> Message | None:
+        row = self.message_dao.get_by_external_id(external_id=external_id)
+        if not row:
+            return None
 
         return self._parse_row(row=row)
 

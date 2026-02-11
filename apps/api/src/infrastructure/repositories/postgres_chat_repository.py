@@ -21,7 +21,7 @@ class PostgresChatRepository(IChatRepository):
             updated_at=row[6],
         )
 
-    def save(self, chat: Chat) -> None:
+    def save(self, chat: Chat) -> Chat:
         existing = self._chat_dao.get_by_id(chat_id=chat.id)
         chat_data = {
             "id": chat.id,
@@ -34,9 +34,11 @@ class PostgresChatRepository(IChatRepository):
         }
 
         if existing:
-            self._chat_dao.update(chat_data)
+            row = self._chat_dao.update(chat_data)
         else:
-            self._chat_dao.insert(chat_data)
+            row = self._chat_dao.insert(chat_data)
+
+        return self._parse_row(row=row)
 
     def get_by_id(self, chat_id: str) -> Chat:
         row = self._chat_dao.get_by_id(chat_id)
@@ -62,7 +64,10 @@ class PostgresChatRepository(IChatRepository):
             company_id=company_id,
             contact_id=contact_id,
         )
-        return self._parse_row(row=row) if row else None
+        if not row:
+            raise ChatNotFoundError
+
+        return self._parse_row(row=row)
 
     def delete(self, chat_id: str) -> None:
         self.get_by_id(chat_id=chat_id)

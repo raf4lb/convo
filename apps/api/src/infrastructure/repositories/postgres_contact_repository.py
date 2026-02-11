@@ -24,7 +24,7 @@ class PostgresContactRepository(IContactRepository):
             updated_at=row[10],
         )
 
-    def save(self, contact: Contact) -> None:
+    def save(self, contact: Contact) -> Contact:
         existing = self._contact_dao.get_by_id(contact_id=contact.id)
         contact_data = {
             "id": contact.id,
@@ -40,9 +40,11 @@ class PostgresContactRepository(IContactRepository):
         }
 
         if existing:
-            self._contact_dao.update(contact_data)
+            row = self._contact_dao.update(contact_data)
         else:
-            self._contact_dao.insert(contact_data)
+            row = self._contact_dao.insert(contact_data)
+
+        return self._parse_row(row=row)
 
     def get_by_id(self, contact_id: str) -> Contact:
         row = self._contact_dao.get_by_id(contact_id=contact_id)

@@ -32,6 +32,13 @@ class ReceiveMessageUseCase(IMessageUseCase):
         receiver_phone_number: str,
         text: str,
     ) -> Message:
+        # Check for existing message (idempotency)
+        existing_message = self._message_repository.get_by_external_id(
+            external_id=message_external_id
+        )
+        if existing_message:
+            return existing_message
+
         try:
             receiver_contact = self._contact_repository.get_by_phone_number(
                 phone_number=receiver_phone_number
@@ -77,8 +84,8 @@ class ReceiveMessageUseCase(IMessageUseCase):
             text=text,
             read=False,  # Incoming messages are unread by default
         )
-        self._message_repository.save(message)
-        return message
+        saved_message = self._message_repository.save(message)
+        return saved_message
 
 
 class GetMessageUseCase(IMessageUseCase):

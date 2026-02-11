@@ -22,7 +22,7 @@ class PostgresCompanyRepository(ICompanyRepository):
             whatsapp_api_key=row[8],
         )
 
-    def save(self, company: Company) -> None:
+    def save(self, company: Company) -> Company:
         existing = self._company_dao.get_by_id(company_id=company.id)
         company_data = {
             "id": company.id,
@@ -37,9 +37,11 @@ class PostgresCompanyRepository(ICompanyRepository):
         }
 
         if existing:
-            self._company_dao.update(company_data)
+            row = self._company_dao.update(company_data)
         else:
-            self._company_dao.insert(company_data)
+            row = self._company_dao.insert(company_data)
+
+        return self._parse_row(row=row)
 
     def get_by_id(self, company_id: str) -> Company:
         row = self._company_dao.get_by_id(company_id=company_id)

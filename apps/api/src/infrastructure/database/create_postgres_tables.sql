@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS chats (
 
 CREATE TABLE IF NOT EXISTS messages (
     id TEXT PRIMARY KEY,
-    external_id TEXT NOT NULL,
+    external_id TEXT NOT NULL UNIQUE,
     external_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
     chat_id TEXT NOT NULL,
     text TEXT NOT NULL,

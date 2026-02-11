@@ -13,19 +13,22 @@ class PostgresUserDAO:
     def _connect(self):
         return psycopg2.connect(self.database_url)
 
-    def insert(self, user_data: dict) -> None:
+    def insert(self, user_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
                     INSERT INTO users (id, name, email, type, password_hash, company_id, is_active)
                     VALUES (%(id)s, %(name)s, %(email)s, %(type)s, %(password_hash)s, %(company_id)s, %(is_active)s)
+                    RETURNING id, name, email, type, company_id, is_active, created_at, updated_at
                 """,
                     user_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
-    def update(self, user_data: dict) -> None:
+    def update(self, user_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -39,10 +42,13 @@ class PostgresUserDAO:
                         is_active = %(is_active)s,
                         updated_at = %(updated_at)s
                     WHERE id = %(id)s
+                    RETURNING id, name, email, type, company_id, is_active, created_at, updated_at
                 """,
                     user_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
     def update_password(self, user_id: str, password_hash: str) -> None:
         """Update only the password hash for a user."""

@@ -13,19 +13,22 @@ class PostgresMessageDAO:
     def _connect(self):
         return psycopg2.connect(self.database_url)
 
-    def insert(self, message_data: dict) -> None:
+    def insert(self, message_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
                     INSERT INTO messages (id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read)
                     VALUES (%(id)s, %(external_id)s, %(external_timestamp)s, %(chat_id)s, %(text)s, %(sent_by_user_id)s, %(read)s)
+                    RETURNING id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read, created_at, updated_at
                     """,
                     message_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
-    def update(self, message_data: dict) -> None:
+    def update(self, message_data: dict) -> tuple:
         with self._connect() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -40,10 +43,13 @@ class PostgresMessageDAO:
                         read = %(read)s,
                         updated_at = %(updated_at)s
                     WHERE id = %(id)s
+                    RETURNING id, external_id, external_timestamp, chat_id, text, sent_by_user_id, read, created_at, updated_at
                     """,
                     message_data,
                 )
+                result = cursor.fetchone()
             conn.commit()
+            return result
 
     def get_by_id(self, message_id: str) -> tuple | None:
         with self._connect() as conn:

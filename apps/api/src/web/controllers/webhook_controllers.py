@@ -15,10 +15,3 @@ class VerifyWebhookHttpController(IHttpController):
             return HttpResponse(body=challenge, status_code=StatusCodes.OK.value)
         else:
             return HttpResponse(body=challenge, status_code=StatusCodes.FORBIDDEN.value)
-
-
-class ReceiveMessagesWebhookHttpController(IHttpController):
-    def handle(self, request: HttpRequest) -> HttpResponse:
-        return HttpResponse(
-            body={"received": request.body}, status_code=StatusCodes.OK.value
-        )
