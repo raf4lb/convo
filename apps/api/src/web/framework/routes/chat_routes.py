@@ -3,8 +3,11 @@ from fastapi.responses import JSONResponse
 
 from src.web.controllers.chat_controllers import (
     AssignAttendantToChatHttpController,
+    GetChatHttpController,
     GetChatMessagesHttpController,
     GetChatsByAttendantHttpController,
+    GetPendingChatsHttpController,
+    GetResolvedChatsHttpController,
     GetUnassignedChatsHttpController,
     ListChatsByCompanyHttpController,
     MarkChatAsReadHttpController,
@@ -32,6 +35,22 @@ async def get_unassigned_chats(request: Request) -> JSONResponse:
     return JSONResponse(content=response.body, status_code=response.status_code)
 
 
+@chat_routes.get("/pending")
+async def get_pending_chats(request: Request) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = GetPendingChatsHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.get("/resolved")
+async def get_resolved_chats(request: Request) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = GetResolvedChatsHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
 @chat_routes.get("/by-attendant")
 async def get_chats_by_attendant(request: Request) -> JSONResponse:
     repository = request.app.state.chat_repository
@@ -44,6 +63,14 @@ async def get_chats_by_attendant(request: Request) -> JSONResponse:
 async def search_chats(request: Request) -> JSONResponse:
     repository = request.app.state.chat_repository
     controller = SearchChatsHttpController(chat_repository=repository)
+    response = controller.handle(request=await request_adapter(request))
+    return JSONResponse(content=response.body, status_code=response.status_code)
+
+
+@chat_routes.get("/{chat_id}")
+async def get_chat(request: Request, chat_id: str) -> JSONResponse:
+    repository = request.app.state.chat_repository
+    controller = GetChatHttpController(chat_repository=repository)
     response = controller.handle(request=await request_adapter(request))
     return JSONResponse(content=response.body, status_code=response.status_code)
 

@@ -48,7 +48,8 @@ export class ApiConversationRepository implements IConversationRepository {
       return this.contactCache.get(contactId)!;
     }
 
-    const contact = await this.client.get<ContactDTO>(`/contacts/${contactId}`);
+    const res = await this.client.get(`/contacts/${contactId}`);
+    const contact = res.data as ContactDTO;
     this.contactCache.set(contactId, contact);
     return contact;
   }
@@ -59,10 +60,11 @@ export class ApiConversationRepository implements IConversationRepository {
     }
 
     try {
-      const user = await this.client.get<UserDTO>(`/users/${userId}`);
+      const res = await this.client.get(`/users/${userId}`);
+      const user = res.data as UserDTO;
       this.userCache.set(userId, user);
       return user;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -81,8 +83,8 @@ export class ApiConversationRepository implements IConversationRepository {
       id: chat.id,
       companyId: chat.company_id,
       customerId: chat.contact_id,
-      customerName: contact.name,
-      customerPhone: contact.phone_number,
+      customerName: contact.name || "Unknown",
+      customerPhone: contact.phone_number || "",
       lastMessage: lastMessageText || "",
       time: this.formatTime(new Date(chat.created_at)),
       unread: unreadCount || 0,
@@ -111,28 +113,83 @@ export class ApiConversationRepository implements IConversationRepository {
   }
 
   async getAll(companyId: string): Promise<Conversation[]> {
-    const response = await this.client.get<{ results: ChatDTO[] }>(
-      `/chats?company_id=${companyId}`,
+    const res = await this.client.get(`/chats`, { query: { company_id: companyId } });
+    const chats = (res.data as any).results as ChatDTO[];
+
+    // Fetch all messages in parallel for better performance
+    const messagePromises = chats.map((chat) =>
+      this.client
+        .get(`/chats/${chat.id}/messages`)
+        .then((r) => (r.data as any).results as MessageDTO[])
+        .catch(() => [] as MessageDTO[])
     );
 
-    const conversations: Conversation[] = [];
-    for (const chat of response.results) {
-      try {
-        const messages = await this.client.get<{ results: MessageDTO[] }>(
-          `/chats/${chat.id}/messages`,
-        );
-        const lastMessage =
-          messages.results.length > 0 ? messages.results[messages.results.length - 1].text : "";
-        const unreadCount = messages.results.filter(
-          (m) => !m.read && m.sent_by_user_id === null,
-        ).length;
+    const allMessages = await Promise.all(messagePromises);
 
-        const conversation = await this.mapChatToConversation(chat, lastMessage, unreadCount);
-        conversations.push(conversation);
-      } catch {
-        const conversation = await this.mapChatToConversation(chat);
-        conversations.push(conversation);
+    // Create a map of chat_id to messages
+    const messagesMap = new Map<string, MessageDTO[]>();
+    chats.forEach((chat, index) => {
+      messagesMap.set(chat.id, allMessages[index] || []);
+    });
+
+    // Fetch all unique contacts in parallel
+    const uniqueContactIds = [...new Set(chats.map((c) => c.contact_id))];
+    const contactPromises = uniqueContactIds.map((id) =>
+      this.getContact(id).catch(() => null)
+    );
+    const contacts = await Promise.all(contactPromises);
+    const contactMap = new Map<string, ContactDTO>();
+    uniqueContactIds.forEach((id, index) => {
+      if (contacts[index]) {
+        contactMap.set(id, contacts[index]!);
       }
+    });
+
+    // Fetch all unique users in parallel
+    const uniqueUserIds = [
+      ...new Set(
+        chats
+          .map((c) => c.attached_user_id)
+          .filter((id): id is string => id !== null)
+      ),
+    ];
+    const userPromises = uniqueUserIds.map((id) => this.getUser(id).catch(() => null));
+    const users = await Promise.all(userPromises);
+    const userMap = new Map<string, UserDTO>();
+    uniqueUserIds.forEach((id, index) => {
+      if (users[index]) {
+        userMap.set(id, users[index]!);
+      }
+    });
+
+    // Build conversations
+    const conversations: Conversation[] = [];
+    for (const chat of chats) {
+      const contact = contactMap.get(chat.contact_id);
+      if (!contact) continue; // Skip if contact not found
+
+      const messages = messagesMap.get(chat.id) || [];
+      const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : "";
+      const unreadCount = messages.filter((m) => !m.read && m.sent_by_user_id === null).length;
+      const attendantName = chat.attached_user_id
+        ? userMap.get(chat.attached_user_id)?.name || null
+        : null;
+
+      conversations.push({
+        id: chat.id,
+        companyId: chat.company_id,
+        customerId: chat.contact_id,
+        customerName: contact.name,
+        customerPhone: contact.phone_number,
+        lastMessage: lastMessage,
+        time: this.formatTime(new Date(chat.created_at)),
+        unread: unreadCount,
+        assignedToUserId: chat.attached_user_id,
+        assignedToUserName: attendantName,
+        status: this.mapChatStatus(chat.status),
+        createdAt: new Date(chat.created_at),
+        updatedAt: chat.updated_at ? new Date(chat.updated_at) : new Date(chat.created_at),
+      });
     }
 
     return conversations;
@@ -140,69 +197,108 @@ export class ApiConversationRepository implements IConversationRepository {
 
   async getById(companyId: string, id: string): Promise<Conversation | null> {
     try {
-      const chat = await this.client.get<ChatDTO>(`/chats/${id}`);
+      const chatRes = await this.client.get(`/chats/${id}`);
+      const chat = chatRes.data as ChatDTO;
       if (chat.company_id !== companyId) {
         return null;
       }
 
-      const messages = await this.client.get<{ results: MessageDTO[] }>(`/chats/${id}/messages`);
-      const lastMessage =
-        messages.results.length > 0 ? messages.results[messages.results.length - 1].text : "";
-      const unreadCount = messages.results.filter(
-        (m) => !m.read && m.sent_by_user_id === null,
-      ).length;
+      const messagesRes = await this.client.get(`/chats/${id}/messages`);
+      const messages = ((messagesRes.data as any).results as MessageDTO[]) || [];
+      const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : "";
+      const unreadCount = messages.filter((m) => !m.read && m.sent_by_user_id === null).length;
 
       return await this.mapChatToConversation(chat, lastMessage, unreadCount);
-    } catch (error) {
+    } catch {
       return null;
     }
   }
 
   async getByAttendant(user: AuthUser): Promise<Conversation[]> {
-    let chats: ChatDTO[];
+    let res;
 
     if (user.role === UserRole.ATTENDANT) {
-      const response = await this.client.get<{ results: ChatDTO[] }>(
-        `/chats/by-attendant?company_id=${user.companyId}&attendant_id=${user.id}`,
-      );
-      chats = response.results;
+      res = await this.client.get(`/chats/by-attendant`, {
+        query: { company_id: user.companyId, attendant_id: user.id },
+      });
     } else {
-      const response = await this.client.get<{ results: ChatDTO[] }>(
-        `/chats?company_id=${user.companyId}`,
-      );
-      chats = response.results;
+      res = await this.client.get(`/chats`, { query: { company_id: user.companyId } });
     }
 
-    const conversations: Conversation[] = [];
-    for (const chat of chats) {
-      try {
-        const messages = await this.client.get<{ results: MessageDTO[] }>(
-          `/chats/${chat.id}/messages`,
-        );
-        const lastMessage =
-          messages.results.length > 0 ? messages.results[messages.results.length - 1].text : "";
-        const unreadCount = messages.results.filter(
-          (m) => !m.read && m.sent_by_user_id === null,
-        ).length;
+    const chats = ((res.data as any).results as ChatDTO[]) || [];
+    return await this.buildConversationsFromChats(chats);
+  }
 
-        const conversation = await this.mapChatToConversation(chat, lastMessage, unreadCount);
-        conversations.push(conversation);
-      } catch {
-        const conversation = await this.mapChatToConversation(chat);
-        conversations.push(conversation);
-      }
+  private async buildConversationsFromChats(chats: ChatDTO[]): Promise<Conversation[]> {
+    // Fetch all messages in parallel
+    const messagePromises = chats.map((chat) =>
+      this.client
+        .get(`/chats/${chat.id}/messages`)
+        .then((r) => ((r.data as any).results as MessageDTO[]) || [])
+        .catch(() => [] as MessageDTO[])
+    );
+    const allMessages = await Promise.all(messagePromises);
+
+    // Fetch all unique contacts in parallel
+    const uniqueContactIds = [...new Set(chats.map((c) => c.contact_id))];
+    const contacts = await Promise.all(
+      uniqueContactIds.map((id) => this.getContact(id).catch(() => null))
+    );
+    const contactMap = new Map<string, ContactDTO>();
+    uniqueContactIds.forEach((id, index) => {
+      if (contacts[index]) contactMap.set(id, contacts[index]!);
+    });
+
+    // Fetch all unique users in parallel
+    const uniqueUserIds = [
+      ...new Set(chats.map((c) => c.attached_user_id).filter((id): id is string => id !== null)),
+    ];
+    const users = await Promise.all(uniqueUserIds.map((id) => this.getUser(id).catch(() => null)));
+    const userMap = new Map<string, UserDTO>();
+    uniqueUserIds.forEach((id, index) => {
+      if (users[index]) userMap.set(id, users[index]!);
+    });
+
+    // Build conversations
+    const conversations: Conversation[] = [];
+    for (let i = 0; i < chats.length; i++) {
+      const chat = chats[i];
+      const contact = contactMap.get(chat.contact_id);
+      if (!contact || !contact.name) continue; // Skip if contact not found or has no name
+
+      const messages = allMessages[i] || [];
+      const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : "";
+      const unreadCount = messages.filter((m) => !m.read && m.sent_by_user_id === null).length;
+      const attendantName = chat.attached_user_id
+        ? userMap.get(chat.attached_user_id)?.name || null
+        : null;
+
+      conversations.push({
+        id: chat.id,
+        companyId: chat.company_id,
+        customerId: chat.contact_id,
+        customerName: contact.name,
+        customerPhone: contact.phone_number || "",
+        lastMessage: lastMessage || "",
+        time: this.formatTime(new Date(chat.created_at)),
+        unread: unreadCount,
+        assignedToUserId: chat.attached_user_id,
+        assignedToUserName: attendantName,
+        status: this.mapChatStatus(chat.status),
+        createdAt: new Date(chat.created_at),
+        updatedAt: chat.updated_at ? new Date(chat.updated_at) : new Date(chat.created_at),
+      });
     }
 
     return conversations;
   }
 
   async getMessages(conversationId: string): Promise<Message[]> {
-    const response = await this.client.get<{ results: MessageDTO[] }>(
-      `/chats/${conversationId}/messages`,
-    );
+    const res = await this.client.get(`/chats/${conversationId}/messages`);
+    const messages = ((res.data as any).results as MessageDTO[]) || [];
 
     const userIds = new Set(
-      response.results.map((m) => m.sent_by_user_id).filter((id): id is string => id !== null),
+      messages.map((m) => m.sent_by_user_id).filter((id): id is string => id !== null)
     );
 
     const userMap = new Map<string, string>();
@@ -213,16 +309,16 @@ export class ApiConversationRepository implements IConversationRepository {
       }
     }
 
-    return response.results.map((dto) => this.mapMessageDTOToMessage(dto, userMap));
+    return messages.map((dto) => this.mapMessageDTOToMessage(dto, userMap));
   }
 
   async assignAttendant(
     conversationId: string,
     userId: string | null,
-    userName: string | null,
+    userName: string | null
   ): Promise<void> {
     await this.client.patch(`/chats/${conversationId}/assign`, {
-      attendant_id: userId,
+      body: { attendant_id: userId },
     });
 
     if (userId && userName) {
@@ -231,17 +327,20 @@ export class ApiConversationRepository implements IConversationRepository {
   }
 
   async sendMessage(conversationId: string, message: Omit<Message, "id">): Promise<Message> {
-    const response = await this.client.post<MessageDTO>(`/chats/${conversationId}/messages`, {
-      text: message.text,
-      sent_by_user_id: "current_user_id", // TODO: get from auth context
+    const res = await this.client.post(`/chats/${conversationId}/messages`, {
+      body: {
+        text: message.text,
+        sent_by_user_id: "current_user_id", // TODO: get from auth context
+      },
     });
+    const msgDTO = res.data as MessageDTO;
 
     const userMap = new Map<string, string>();
-    if (response.sent_by_user_id && message.attendantName) {
-      userMap.set(response.sent_by_user_id, message.attendantName);
+    if (msgDTO.sent_by_user_id && message.attendantName) {
+      userMap.set(msgDTO.sent_by_user_id, message.attendantName);
     }
 
-    return this.mapMessageDTOToMessage(response, userMap);
+    return this.mapMessageDTOToMessage(msgDTO, userMap);
   }
 
   async receiveMessage(conversationId: string, message: Message): Promise<Message> {
@@ -251,58 +350,36 @@ export class ApiConversationRepository implements IConversationRepository {
   }
 
   async search(companyId: string, query: string): Promise<Conversation[]> {
-    const response = await this.client.get<{ results: ChatDTO[] }>(
-      `/chats/search?company_id=${companyId}&query=${encodeURIComponent(query)}`,
-    );
-
-    const conversations: Conversation[] = [];
-    for (const chat of response.results) {
-      try {
-        const messages = await this.client.get<{ results: MessageDTO[] }>(
-          `/chats/${chat.id}/messages`,
-        );
-        const lastMessage =
-          messages.results.length > 0 ? messages.results[messages.results.length - 1].text : "";
-        const unreadCount = messages.results.filter(
-          (m) => !m.read && m.sent_by_user_id === null,
-        ).length;
-
-        const conversation = await this.mapChatToConversation(chat, lastMessage, unreadCount);
-        conversations.push(conversation);
-      } catch {
-        const conversation = await this.mapChatToConversation(chat);
-        conversations.push(conversation);
-      }
-    }
-
-    return conversations;
+    const res = await this.client.get(`/chats/search`, {
+      query: { company_id: companyId, query },
+    });
+    const chats = ((res.data as any).results as ChatDTO[]) || [];
+    return await this.buildConversationsFromChats(chats);
   }
 
   async getUnassigned(companyId: string): Promise<Conversation[]> {
-    const response = await this.client.get<{ results: ChatDTO[] }>(
-      `/chats/unassigned?company_id=${companyId}`,
-    );
+    const res = await this.client.get(`/chats/unassigned`, {
+      query: { company_id: companyId },
+    });
+    const chats = ((res.data as any).results as ChatDTO[]) || [];
+    return await this.buildConversationsFromChats(chats);
+  }
 
-    const conversations: Conversation[] = [];
-    for (const chat of response.results) {
-      try {
-        const messages = await this.client.get<{ results: MessageDTO[] }>(
-          `/chats/${chat.id}/messages`,
-        );
-        const lastMessage =
-          messages.results.length > 0 ? messages.results[messages.results.length - 1].text : "";
-        const unreadCount = messages.results.filter(
-          (m) => !m.read && m.sent_by_user_id === null,
-        ).length;
+  async getPending(companyId: string): Promise<Conversation[]> {
+    const res = await this.client.get(`/chats/pending`, {
+      query: { company_id: companyId },
+    });
+    const chats = ((res.data as any).results as ChatDTO[]) || [];
+    const conversations = await this.buildConversationsFromChats(chats);
+    // Client-side filter for unread > 0 (final PENDING requirement)
+    return conversations.filter((conv) => conv.unread > 0);
+  }
 
-        const conversation = await this.mapChatToConversation(chat, lastMessage, unreadCount);
-        conversations.push(conversation);
-      } catch {
-        const conversation = await this.mapChatToConversation(chat);
-        conversations.push(conversation);
-      }
-    }
-
-    return conversations;
+  async getResolved(companyId: string): Promise<Conversation[]> {
+    const res = await this.client.get(`/chats/resolved`, {
+      query: { company_id: companyId },
+    });
+    const chats = ((res.data as any).results as ChatDTO[]) || [];
+    return await this.buildConversationsFromChats(chats);
   }
 }

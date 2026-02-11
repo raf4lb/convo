@@ -102,5 +102,5 @@ export const getCustomersByCompanyUseCase = new GetCustomersByCompany(customerRe
 export const searchCustomersUseCase = new SearchCustomers(customerRepository);
 export const createCustomerUseCase = new CreateCustomer(customerRepository);
 
-// Metrics Repository (direct access for complex queries)
-export { attendantStatsRepository, metricsRepository };
+// Repositories (direct access for complex queries)
+export { attendantStatsRepository, conversationRepository, metricsRepository };

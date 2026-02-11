@@ -31,15 +31,16 @@ export function useChatAreaState(conversationId: string | null, eventBus: IEvent
 
   const onConversationAssigned = useCallback(
     (payload: ConversationAssignedPayload) => {
-      if (conversation)
-        setConversation({
-          ...conversation,
+      setConversation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
           assignedToUserId: payload.userId,
           assignedToUserName: payload.userName,
-        });
-      return;
+        };
+      });
     },
-    [conversation, setConversation],
+    [],
   );
 
   useEffect(() => {

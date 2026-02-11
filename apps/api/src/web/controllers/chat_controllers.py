@@ -1,6 +1,9 @@
 from src.application.use_cases.chat_use_cases import (
     AssignAttendantToChatUseCase,
     GetChatsByAttendantUseCase,
+    GetChatUseCase,
+    GetPendingChatsUseCase,
+    GetResolvedChatsUseCase,
     GetUnassignedChatsUseCase,
     ListChatsByCompanyUseCase,
     SearchChatsUseCase,
@@ -79,6 +82,33 @@ from src.web.http_types import HttpRequest, HttpResponse, StatusCodes
 #         return HttpResponse(status_code=StatusCodes.NO_CONTENT.value)
 
 
+class GetChatHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = GetChatUseCase(chat_repository=self._chat_repository)
+        chat_id = request.path_params["chat_id"]
+
+        try:
+            chat = use_case.execute(chat_id=chat_id)
+        except ChatNotFoundError:
+            return HttpResponse(
+                status_code=StatusCodes.NOT_FOUND.value,
+                body={"detail": "chat not found"},
+            )
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body={
+                "id": chat.id,
+                "company_id": chat.company_id,
+                "contact_id": chat.contact_id,
+                "status": chat.status.value,
+                "attached_user_id": chat.attached_user_id,
+                "created_at": chat.created_at.isoformat(),
+                "updated_at": chat.updated_at.isoformat() if chat.updated_at else None,
+            },
+        )
+
+
 class ListChatsByCompanyHttpController(IChatHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
         use_case = ListChatsByCompanyUseCase(chat_repository=self._chat_repository)
@@ -121,6 +151,60 @@ class MarkChatAsReadHttpController(IMessageHttpController):
 class GetUnassignedChatsHttpController(IChatHttpController):
     def handle(self, request: HttpRequest) -> HttpResponse:
         use_case = GetUnassignedChatsUseCase(chat_repository=self._chat_repository)
+        chats = use_case.execute(company_id=request.query_params["company_id"])
+        body = {
+            "results": [
+                {
+                    "id": chat.id,
+                    "company_id": chat.company_id,
+                    "contact_id": chat.contact_id,
+                    "status": chat.status.value,
+                    "attached_user_id": chat.attached_user_id,
+                    "created_at": chat.created_at.isoformat(),
+                    "updated_at": chat.updated_at.isoformat()
+                    if chat.updated_at
+                    else None,
+                }
+                for chat in chats
+            ],
+        }
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body=body,
+        )
+
+
+class GetPendingChatsHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = GetPendingChatsUseCase(chat_repository=self._chat_repository)
+        chats = use_case.execute(company_id=request.query_params["company_id"])
+        body = {
+            "results": [
+                {
+                    "id": chat.id,
+                    "company_id": chat.company_id,
+                    "contact_id": chat.contact_id,
+                    "status": chat.status.value,
+                    "attached_user_id": chat.attached_user_id,
+                    "created_at": chat.created_at.isoformat(),
+                    "updated_at": chat.updated_at.isoformat()
+                    if chat.updated_at
+                    else None,
+                }
+                for chat in chats
+            ],
+        }
+
+        return HttpResponse(
+            status_code=StatusCodes.OK.value,
+            body=body,
+        )
+
+
+class GetResolvedChatsHttpController(IChatHttpController):
+    def handle(self, request: HttpRequest) -> HttpResponse:
+        use_case = GetResolvedChatsUseCase(chat_repository=self._chat_repository)
         chats = use_case.execute(company_id=request.query_params["company_id"])
         body = {
             "results": [

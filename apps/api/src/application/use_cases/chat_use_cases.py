@@ -3,6 +3,11 @@ from src.domain.entities.chat import Chat
 from src.helpers.helpers import get_now
 
 
+class GetChatUseCase(IChatUseCase):
+    def execute(self, chat_id: str) -> Chat:
+        return self._chat_repository.get_by_id(chat_id=chat_id)
+
+
 class ListChatsByCompanyUseCase(IChatUseCase):
     def execute(self, company_id: str) -> list[Chat]:
         return self._chat_repository.get_by_company_id(company_id=company_id)
@@ -11,6 +16,16 @@ class ListChatsByCompanyUseCase(IChatUseCase):
 class GetUnassignedChatsUseCase(IChatUseCase):
     def execute(self, company_id: str) -> list[Chat]:
         return self._chat_repository.get_unassigned_by_company_id(company_id=company_id)
+
+
+class GetPendingChatsUseCase(IChatUseCase):
+    def execute(self, company_id: str) -> list[Chat]:
+        return self._chat_repository.get_pending_by_company_id(company_id=company_id)
+
+
+class GetResolvedChatsUseCase(IChatUseCase):
+    def execute(self, company_id: str) -> list[Chat]:
+        return self._chat_repository.get_resolved_by_company_id(company_id=company_id)
 
 
 class GetChatsByAttendantUseCase(IChatUseCase):

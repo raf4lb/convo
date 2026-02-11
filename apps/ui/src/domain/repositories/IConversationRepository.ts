@@ -16,4 +16,6 @@ export interface IConversationRepository {
   receiveMessage(conversationId: string, message: Message): Promise<Message>;
   search(companyId: string, query: string): Promise<Conversation[]>;
   getUnassigned(companyId: string): Promise<Conversation[]>;
+  getPending(companyId: string): Promise<Conversation[]>;
+  getResolved(companyId: string): Promise<Conversation[]>;
 }

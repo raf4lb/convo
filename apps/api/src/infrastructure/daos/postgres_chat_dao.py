@@ -126,6 +126,36 @@ class PostgresChatDAO:
                 )
                 return cursor.fetchall()
 
+    def get_pending_by_company_id(self, company_id: str) -> list[tuple]:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, company_id, contact_id, status, attached_user_id, created_at, updated_at
+                    FROM chats
+                    WHERE company_id = %s
+                      AND attached_user_id IS NOT NULL
+                      AND status != 'closed'
+                    ORDER BY created_at DESC
+                    """,
+                    (company_id,),
+                )
+                return cursor.fetchall()
+
+    def get_resolved_by_company_id(self, company_id: str) -> list[tuple]:
+        with self._connect() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id, company_id, contact_id, status, attached_user_id, created_at, updated_at
+                    FROM chats
+                    WHERE company_id = %s AND status = 'closed'
+                    ORDER BY created_at DESC
+                    """,
+                    (company_id,),
+                )
+                return cursor.fetchall()
+
     def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[tuple]:
         with self._connect() as conn:
             with conn.cursor() as cursor:

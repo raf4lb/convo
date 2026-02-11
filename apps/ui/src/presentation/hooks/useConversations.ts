@@ -3,19 +3,18 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "reac
 import { useAuth } from "./useAuth";
 
 import { Conversation } from "@/domain/entities/Conversation";
-import {
-  ConversationAssignedEvent,
-  ConversationAssignedPayload,
-} from "@/domain/events/ConversationAssignedEvent";
+import { ConversationAssignedEvent } from "@/domain/events/ConversationAssignedEvent";
 import { EventType } from "@/domain/events/IDomainEvent";
-import { MessageReceivedEvent, MessageReceivedPayload } from "@/domain/events/MessageReceivedEvent";
-import { MessageSentEvent, MessageSentPayload } from "@/domain/events/MessageSentEvent";
+import { MessageReceivedEvent } from "@/domain/events/MessageReceivedEvent";
+import { MessageSentEvent } from "@/domain/events/MessageSentEvent";
 import { IEventBus } from "@/domain/ports/IEventBus";
 import {
+  conversationRepository,
   getConversationsUseCase,
   getConversationUseCase,
   searchConversationsUseCase,
 } from "@/infrastructure/di/container";
+import { TabType } from "@/presentation/constants/tabTypes";
 
 export interface ConversationsHook {
   conversations: Conversation[];
@@ -26,7 +25,7 @@ export interface ConversationsHook {
   search: (query: string) => Promise<void>;
 }
 
-export function useConversations(eventBus: IEventBus) {
+export function useConversations(eventBus: IEventBus, filter?: TabType) {
   const { session } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +36,20 @@ export function useConversations(eventBus: IEventBus) {
 
     try {
       setLoading(true);
-      const data = await getConversationsUseCase.execute(session.user);
+      let data: Conversation[];
+
+      // Use filtered endpoints based on tab type
+      if (filter === TabType.PENDING) {
+        data = await conversationRepository.getPending(session.company.id);
+      } else if (filter === TabType.RESOLVED) {
+        data = await conversationRepository.getResolved(session.company.id);
+      } else if (filter === TabType.UNASSIGNED) {
+        data = await conversationRepository.getUnassigned(session.company.id);
+      } else {
+        // ALL tab - use existing logic with company settings check
+        data = await getConversationsUseCase.execute(session.user);
+      }
+
       setConversations(data);
       setError(null);
     } catch (err) {
@@ -45,37 +57,7 @@ export function useConversations(eventBus: IEventBus) {
     } finally {
       setLoading(false);
     }
-  }, [session]);
-
-  const onMessageSent = useCallback(
-    async (payload: MessageSentPayload) => {
-      if (!session) return;
-      const updatedConvo = await getConversationUseCase.execute(
-        payload.conversationId,
-        session.user,
-      );
-      if (!updatedConvo) return;
-      setConversations((prev) =>
-        prev.map((conv) => (conv.id === payload.conversationId ? updatedConvo : conv)),
-      );
-    },
-    [session, setConversations],
-  );
-
-  const onMessageReceived = useCallback(
-    async (payload: MessageReceivedPayload) => {
-      if (!session) return;
-      const updatedConvo = await getConversationUseCase.execute(
-        payload.conversationId,
-        session.user,
-      );
-      if (!updatedConvo) return;
-      setConversations((prev) =>
-        prev.map((conv) => (conv.id === payload.conversationId ? updatedConvo : conv)),
-      );
-    },
-    [session, setConversations],
-  );
+  }, [session, filter]);
 
   useEffect(() => {
     if (session) {
@@ -84,21 +66,47 @@ export function useConversations(eventBus: IEventBus) {
       const unsubscribeMessageSentEvent = eventBus.subscribe<MessageSentEvent>(
         EventType.MESSAGE_SENT,
         async (event) => {
-          onMessageSent(event.payload);
+          if (!session) return;
+          const updatedConvo = await getConversationUseCase.execute(
+            event.payload.conversationId,
+            session.user,
+          );
+          if (!updatedConvo) return;
+          setConversations((prev) =>
+            prev.map((conv) => (conv.id === event.payload.conversationId ? updatedConvo : conv)),
+          );
         },
       );
 
       const unsubscribeMessageReceivedEvent = eventBus.subscribe<MessageReceivedEvent>(
         EventType.MESSAGE_RECEIVED,
         async (event) => {
-          onMessageReceived(event.payload);
+          if (!session) return;
+          const updatedConvo = await getConversationUseCase.execute(
+            event.payload.conversationId,
+            session.user,
+          );
+          if (!updatedConvo) return;
+          setConversations((prev) =>
+            prev.map((conv) => (conv.id === event.payload.conversationId ? updatedConvo : conv)),
+          );
         },
       );
 
       const unsubscribeConversationAssignedEvent = eventBus.subscribe<ConversationAssignedEvent>(
         EventType.CONVERSATION_ASSIGNED,
         async (event) => {
-          onConversationAssigned(event.payload);
+          setConversations((prev) =>
+            prev.map((conv) =>
+              conv.id === event.payload.conversationId
+                ? {
+                    ...conv,
+                    assignedToUserId: event.payload.userId,
+                    assignedToUserName: event.payload.userName,
+                  }
+                : conv,
+            ),
+          );
         },
       );
 
@@ -108,7 +116,7 @@ export function useConversations(eventBus: IEventBus) {
         unsubscribeConversationAssignedEvent();
       };
     }
-  }, [session, loadConversations, eventBus, onMessageReceived, onMessageSent]);
+  }, [session, loadConversations, eventBus]);
 
   const search = async (query: string) => {
     if (!session) throw new Error("No session");
@@ -123,16 +131,6 @@ export function useConversations(eventBus: IEventBus) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const onConversationAssigned = (payload: ConversationAssignedPayload) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === payload.conversationId
-          ? { ...conv, assignedToUserId: payload.userId, assignedToUserName: payload.userName }
-          : conv,
-      ),
-    );
   };
 
   return {

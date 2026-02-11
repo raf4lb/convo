@@ -40,6 +40,22 @@ class InMemoryChatRepository(IChatRepository):
             if chat.company_id == company_id and chat.attached_user_id is None
         ]
 
+    def get_pending_by_company_id(self, company_id: str) -> list[Chat]:
+        return [
+            chat
+            for chat in self.chats.values()
+            if chat.company_id == company_id
+            and chat.attached_user_id is not None
+            and chat.status.value != "closed"
+        ]
+
+    def get_resolved_by_company_id(self, company_id: str) -> list[Chat]:
+        return [
+            chat
+            for chat in self.chats.values()
+            if chat.company_id == company_id and chat.status.value == "closed"
+        ]
+
     def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[Chat]:
         return [
             chat

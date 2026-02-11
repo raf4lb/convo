@@ -77,6 +77,14 @@ class PostgresChatRepository(IChatRepository):
         rows = self._chat_dao.get_unassigned_by_company_id(company_id=company_id)
         return [self._parse_row(row=row) for row in rows]
 
+    def get_pending_by_company_id(self, company_id: str) -> list[Chat]:
+        rows = self._chat_dao.get_pending_by_company_id(company_id=company_id)
+        return [self._parse_row(row=row) for row in rows]
+
+    def get_resolved_by_company_id(self, company_id: str) -> list[Chat]:
+        rows = self._chat_dao.get_resolved_by_company_id(company_id=company_id)
+        return [self._parse_row(row=row) for row in rows]
+
     def get_by_attendant_id(self, company_id: str, attendant_id: str) -> list[Chat]:
         rows = self._chat_dao.get_by_attendant_id(
             company_id=company_id, attendant_id=attendant_id

@@ -333,4 +333,22 @@ export class ConversationRepository implements IConversationRepository {
     );
     return Promise.resolve(conversations);
   }
+
+  async getPending(companyId: string): Promise<Conversation[]> {
+    const conversations = this.conversations.filter(
+      (c) =>
+        c.companyId === companyId &&
+        c.assignedToUserId !== null &&
+        c.status !== ConversationStatus.RESOLVED &&
+        c.unread > 0,
+    );
+    return Promise.resolve(conversations);
+  }
+
+  async getResolved(companyId: string): Promise<Conversation[]> {
+    const conversations = this.conversations.filter(
+      (c) => c.companyId === companyId && c.status === ConversationStatus.RESOLVED,
+    );
+    return Promise.resolve(conversations);
+  }
 }

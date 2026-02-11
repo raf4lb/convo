@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Search, TestTubeDiagonal } from "lucide-react";
 
@@ -13,7 +13,6 @@ import { ConversationList } from "./ConversationList";
 import { ConversationLoading } from "./ConversationLoading";
 
 import { useIsMobile } from "@/components/ui/use-mobile.ts";
-import { ConversationStatus } from "@/domain/entities/Conversation.ts";
 import { eventBus, messagesWebSocket } from "@/infrastructure/di/container.ts";
 
 const MIN_WIDTH = 280;
@@ -24,7 +23,7 @@ export function Chat() {
   const { session } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>(TabType.UNASSIGNED);
-  const conversationsHook = useConversations(eventBus);
+  const conversationsHook = useConversations(eventBus, activeTab);
 
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const isMobile = useIsMobile();
@@ -35,29 +34,47 @@ export function Chat() {
 
   if (!session) throw new Error("No session");
 
-  const handleTabChange = async (tab: TabType) => {
-    setActiveTab(tab);
-    await handleSearch(searchQuery);
-  };
+  const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const handleSearch = async (query: string) => {
-    setSearchQuery(query);
-    if (query && query.trim()) {
-      await conversationsHook.search(query);
-    } else {
-      await conversationsHook.reload();
+  const handleTabChange = (tab: TabType) => {
+    // Cancel any pending search
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
+    setActiveTab(tab);
+    setSearchQuery(""); // Clear search when changing tabs
   };
 
-  let filteredConversations = conversationsHook.conversations.filter((conv) => {
-    if (activeTab === TabType.UNASSIGNED) return conv.assignedToUserId === null;
-    if (activeTab === TabType.PENDING) return conv.unread > 0 && conv.assignedToUserId !== null;
-    if (activeTab === TabType.RESOLVED) return conv.status === ConversationStatus.RESOLVED;
-    return true; // 'all'
-  });
+  const handleSearchInput = (query: string) => {
+    setSearchQuery(query);
 
-  filteredConversations = [...filteredConversations].sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounce search by 300ms
+    searchTimeoutRef.current = setTimeout(() => {
+      if (query && query.trim()) {
+        conversationsHook.search(query);
+      } else {
+        conversationsHook.reload();
+      }
+    }, 300);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Sort conversations by updated date
+  const sortedConversations = [...conversationsHook.conversations].sort(
+    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
   );
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -125,8 +142,9 @@ export function Chat() {
           <Input
             placeholder="Buscar conversas..."
             className="pl-9 bg-neutral-50 border-0"
-            onChange={async (e) => {
-              await handleSearch(e.target.value);
+            value={searchQuery}
+            onChange={(e) => {
+              handleSearchInput(e.target.value);
             }}
           />
         </div>
@@ -183,7 +201,7 @@ export function Chat() {
         <ConversationList
           selectedConversation={selectedConversationId}
           onSelectConversation={setSelectedConversationId}
-          conversations={filteredConversations}
+          conversations={sortedConversations}
         />
       )}
     </>
