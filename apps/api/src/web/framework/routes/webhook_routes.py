@@ -39,13 +39,16 @@ async def receive_messages(request: Request):
         # Fetch the created message to get full details
         message = message_repository.get_by_id(message_id)
         if message:
+            # Send ISO timestamp for client-side formatting
+            timestamp_str = message.external_timestamp.isoformat()
+
             # Format message for WebSocket broadcast
             broadcast_data = {
                 "conversationId": message.chat_id,
                 "id": message.id,
                 "text": message.text,
-                "timestamp": message.external_timestamp.isoformat(),
-                "sender": "customer" if message.is_from_contact() else "user",
+                "timestamp": timestamp_str,
+                "sender": "customer" if message.is_from_contact() else "attendant",
             }
             await connection_manager.broadcast_message(broadcast_data)
 

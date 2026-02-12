@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Search, TestTubeDiagonal } from "lucide-react";
 
@@ -72,10 +72,20 @@ export function Chat() {
     };
   }, []);
 
-  // Sort conversations by updated date
-  const sortedConversations = [...conversationsHook.conversations].sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
-  );
+  // Sort conversations by last message timestamp
+  const sortedConversations = useMemo(() => {
+    return [...conversationsHook.conversations].sort((a, b) => {
+      // If both have last message timestamps, sort by those
+      if (a.lastMessageTimestamp && b.lastMessageTimestamp) {
+        return b.lastMessageTimestamp.getTime() - a.lastMessageTimestamp.getTime();
+      }
+      // If only one has a timestamp, prioritize the one with a message
+      if (a.lastMessageTimestamp) return -1;
+      if (b.lastMessageTimestamp) return 1;
+      // Fallback to updatedAt for conversations without messages
+      return b.updatedAt.getTime() - a.updatedAt.getTime();
+    });
+  }, [conversationsHook.conversations]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();

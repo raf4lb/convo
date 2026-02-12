@@ -104,7 +104,7 @@ export function useChatAreaState(
 
     if (conversation?.assignedToUserId !== session.user.id) return;
 
-    await sendMessage(messageText, session.user.name);
+    await sendMessage(messageText, session.user.name, session.user.id);
     setMessageText("");
   };
 

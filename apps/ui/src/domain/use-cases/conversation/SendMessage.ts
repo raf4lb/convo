@@ -9,8 +9,16 @@ export class SendMessage {
     private readonly eventBus: IEventBus,
   ) {}
 
-  async execute(conversationId: string, message: Omit<Message, "id">): Promise<Message> {
-    const newMessage = await this.conversationRepository.sendMessage(conversationId, message);
+  async execute(
+    conversationId: string,
+    message: Omit<Message, "id">,
+    userId: string,
+  ): Promise<Message> {
+    const newMessage = await this.conversationRepository.sendMessage(
+      conversationId,
+      message,
+      userId,
+    );
     const event = new MessageSentEvent({
       conversationId,
       message: newMessage,

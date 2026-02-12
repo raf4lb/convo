@@ -2,6 +2,7 @@ import { Headset } from "lucide-react";
 
 import { Badge } from "../../components/ui/badge";
 import { useAuth } from "../hooks/useAuth";
+import { useListAnimation } from "../hooks/useListAnimation";
 
 import { Conversation } from "@/domain/entities/Conversation.ts";
 import { UserRole } from "@/domain/entities/User.ts";
@@ -18,11 +19,12 @@ export function ConversationList({
   conversations,
 }: ConversationListProps) {
   const { session } = useAuth();
+  const containerRef = useListAnimation(conversations, true);
 
   if (!session) throw new Error("No session");
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div ref={containerRef} className="flex-1 overflow-y-auto">
       {conversations.length === 0 ? (
         <p className="text-neutral-500 text-center p-4">Nenhuma conversa encontrada</p>
       ) : (
@@ -32,6 +34,7 @@ export function ConversationList({
           return (
             <button
               key={conversation.id}
+              data-conversation-id={conversation.id}
               onClick={() => onSelectConversation(conversation.id)}
               className={`w-full p-4 border-b border-neutral-100 hover:bg-neutral-50 transition-colors text-left ${
                 isSelected ? "bg-green-50" : ""

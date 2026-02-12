@@ -27,9 +27,8 @@ export function formatMessageTime(timestamp: string): string {
 export function formatRelativeTime(date: Date | string): string {
   const dateObj = typeof date === "string" ? new Date(date) : date;
   const now = new Date();
-  const diffInDays = Math.floor(
-    (now.getTime() - dateObj.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const diffInDays = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60 * 24));
+  const diffInYears = now.getFullYear() - dateObj.getFullYear();
 
   if (diffInDays === 0) {
     // Today: show time only (HH:MM)
@@ -43,11 +42,28 @@ export function formatRelativeTime(date: Date | string): string {
   } else if (diffInDays < 7) {
     // This week
     return `${diffInDays} dias atrás`;
+  } else if (diffInYears >= 1) {
+    // Older than 1 year: show HH:MM dd/mm/yy
+    const time = dateObj.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const date = dateObj.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    });
+    return `${time} ${date}`;
   } else {
-    // Older: show date (DD/MM)
-    return dateObj.toLocaleDateString("pt-BR", {
+    // Older than 1 week but less than 1 year: show HH:MM dd/mm
+    const time = dateObj.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const date = dateObj.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
     });
+    return `${time} ${date}`;
   }
 }

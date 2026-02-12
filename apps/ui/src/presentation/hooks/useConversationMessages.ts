@@ -31,7 +31,13 @@ export function useConversationMessages(conversationId: string | null, eventBus:
   const onMessageSent = useCallback(
     (messageConversationId: string, message: Message) => {
       if (messageConversationId != conversationId) return;
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => {
+        // Check if message already exists to prevent duplicates
+        if (prev.some((m) => m.id === message.id)) {
+          return prev;
+        }
+        return [...prev, message];
+      });
     },
     [conversationId],
   );
@@ -39,7 +45,13 @@ export function useConversationMessages(conversationId: string | null, eventBus:
   const onMessageReceived = useCallback(
     (messageConversationId: string, message: Message) => {
       if (messageConversationId != conversationId) return;
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => {
+        // Check if message already exists to prevent duplicates
+        if (prev.some((m) => m.id === message.id)) {
+          return prev;
+        }
+        return [...prev, message];
+      });
     },
     [conversationId],
   );
@@ -71,16 +83,20 @@ export function useConversationMessages(conversationId: string | null, eventBus:
     };
   }, [conversationId, loadMessages, eventBus, onMessageSent, onMessageReceived]);
 
-  const sendMessage = async (text: string, attendantName: string) => {
+  const sendMessage = async (text: string, attendantName: string, userId: string) => {
     if (!conversationId) return;
     try {
       setIsSendingMessage(true);
-      await sendMessageUseCase.execute(conversationId, {
-        text: text,
-        timestamp: new Date().toISOString(),
-        sender: "attendant",
-        attendantName: attendantName,
-      });
+      await sendMessageUseCase.execute(
+        conversationId,
+        {
+          text: text,
+          timestamp: new Date().toISOString(),
+          sender: "attendant",
+          attendantName: attendantName,
+        },
+        userId,
+      );
       setError(null);
     } catch (err) {
       setError(err as Error);

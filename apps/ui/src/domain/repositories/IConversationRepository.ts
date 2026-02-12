@@ -12,7 +12,11 @@ export interface IConversationRepository {
     userId: string | null,
     userName: string | null,
   ): Promise<void>;
-  sendMessage(conversationId: string, message: Omit<Message, "id">): Promise<Message>;
+  sendMessage(
+    conversationId: string,
+    message: Omit<Message, "id">,
+    userId: string,
+  ): Promise<Message>;
   receiveMessage(conversationId: string, message: Message): Promise<Message>;
   search(companyId: string, query: string): Promise<Conversation[]>;
   getUnassigned(companyId: string): Promise<Conversation[]>;

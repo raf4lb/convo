@@ -256,3 +256,23 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  [data-conversation-id] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Performance optimization for animating elements */
+[data-conversation-id] {
+  will-change: transform;
+}
+
+/* Remove will-change after animations complete to save memory */
+@media (prefers-reduced-motion: no-preference) {
+  [data-conversation-id]:not(:hover) {
+    will-change: auto;
+  }
+}

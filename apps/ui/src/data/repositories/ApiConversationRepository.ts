@@ -5,6 +5,7 @@ import { Message } from "@/domain/entities/Message";
 import { AuthUser, UserRole } from "@/domain/entities/User";
 import { IConversationRepository } from "@/domain/repositories/IConversationRepository";
 import { HttpClient } from "@/infrastructure/http/HttpClient";
+import { formatRelativeTime } from "@/utils/dateTime";
 
 export class ApiConversationRepository implements IConversationRepository {
   private userCache: Map<string, UserDTO> = new Map();
@@ -73,6 +74,7 @@ export class ApiConversationRepository implements IConversationRepository {
     chat: ChatDTO,
     lastMessageText?: string,
     unreadCount?: number,
+    lastMessageTimestamp?: Date | null,
   ): Promise<Conversation> {
     const contact = await this.getContact(chat.contact_id);
     const attendantName = chat.attached_user_id
@@ -87,6 +89,7 @@ export class ApiConversationRepository implements IConversationRepository {
       customerPhone: contact.phone_number || "",
       lastMessage: lastMessageText || "",
       time: this.formatTime(new Date(chat.created_at)),
+      lastMessageTimestamp: lastMessageTimestamp || null,
       unread: unreadCount || 0,
       assignedToUserId: chat.attached_user_id,
       assignedToUserName: attendantName,
@@ -103,10 +106,7 @@ export class ApiConversationRepository implements IConversationRepository {
     return {
       id: dto.id,
       text: dto.text,
-      timestamp: new Date(dto.external_timestamp).toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      timestamp: formatRelativeTime(dto.external_timestamp),
       sender: isFromCustomer ? "customer" : "attendant",
       attendantName,
     };
@@ -163,7 +163,9 @@ export class ApiConversationRepository implements IConversationRepository {
       if (!contact) continue; // Skip if contact not found
 
       const messages = messagesMap.get(chat.id) || [];
-      const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : "";
+      const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+      const lastMessage = lastMsg?.text || "";
+      const lastMessageTimestamp = lastMsg ? new Date(lastMsg.external_timestamp) : null;
       const unreadCount = messages.filter((m) => !m.read && m.sent_by_user_id === null).length;
       const attendantName = chat.attached_user_id
         ? userMap.get(chat.attached_user_id)?.name || null
@@ -177,6 +179,7 @@ export class ApiConversationRepository implements IConversationRepository {
         customerPhone: contact.phone_number,
         lastMessage: lastMessage,
         time: this.formatTime(new Date(chat.created_at)),
+        lastMessageTimestamp: lastMessageTimestamp,
         unread: unreadCount,
         assignedToUserId: chat.attached_user_id,
         assignedToUserName: attendantName,
@@ -199,10 +202,12 @@ export class ApiConversationRepository implements IConversationRepository {
 
       const messagesRes = await this.client.get(`/chats/${id}/messages`);
       const messages = ((messagesRes.data as any).results as MessageDTO[]) || [];
-      const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : "";
+      const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+      const lastMessage = lastMsg?.text || "";
+      const lastMessageTimestamp = lastMsg ? new Date(lastMsg.external_timestamp) : null;
       const unreadCount = messages.filter((m) => !m.read && m.sent_by_user_id === null).length;
 
-      return await this.mapChatToConversation(chat, lastMessage, unreadCount);
+      return await this.mapChatToConversation(chat, lastMessage, unreadCount, lastMessageTimestamp);
     } catch {
       return null;
     }
@@ -261,7 +266,9 @@ export class ApiConversationRepository implements IConversationRepository {
       if (!contact || !contact.name) continue; // Skip if contact not found or has no name
 
       const messages = allMessages[i] || [];
-      const lastMessage = messages.length > 0 ? messages[messages.length - 1].text : "";
+      const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
+      const lastMessage = lastMsg?.text || "";
+      const lastMessageTimestamp = lastMsg ? new Date(lastMsg.external_timestamp) : null;
       const unreadCount = messages.filter((m) => !m.read && m.sent_by_user_id === null).length;
       const attendantName = chat.attached_user_id
         ? userMap.get(chat.attached_user_id)?.name || null
@@ -275,6 +282,7 @@ export class ApiConversationRepository implements IConversationRepository {
         customerPhone: contact.phone_number || "",
         lastMessage: lastMessage || "",
         time: this.formatTime(new Date(chat.created_at)),
+        lastMessageTimestamp: lastMessageTimestamp,
         unread: unreadCount,
         assignedToUserId: chat.attached_user_id,
         assignedToUserName: attendantName,
@@ -320,11 +328,15 @@ export class ApiConversationRepository implements IConversationRepository {
     }
   }
 
-  async sendMessage(conversationId: string, message: Omit<Message, "id">): Promise<Message> {
+  async sendMessage(
+    conversationId: string,
+    message: Omit<Message, "id">,
+    userId: string,
+  ): Promise<Message> {
     const res = await this.client.post(`/chats/${conversationId}/messages`, {
       body: {
         text: message.text,
-        sent_by_user_id: "current_user_id", // TODO: get from auth context
+        sent_by_user_id: userId,
       },
     });
     const msgDTO = res.data as MessageDTO;

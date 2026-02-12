@@ -12,6 +12,7 @@ export interface Conversation {
   customerPhone: string;
   lastMessage: string;
   time: string;
+  lastMessageTimestamp: Date | null;
   unread: number;
   assignedToUserId: string | null;
   assignedToUserName: string | null;
