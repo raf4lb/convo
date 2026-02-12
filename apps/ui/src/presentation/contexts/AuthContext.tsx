@@ -8,6 +8,7 @@ import {
   checkPermissionUseCase,
   loginUseCase,
   logoutUseCase,
+  messagesWebSocket,
   validateSessionUseCase,
 } from "@/infrastructure/di/container.ts";
 
@@ -24,6 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const validSession = await validateSessionUseCase.execute("");
       if (validSession) {
         setSession(validSession);
+        // Reconnect WebSocket when session is restored on page load
+        messagesWebSocket.connect();
       }
     } catch (error) {
       throw new Error("Error validating session: " + error.toString());

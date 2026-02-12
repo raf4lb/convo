@@ -12,6 +12,7 @@ import {
 import { View } from "../constants/views";
 import { useAuth } from "../hooks/useAuth";
 
+import { ConnectionStatus } from "./ConnectionStatus";
 import { Login } from "./Login";
 
 import { Permission } from "@/domain/entities/Permission.ts";
@@ -77,10 +78,15 @@ export function Sidebar({ selectedView, onViewChange }: SidebarProps) {
         })}
       </nav>
 
+      {/* Connection Status */}
+      <div className="mt-auto">
+        <ConnectionStatus />
+      </div>
+
       {/* User Menu at bottom */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="mt-auto w-11 h-11 rounded-xl flex items-center justify-center hover:bg-neutral-50 transition-colors">
+          <button className="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-neutral-50 transition-colors">
             <Avatar className="w-10 h-10">
               <AvatarFallback className="bg-gradient-to-br from-green-400 to-green-600 text-white text-sm">
                 {session.user.name

@@ -1,5 +1,13 @@
 export type OnMessageHandler = (data: any) => Promise<void>;
 
+export enum ConnectionState {
+  DISCONNECTED = "DISCONNECTED",
+  CONNECTING = "CONNECTING",
+  CONNECTED = "CONNECTED",
+  RECONNECTING = "RECONNECTING",
+  ERROR = "ERROR", // Max retries exceeded
+}
+
 export interface IWebSocketAdapter {
   connect: () => void;
   disconnect: () => void;
@@ -9,4 +17,8 @@ export interface IWebSocketAdapter {
    * Returns an unsubscribe function.
    */
   addHandler: (handler: OnMessageHandler) => () => void;
+  /**
+   * Returns the current connection state.
+   */
+  getState: () => ConnectionState;
 }

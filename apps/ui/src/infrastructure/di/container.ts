@@ -38,8 +38,12 @@ import { SearchUsers } from "@/domain/use-cases/user/SearchUsers";
 import { UpdateUser } from "@/domain/use-cases/user/UpdateUser";
 
 // WebSockets
-const WS_MESSAGES_URL = "wss://echo.websocket.org";
-export const messagesWebSocket = new WebSocketAdapter(WS_MESSAGES_URL);
+const WS_MESSAGES_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws";
+export const messagesWebSocket = new WebSocketAdapter(
+  WS_MESSAGES_URL,
+  30, // maxReconnectAttempts
+  1000, // baseBackoffMs (1 second)
+);
 messagesWebSocket.addHandler(onMessageReceivedHandler);
 
 // EventBus

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.infrastructure.repository_factory import create_repositories
 from src.infrastructure.security.jwt_service import JWTService
 from src.infrastructure.settings import AppSettings, load_settings
+from src.infrastructure.websocket import ConnectionManager
 from src.web.framework.routes.auth_routes import auth_routes
 from src.web.framework.routes.chat_routes import chat_routes
 from src.web.framework.routes.company_routes import company_routes
@@ -12,6 +13,7 @@ from src.web.framework.routes.message_routes import message_routes
 from src.web.framework.routes.readiness_routes import readiness_routes
 from src.web.framework.routes.user_routes import user_routes
 from src.web.framework.routes.webhook_routes import webhook_routes
+from src.web.framework.routes.websocket_routes import router as websocket_routes
 from src.web.middleware.auth_middleware import auth_middleware
 
 
@@ -26,6 +28,7 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     app.include_router(chat_routes)
     app.include_router(message_routes)
     app.include_router(webhook_routes)
+    app.include_router(websocket_routes)
 
     # Load settings from environment if not provided
     if settings is None:
@@ -41,6 +44,7 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     app.state.contact_repository = repositories["contact"]
     app.state.chat_repository = repositories["chat"]
     app.state.message_repository = repositories["message"]
+    app.state.connection_manager = ConnectionManager()
 
     origins = settings.CORS_ORIGINS
 
