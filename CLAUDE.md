@@ -453,7 +453,11 @@ Three roles:
 Create `apps/ui/.env`:
 ```env
 VITE_API_BASE_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000/ws
 ```
+
+- `VITE_API_BASE_URL`: Backend API base URL
+- `VITE_WS_URL`: WebSocket URL for real-time message updates
 
 ## Domain Entities
 
